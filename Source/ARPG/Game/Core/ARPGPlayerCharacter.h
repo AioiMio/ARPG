@@ -18,7 +18,7 @@ class ARPG_API AARPGPlayerCharacter : public AARPGCharacter
 	GENERATED_BODY()
 
 public:
-	AARPGPlayerCharacter();
+	AARPGPlayerCharacter(const class FObjectInitializer& ObjectInitializer);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

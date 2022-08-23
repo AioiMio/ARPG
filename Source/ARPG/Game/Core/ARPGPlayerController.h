@@ -18,5 +18,4 @@ public:
 	AARPGPlayerController();
 
 	virtual void AcknowledgePossession(APawn* P) override;
-	
 };
