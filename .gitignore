@@ -1,5 +1,7 @@
 # Visual Studio 2015 user specific files
 .vs/
+.vscode/
+.idea/
 
 # Compiled Object files
 *.slo
@@ -35,6 +37,7 @@
 *.xcodeproj
 *.xcworkspace
 *.sln
+*.code-workspace
 *.suo
 *.opensdf
 *.sdf
@@ -72,3 +75,12 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Contents
+Content/*
+!Content/_ARPG/
+
+# Ignore
+.ignore
+
+
