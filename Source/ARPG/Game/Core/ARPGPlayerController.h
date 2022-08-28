@@ -16,6 +16,4 @@ class ARPG_API AARPGPlayerController : public APlayerController
 
 public:
 	AARPGPlayerController();
-
-	virtual void AcknowledgePossession(APawn* P) override;
 };

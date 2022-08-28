@@ -9,13 +9,3 @@
 AARPGPlayerController::AARPGPlayerController()
 {
 }
-
-void AARPGPlayerController::AcknowledgePossession(APawn* P)
-{
-	Super::AcknowledgePossession(P);
-	
-	if (AARPGCharacter* InCharacter = Cast<AARPGCharacter>(P))
-	{
-		InCharacter->GetAbilitySystemComponent()->InitAbilityActorInfo(InCharacter, InCharacter);
-	}
-}
