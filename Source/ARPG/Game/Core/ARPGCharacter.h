@@ -9,13 +9,16 @@
 #include "GameFramework/Character.h"
 #include "ARPGCharacter.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterHitReactDelegate, EARPGHitReactDirection, Direction);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AARPGCharacter*, Character);
-
 class UARPGAbilitySystemComponent;
 class UARPGAttributeSet;
 class UARPGGameplayAbility;
 class UGameplayEffect;
+class UARPGHealthBarWidget;
+class UWidgetComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterHitReactDelegate, EARPGHitReactDirection, Direction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AARPGCharacter*, Character);
+
 
 UCLASS()
 class ARPG_API AARPGCharacter : public ACharacter, public IAbilitySystemInterface
@@ -107,6 +110,12 @@ protected:
 
 	TWeakObjectPtr<UARPGAbilitySystemComponent> AbilitySystemComponent;
 	TWeakObjectPtr<UARPGAttributeSet> AttributeSet;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
+	UWidgetComponent* HealthBarComponent;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
+	UWidgetComponent* LockOnPointComponent;
 
 	FGameplayTag HitDirectionFrontTag;
 	FGameplayTag HitDirectionBackTag;

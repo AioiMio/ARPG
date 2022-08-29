@@ -26,6 +26,7 @@ AARPGPlayerState::AARPGPlayerState()
 	// Default is very low for PlayerStates and introduces perceived lag in the ability system.
 	// 100 is probably way too high for a shipping game, you can adjust to fit your needs.
 	NetUpdateFrequency = 100.0f;
+	MinNetUpdateFrequency = 30.f;
 
 	// Cache tags
 	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));

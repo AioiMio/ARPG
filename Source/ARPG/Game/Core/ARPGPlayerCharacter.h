@@ -19,12 +19,14 @@ class ARPG_API AARPGPlayerCharacter : public AARPGCharacter
 
 public:
 	AARPGPlayerCharacter(const class FObjectInitializer& ObjectInitializer);
-
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 
 protected:
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* CameraBoom;
 

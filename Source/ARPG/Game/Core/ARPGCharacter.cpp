@@ -3,11 +3,14 @@
 
 #include "ARPGCharacter.h"
 
+#include "ARPGPlayerController.h"
 #include "ARPG/Game/Abilities/ARPGGameplayAbility.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Super(
@@ -16,6 +19,21 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
+	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
+	HealthBarComponent->SetRelativeLocation(FVector(25.f, 0.f, 0.f));
+	HealthBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	HealthBarComponent->SetDrawAtDesiredSize(true);
+	HealthBarComponent->SetPivot(FVector2D(0.5f, 1.f));
+	HealthBarComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	LockOnPointComponent = CreateDefaultSubobject<UWidgetComponent>(FName("LockOnPoint"));
+	LockOnPointComponent->SetupAttachment(GetMesh(), FName("spine_02"));
+	LockOnPointComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	LockOnPointComponent->SetDrawAtDesiredSize(true);
+	LockOnPointComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LockOnPointComponent->SetHiddenInGame(true);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
 

@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "ARPGPlayerController.generated.h"
 
+class UARPGHUDWidget;
+
 /**
  * 
  */
@@ -16,4 +18,20 @@ class ARPG_API AARPGPlayerController : public APlayerController
 
 public:
 	AARPGPlayerController();
+
+	void CreateHUD();
+
+	FORCEINLINE UARPGHUDWidget* GetHUD() { return UIHUDWidget; }
+
+protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
+	TSubclassOf<UARPGHUDWidget> UIHUDWidgetClass;
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UARPGHUDWidget* UIHUDWidget;
+
+	// Server only
+	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void OnRep_PlayerState() override;
 };

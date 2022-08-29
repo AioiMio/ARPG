@@ -8,6 +8,7 @@
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "Camera/CameraComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 
@@ -72,6 +73,12 @@ void AARPGPlayerCharacter::PossessedBy(AController* NewController)
 		AddStartupEffects();
 
 		AddCharacterAbilities();
+
+		AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetController());
+		if (PC)
+		{
+			PC->CreateHUD();
+		}
 	}
 }
 
@@ -95,6 +102,11 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 		// For now assume possession = spawn/respawn.
 		InitializeAttributes();
 
+		AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetController());
+		if (PC)
+		{
+			PC->CreateHUD();
+		}
 
 		// Respawn specific things that won't affect first possession.
 
@@ -105,5 +117,15 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 		SetHealth(GetMaxHealth());
 		SetMana(GetMaxMana());
 		SetStamina(GetMaxStamina());
+	}
+}
+
+void AARPGPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsLocallyControlled())
+	{
+		HealthBarComponent->SetHiddenInGame(true);
 	}
 }
