@@ -3,8 +3,7 @@
 
 #include "ARPGGameModeBase.h"
 
-#include "ARPGPlayerCharacter.h"
-#include "ARPGPlayerController.h"
+#include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "GameFramework/SpectatorPawn.h"
 #include "Kismet/GameplayStatics.h"
 

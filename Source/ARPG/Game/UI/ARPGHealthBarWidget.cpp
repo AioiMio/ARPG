@@ -41,7 +41,7 @@ void UARPGHealthBarWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 	}
 }
 
-void UARPGHealthBarWidget::SetHealthPercent(float InPercent)
+void UARPGHealthBarWidget::SetHealthPercentage(float InPercent)
 {
 	if (Health)
 	{

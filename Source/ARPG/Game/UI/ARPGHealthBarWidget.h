@@ -23,7 +23,7 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
-	void SetHealthPercent(float InPercent);
+	void SetHealthPercentage(float InPercent);
 	void ShowDamageNumber(float ActualDelta);
 
 	UFUNCTION(BlueprintCallable)

@@ -6,11 +6,31 @@
 #include "AbilitySystemComponent.h"
 #include "ARPGCharacter.h"
 #include "ARPGPlayerState.h"
+#include "EnhancedInputSubsystems.h"
 #include "ARPG/Game/UI/ARPGHUDWidget.h"
 
 AARPGPlayerController::AARPGPlayerController()
 {
+	CameraPitchMin = -30.f;
+	CameraPitchMax = 45.f;
 }
+
+void AARPGPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (PlayerCameraManager)
+	{
+		PlayerCameraManager->ViewPitchMax = CameraPitchMax;
+		PlayerCameraManager->ViewPitchMin = CameraPitchMin;
+	}
+
+	if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		EnhancedInputSubsystem->AddMappingContext(InputMappingContext, 0);
+	}
+}
+
 
 void AARPGPlayerController::CreateHUD()
 {

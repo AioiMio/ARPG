@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "ARPGCharacter.generated.h"
 
+class UARPGEquipmentComponent;
 class UARPGAbilitySystemComponent;
 class UARPGAttributeSet;
 class UARPGGameplayAbility;
@@ -28,11 +29,13 @@ class ARPG_API AARPGCharacter : public ACharacter, public IAbilitySystemInterfac
 public:
 	AARPGCharacter(const class FObjectInitializer& ObjectInitializer);
 
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+
 	// Set the Hit React direction in the Animation Blueprint
-	UPROPERTY(BlueprintAssignable, Category = "GASDocumentation|GDCharacter")
+	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FCharacterHitReactDelegate ShowHitReact;
 
-	UPROPERTY(BlueprintAssignable, Category = "GASDocumentation|GDCharacter")
+	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FCharacterDiedDelegate OnCharacterDied;
 
 	// Implement IAbilitySystemInterface
@@ -41,11 +44,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UARPGAbilitySystemComponent* GetARPGAbilitySystemComponent() const { return AbilitySystemComponent.Get(); }
 
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter")
+	UFUNCTION(BlueprintCallable, Category = "Character")
 	virtual bool IsAlive() const;
 
 	// Switch on AbilityID to return individual ability levels. Hardcoded to 1 for every ability in this project.
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter")
+	UFUNCTION(BlueprintCallable, Category = "Character")
 	virtual int32 GetAbilityLevel(EARPGAbilityInputID AbilityID) const;
 
 	// Removes all CharacterAbilities. Can only be called by the Server. Removing on the Server will remove from Client too.
@@ -59,43 +62,53 @@ public:
 	virtual void PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser);
 	virtual bool PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser);
 
+	/**
+	* Input Actions
+	**/
+	
+	UFUNCTION(BlueprintCallable, Category = "InputActions")
+	virtual void JumpAction();
+
+	UFUNCTION(BlueprintCallable, Category = "InputActions")
+	virtual void RightHandAttackAction();
+
 
 	/**
 	* Getters for attributes from GDAttributeSetBase
 	**/
 	
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	int32 GetCharacterLevel() const;
 
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetHealth() const;
 
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMaxHealth() const;
 
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMana() const;
 
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMaxMana() const;
 
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetStamina() const;
 
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMaxStamina() const;
 	
 	// Gets the Current value of MoveSpeed
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMoveSpeed() const;
 
 	// Gets the Base value of MoveSpeed
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMoveSpeedBaseValue() const;
 
 	virtual void Die();
 
-	UFUNCTION(BlueprintCallable, Category = "GASDocumentation|GDCharacter")
+	UFUNCTION(BlueprintCallable, Category = "Character")
 	virtual void FinishDying();
 	
 protected:
@@ -111,8 +124,14 @@ protected:
 	TWeakObjectPtr<UARPGAbilitySystemComponent> AbilitySystemComponent;
 	TWeakObjectPtr<UARPGAttributeSet> AttributeSet;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	UARPGEquipmentComponent* EquipmentComponent;
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
 	UWidgetComponent* HealthBarComponent;
+
+	UPROPERTY()
+	UARPGHealthBarWidget* HealthBar;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
 	UWidgetComponent* LockOnPointComponent;
@@ -123,6 +142,18 @@ protected:
 	FGameplayTag HitDirectionLeftTag;
 	FGameplayTag DeadTag;
 	FGameplayTag EffectRemoveOnDeathTag;
+	FGameplayTag FallingTag;
+	FGameplayTag JumpTag;
+	FGameplayTag RightHandAttackTag;
+
+	FTimerHandle TimerHandle_LandDelay;
+	FTimerHandle TimerHandle_FallingTagRemoveDelay;
+
+	UFUNCTION()
+	void LandElapsed();
+
+	UFUNCTION()
+	void RemoveFallingTagElapsed();
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
 	FText CharacterName;
@@ -153,6 +184,11 @@ protected:
 	virtual void InitializeAttributes();
 
 	virtual void AddStartupEffects();
+
+	// Creates and initializes the health bar.
+	// Safe to call many times because it checks to make sure it only executes once.
+	UFUNCTION()
+	void InitializeHealthBar();
 
 
 	/**

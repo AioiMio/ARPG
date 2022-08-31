@@ -8,17 +8,21 @@
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
+#include "ARPG/Game/Components/ARPGEquipmentComponent.h"
+#include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UARPGCharacterMovementComponent>(
 		ACharacter::CharacterMovementComponentName))
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	EquipmentComponent = CreateDefaultSubobject<UARPGEquipmentComponent>(FName("Equipment"));
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
@@ -35,7 +39,8 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	LockOnPointComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LockOnPointComponent->SetHiddenInGame(true);
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,
+	                                                     ECollisionResponse::ECR_Overlap);
 
 	bAlwaysRelevant = true;
 
@@ -46,16 +51,59 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	HitDirectionLeftTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Left"));
 	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
 	EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag(FName("Effect.RemoveOnDeath"));
+	FallingTag = FGameplayTag::RequestGameplayTag(FName("State.Falling"));
+	JumpTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.Jump"));
+	RightHandAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.Combo"));
 
 	// Settings
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->GravityScale = 3.f;
 	GetCharacterMovement()->JumpZVelocity = 800.f;
+	GetCharacterMovement()->AirControl = 0.5f;
 	GetCharacterMovement()->RotationRate.Yaw = 1200.f;
 }
 
-UAbilitySystemComponent * AARPGCharacter::GetAbilitySystemComponent() const
+// Called when the game starts or when spawned
+void AARPGCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// InitializeHealthBar();
+}
+
+
+void AARPGCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	if (GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling)
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+	else if (PrevMovementMode == EMovementMode::MOVE_Falling)
+	{
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "LandElapsed");
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_LandDelay, Delegate, 0.05f, false);
+	}
+}
+
+void AARPGCharacter::LandElapsed()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	FTimerDelegate Delegate;
+	Delegate.BindUFunction(this, "RemoveFallingTagElapsed");
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_FallingTagRemoveDelay, Delegate, 0.1f, false);
+}
+
+void AARPGCharacter::RemoveFallingTagElapsed()
+{
+	AbilitySystemComponent->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(FallingTag));
+}
+
+UAbilitySystemComponent* AARPGCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent.Get();
 }
@@ -72,7 +120,8 @@ int32 AARPGCharacter::GetAbilityLevel(EARPGAbilityInputID AbilityID) const
 
 void AARPGCharacter::RemoveCharacterAbilities()
 {
-	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || !AbilitySystemComponent->CharacterAbilitiesGiven)
+	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || !AbilitySystemComponent->
+		CharacterAbilitiesGiven)
 	{
 		return;
 	}
@@ -96,7 +145,7 @@ void AARPGCharacter::RemoveCharacterAbilities()
 	AbilitySystemComponent->CharacterAbilitiesGiven = false;
 }
 
-EARPGHitReactDirection AARPGCharacter::GetHitReactDirection(const FVector & ImpactPoint)
+EARPGHitReactDirection AARPGCharacter::GetHitReactDirection(const FVector& ImpactPoint)
 {
 	const FVector& ActorLocation = GetActorLocation();
 	// PointPlaneDist is super cheap - 1 vector subtraction, 1 dot product.
@@ -135,7 +184,7 @@ EARPGHitReactDirection AARPGCharacter::GetHitReactDirection(const FVector & Impa
 	return EARPGHitReactDirection::Front;
 }
 
-void AARPGCharacter::PlayHitReact_Implementation(FGameplayTag HitDirection, AActor * DamageCauser)
+void AARPGCharacter::PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser)
 {
 	if (IsAlive())
 	{
@@ -158,9 +207,19 @@ void AARPGCharacter::PlayHitReact_Implementation(FGameplayTag HitDirection, AAct
 	}
 }
 
-bool AARPGCharacter::PlayHitReact_Validate(FGameplayTag HitDirection, AActor * DamageCauser)
+bool AARPGCharacter::PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser)
 {
 	return true;
+}
+
+void AARPGCharacter::JumpAction()
+{
+	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(JumpTag));
+}
+
+void AARPGCharacter::RightHandAttackAction()
+{
+	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(RightHandAttackTag));
 }
 
 int32 AARPGCharacter::GetCharacterLevel() const
@@ -291,16 +350,12 @@ void AARPGCharacter::FinishDying()
 	Destroy();
 }
 
-// Called when the game starts or when spawned
-void AARPGCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
 
 void AARPGCharacter::AddCharacterAbilities()
 {
 	// Grant abilities, but only on the server	
-	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->CharacterAbilitiesGiven)
+	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->
+		CharacterAbilitiesGiven)
 	{
 		return;
 	}
@@ -308,7 +363,8 @@ void AARPGCharacter::AddCharacterAbilities()
 	for (TSubclassOf<UARPGGameplayAbility>& StartupAbility : CharacterAbilities)
 	{
 		AbilitySystemComponent->GiveAbility(
-			FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID), static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
+			FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID),
+			                     static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
 	}
 
 	AbilitySystemComponent->CharacterAbilitiesGiven = true;
@@ -323,7 +379,8 @@ void AARPGCharacter::InitializeAttributes()
 
 	if (!DefaultAttributes)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s() Missing DefaultAttributes for %s. Please fill in the character's Blueprint."), *FString(__FUNCTION__), *GetName());
+		UE_LOG(LogTemp, Error, TEXT("%s() Missing DefaultAttributes for %s. Please fill in the character's Blueprint."),
+		       *FString(__FUNCTION__), *GetName());
 		return;
 	}
 
@@ -331,16 +388,19 @@ void AARPGCharacter::InitializeAttributes()
 	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
 	EffectContext.AddSourceObject(this);
 
-	FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, GetCharacterLevel(), EffectContext);
+	FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(
+		DefaultAttributes, GetCharacterLevel(), EffectContext);
 	if (NewHandle.IsValid())
 	{
-		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
+		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(
+			*NewHandle.Data.Get(), AbilitySystemComponent.Get());
 	}
 }
 
 void AARPGCharacter::AddStartupEffects()
 {
-	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->StartupEffectsApplied)
+	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->
+		StartupEffectsApplied)
 	{
 		return;
 	}
@@ -350,14 +410,31 @@ void AARPGCharacter::AddStartupEffects()
 
 	for (TSubclassOf<UGameplayEffect> GameplayEffect : StartupEffects)
 	{
-		FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, GetCharacterLevel(), EffectContext);
+		FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(
+			GameplayEffect, GetCharacterLevel(), EffectContext);
 		if (NewHandle.IsValid())
 		{
-			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
+			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(
+				*NewHandle.Data.Get(), AbilitySystemComponent.Get());
 		}
 	}
 
 	AbilitySystemComponent->StartupEffectsApplied = true;
+}
+
+void AARPGCharacter::InitializeHealthBar()
+{
+	if (HealthBar || !HealthBarComponent || !AbilitySystemComponent.IsValid())
+	{
+		return;
+	}
+
+	// Setup the health bar
+	HealthBar = Cast<UARPGHealthBarWidget>(HealthBarComponent->GetWidget());
+	if (HealthBar)
+	{
+		HealthBar->SetHealthPercentage(GetHealth() / GetMaxHealth());
+	}
 }
 
 void AARPGCharacter::SetHealth(float Health)
