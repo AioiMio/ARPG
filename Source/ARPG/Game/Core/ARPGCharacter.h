@@ -10,6 +10,7 @@
 #include "ARPGCharacter.generated.h"
 
 class UARPGEquipmentComponent;
+class UARPGCombatManager;
 class UARPGAbilitySystemComponent;
 class UARPGAttributeSet;
 class UARPGGameplayAbility;
@@ -30,6 +31,7 @@ public:
 	AARPGCharacter(const class FObjectInitializer& ObjectInitializer);
 
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+	virtual void PostInitializeComponents() override;
 
 	// Set the Hit React direction in the Animation Blueprint
 	UPROPERTY(BlueprintAssignable, Category = "Character")
@@ -43,6 +45,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UARPGAbilitySystemComponent* GetARPGAbilitySystemComponent() const { return AbilitySystemComponent.Get(); }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UARPGCombatManager* GetCombatManager() const { return CombatManager; }
+
+	FORCEINLINE UARPGHealthBarWidget* GetHealthBar() const { return HealthBar; }
 
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	virtual bool IsAlive() const;
@@ -124,9 +131,15 @@ protected:
 	TWeakObjectPtr<UARPGAbilitySystemComponent> AbilitySystemComponent;
 	TWeakObjectPtr<UARPGAttributeSet> AttributeSet;
 
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
-	// UARPGEquipmentComponent* EquipmentComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	UARPGEquipmentComponent* EquipmentComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UARPGCombatManager* CombatManager;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UARPGHealthBarWidget> HealthBarClass;
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
 	UWidgetComponent* HealthBarComponent;
 
@@ -136,6 +149,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
 	UWidgetComponent* LockOnPointComponent;
 
+	UPROPERTY(EditAnywhere, Category = "Character")
+	FText CharacterName;
+
+	FGameplayTag HitEventTag;
 	FGameplayTag HitDirectionFrontTag;
 	FGameplayTag HitDirectionBackTag;
 	FGameplayTag HitDirectionRightTag;
@@ -154,9 +171,6 @@ protected:
 
 	UFUNCTION()
 	void RemoveFallingTagElapsed();
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
-	FText CharacterName;
 
 	// Death Animation
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")

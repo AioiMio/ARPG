@@ -18,6 +18,8 @@ class ARPG_API AARPGEquipmentBase : public AActor
 public:	
 	AARPGEquipmentBase();
 
+	FORCEINLINE USkeletalMeshComponent* GetMesh() const { return SkeletalMeshComponent; }
+
 protected:
 	virtual void BeginPlay() override;
 

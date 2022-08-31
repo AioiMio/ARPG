@@ -19,11 +19,10 @@ class ARPG_API UARPGHealthBarWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
 	void SetHealthPercentage(float InPercent);
+	void SetCharacterName(const FText& NewName);
 	void ShowDamageNumber(float ActualDelta);
 
 	UFUNCTION(BlueprintCallable)
@@ -34,14 +33,16 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UProgressBar* Health;
+	UProgressBar* HealthTop;
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthBottom;
-	UPROPERTY(meta = (BindWidget), Replicated)
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CharacterName;
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DamageNum;
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	int32 Damage;
 	
 	bool bCanChangeHealthBottom;

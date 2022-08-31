@@ -6,6 +6,9 @@
 #include "ARPGPlayerController.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
+#include "ARPG/Game/Player/ARPGPlayerCharacter.h"
+#include "ARPG/Game/UI/ARPGHealthBarWidget.h"
+#include "ARPG/Game/UI/ARPGHUDWidget.h"
 
 AARPGPlayerState::AARPGPlayerState()
 {
@@ -145,34 +148,67 @@ void AARPGPlayerState::BeginPlay()
 void AARPGPlayerState::HealthChanged(const FOnAttributeChangeData & Data)
 {
 	float Health = Data.NewValue;
+	float Damage = Health - Data.OldValue;
 
-	// // Update floating status bar
-	// AGDHeroCharacter* Hero = Cast<AGDHeroCharacter>(GetPawn());
-	// if (Hero)
-	// {
-	// 	UGDFloatingStatusBarWidget* HeroFloatingStatusBar = Hero->GetFloatingStatusBar();
-	// 	if (HeroFloatingStatusBar)
-	// 	{
-	// 		HeroFloatingStatusBar->SetHealthPercentage(Health / GetMaxHealth());
-	// 	}
-	// }
-	//
-	// // Update the HUD
-	// // Handled in the UI itself using the AsyncTaskAttributeChanged node as an example how to do it in Blueprint
-	//
-	// // If the player died, handle death
-	// if (!IsAlive() && !AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
-	// {
-	// 	if (Hero)
-	// 	{
-	// 		Hero->Die();
-	// 	}
-	// }
+	// Update health bar
+	AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(GetPawn());
+	if (PlayerCharacter)
+	{
+		UARPGHealthBarWidget* HealthBar = PlayerCharacter->GetHealthBar();
+		if (HealthBar)
+		{
+			HealthBar->SetHealthPercentage(Health / GetMaxHealth());
+			HealthBar->ShowDamageNumber(Damage);
+		}
+	}
+	
+	// Update the HUD
+	AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetOwner());
+	if (PC)
+	{
+		UARPGHUDWidget* HUD = PC->GetHUD();
+		if (HUD)
+		{
+			HUD->SetCurrentHealth(Health);
+		}
+	}
+	// Handled in the UI itself using the AsyncTaskAttributeChanged node as an example how to do it in Blueprint
+	
+	// If the player died, handle death
+	if (!IsAlive() && !AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
+	{
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->Die();
+		}
+	}
 }
 
 void AARPGPlayerState::MaxHealthChanged(const FOnAttributeChangeData & Data)
 {
 	float MaxHealth = Data.NewValue;
+
+	// Update floating status bar
+	AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(GetPawn());
+	if (PlayerCharacter)
+	{
+		UARPGHealthBarWidget* HealthBar = PlayerCharacter->GetHealthBar();
+		if (HealthBar)
+		{
+			HealthBar->SetHealthPercentage(GetHealth() / MaxHealth);
+		}
+	}
+
+	// Update the HUD
+	AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetOwner());
+	if (PC)
+	{
+		UARPGHUDWidget* HUD = PC->GetHUD();
+		if (HUD)
+		{
+			HUD->SetMaxHealth(MaxHealth);
+		}
+	}
 }
 
 void AARPGPlayerState::HealthRegenRateChanged(const FOnAttributeChangeData & Data)

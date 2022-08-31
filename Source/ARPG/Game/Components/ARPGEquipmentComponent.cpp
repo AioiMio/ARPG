@@ -3,6 +3,7 @@
 
 #include "ARPGEquipmentComponent.h"
 
+#include "ARPGCombatManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 
 
@@ -33,6 +34,11 @@ void UARPGEquipmentComponent::EquipRightHandWeapon(int32 Index)
 
 		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
 		Weapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules, RightHandWeaponSocketName);
+
+		if (OwnerCharacter->GetCombatManager())
+		{
+			OwnerCharacter->GetCombatManager()->AddTraceMesh(Weapon->GetMesh(), EAGR_CombatColliderType::ComplexBoxTrace);
+		}
 	}
 }
 

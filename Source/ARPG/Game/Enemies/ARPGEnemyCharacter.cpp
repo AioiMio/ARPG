@@ -6,6 +6,8 @@
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
+#include "Components/WidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -39,7 +41,7 @@ void AARPGEnemyCharacter::BeginPlay()
 		AddStartupEffects();
 		AddCharacterAbilities();
 		InitializeHealthBar();
-
+		
 		// Attribute change callbacks
 		HealthChangedDelegateHandle = AbilitySystemComponent->
 		                              GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).
@@ -54,11 +56,13 @@ void AARPGEnemyCharacter::BeginPlay()
 void AARPGEnemyCharacter::HealthChanged(const FOnAttributeChangeData& Data)
 {
 	float Health = Data.NewValue;
+	float Damage = Health - Data.OldValue;
 
 	// Update health bar
 	if (HealthBar)
 	{
 		HealthBar->SetHealthPercentage(Health / GetMaxHealth());
+		HealthBar->ShowDamageNumber(Damage);
 	}
 
 	// If the minion died, handle death

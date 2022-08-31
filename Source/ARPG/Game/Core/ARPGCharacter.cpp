@@ -3,11 +3,12 @@
 
 #include "ARPGCharacter.h"
 
-#include "ARPGPlayerController.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "ARPG/Game/Abilities/ARPGGameplayAbility.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
+#include "ARPG/Game/Components/ARPGCombatManager.h"
 #include "ARPG/Game/Components/ARPGEquipmentComponent.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "Blueprint/UserWidget.h"
@@ -22,7 +23,9 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	// EquipmentComponent = CreateDefaultSubobject<UARPGEquipmentComponent>(FName("Equipment"));
+	EquipmentComponent = CreateDefaultSubobject<UARPGEquipmentComponent>(FName("Equipment"));
+
+	CombatManager = CreateDefaultSubobject<UARPGCombatManager>(FName("CombatManager"));
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
@@ -41,12 +44,13 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 
 	// Setup Collisions
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
-	// GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
-	// GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
 
 	bAlwaysRelevant = true;
 
 	// Cache tags
+	HitEventTag = FGameplayTag::RequestGameplayTag(FName("Event.Hit"));
 	HitDirectionFrontTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Front"));
 	HitDirectionBackTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Back"));
 	HitDirectionRightTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Right"));
@@ -66,12 +70,16 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	GetCharacterMovement()->RotationRate.Yaw = 1200.f;
 }
 
+void AARPGCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
 // Called when the game starts or when spawned
 void AARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
 
 void AARPGCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
@@ -424,16 +432,40 @@ void AARPGCharacter::AddStartupEffects()
 
 void AARPGCharacter::InitializeHealthBar()
 {
-	if (HealthBar || !HealthBarComponent || !AbilitySystemComponent.IsValid())
+	// Only create once
+	if (!HealthBarComponent || !AbilitySystemComponent.IsValid())
 	{
 		return;
 	}
 
-	// Setup the health bar
-	HealthBar = Cast<UARPGHealthBarWidget>(HealthBarComponent->GetWidget());
-	if (HealthBar)
+	// // Setup the health bar
+	// if (!HealthBar)
+	// {
+	// 	HealthBar = Cast<UARPGHealthBarWidget>(HealthBarComponent->GetWidget());
+	// }
+	// if (HealthBar)
+	// {
+	// 	HealthBar->SetHealthPercentage(GetHealth() / GetMaxHealth());
+	// 	HealthBar->SetCharacterName(CharacterName);
+	// }
+
+	// Setup FloatingStatusBar UI for Locally Owned Players only, not AI or the server's copy of the PlayerControllers
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PC && PC->IsLocalPlayerController())
 	{
-		HealthBar->SetHealthPercentage(GetHealth() / GetMaxHealth());
+		if (HealthBarClass)
+		{
+			HealthBar = CreateWidget<UARPGHealthBarWidget>(PC, HealthBarClass);
+			if (HealthBarClass && HealthBarComponent)
+			{
+				HealthBarComponent->SetWidget(HealthBar);
+
+				// Setup the floating status bar
+				HealthBar->SetHealthPercentage(GetHealth() / GetMaxHealth());
+
+				HealthBar->SetCharacterName(CharacterName);
+			}
+		}
 	}
 }
 
