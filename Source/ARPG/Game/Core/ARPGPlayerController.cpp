@@ -60,6 +60,12 @@ void AARPGPlayerController::CreateHUD()
 	}
 
 	UIHUDWidget = CreateWidget<UARPGHUDWidget>(this, UIHUDWidgetClass);
+
+	// Initialize HUD
+	UIHUDWidget->SetMaxHealth(PS->GetMaxHealth());
+	UIHUDWidget->SetMaxMana(PS->GetMaxMana());
+	UIHUDWidget->SetMaxStamina(PS->GetMaxStamina());
+	
 	UIHUDWidget->AddToViewport();
 }
 

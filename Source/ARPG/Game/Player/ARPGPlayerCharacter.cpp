@@ -7,6 +7,7 @@
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Core/ARPGPlayerController.h"
 #include "ARPG/Game/Core/ARPGPlayerState.h"
+#include "ARPG/Game/UI/ARPGHUDWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
