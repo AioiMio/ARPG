@@ -124,8 +124,8 @@ protected:
 	TWeakObjectPtr<UARPGAbilitySystemComponent> AbilitySystemComponent;
 	TWeakObjectPtr<UARPGAttributeSet> AttributeSet;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
-	UARPGEquipmentComponent* EquipmentComponent;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	// UARPGEquipmentComponent* EquipmentComponent;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
 	UWidgetComponent* HealthBarComponent;

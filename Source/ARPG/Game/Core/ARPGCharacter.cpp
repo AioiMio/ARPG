@@ -22,7 +22,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	EquipmentComponent = CreateDefaultSubobject<UARPGEquipmentComponent>(FName("Equipment"));
+	// EquipmentComponent = CreateDefaultSubobject<UARPGEquipmentComponent>(FName("Equipment"));
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
@@ -39,8 +39,10 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	LockOnPointComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LockOnPointComponent->SetHiddenInGame(true);
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,
-	                                                     ECollisionResponse::ECR_Overlap);
+	// Setup Collisions
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
+	// GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
+	// GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
 
 	bAlwaysRelevant = true;
 
@@ -68,8 +70,6 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 void AARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// InitializeHealthBar();
 }
 
 

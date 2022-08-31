@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "ARPGPlayerController.generated.h"
 
-class UInputMappingContext;
+// class UInputMappingContext;
 class UARPGHUDWidget;
 
 /**
@@ -33,8 +33,8 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UARPGHUDWidget* UIHUDWidget;
 	
-	UPROPERTY(EditDefaultsOnly)
-	UInputMappingContext* InputMappingContext;
+	// UPROPERTY(EditDefaultsOnly)
+	// UInputMappingContext* InputMappingContext;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float CameraPitchMin;
