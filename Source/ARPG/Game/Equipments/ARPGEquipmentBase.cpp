@@ -11,7 +11,7 @@ AARPGEquipmentBase::AARPGEquipmentBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	SetReplicates(true);
+	bReplicates = true;
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(FName("Box"));
 	SetRootComponent(BoxComponent);

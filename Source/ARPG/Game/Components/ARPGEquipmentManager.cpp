@@ -1,19 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ARPGEquipmentComponent.h"
+#include "ARPGEquipmentManager.h"
 
 #include "ARPGCombatManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 
 
-UARPGEquipmentComponent::UARPGEquipmentComponent()
+UARPGEquipmentManager::UARPGEquipmentManager()
 {
 	RightHandWeapons.SetNum(3);
 	LeftHandWeapons.SetNum(3);
 }
 
-void UARPGEquipmentComponent::BeginPlay()
+void UARPGEquipmentManager::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -22,9 +22,9 @@ void UARPGEquipmentComponent::BeginPlay()
 	EquipRightHandWeapon(0);
 }
 
-void UARPGEquipmentComponent::EquipRightHandWeapon(int32 Index)
+void UARPGEquipmentManager::EquipRightHandWeapon(int32 Index)
 {
-	if (OwnerCharacter.IsValid() && OwnerCharacter->HasAuthority() && RightHandWeapons[Index])
+	if (OwnerCharacter.IsValid() && GetOwnerRole() == ENetRole::ROLE_Authority && RightHandWeapons[Index])
 	{
 		FActorSpawnParameters ActorSpawnParameters;
 		ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -43,13 +43,13 @@ void UARPGEquipmentComponent::EquipRightHandWeapon(int32 Index)
 	}
 }
 
-void UARPGEquipmentComponent::EquipLeftHandWeapon(int32 Index)
+void UARPGEquipmentManager::EquipLeftHandWeapon(int32 Index)
 {
 }
 
-void UARPGEquipmentComponent::UnequipAllWeapons()
+void UARPGEquipmentManager::UnequipAllWeapons()
 {
-	if (OwnerCharacter.IsValid() && OwnerCharacter->HasAuthority())
+	if (GetOwnerRole() == ENetRole::ROLE_Authority)
 	{
 		if (CurrentLeftHandWeapon)
 		{

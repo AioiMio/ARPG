@@ -9,7 +9,7 @@
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
 #include "ARPG/Game/Components/ARPGCombatManager.h"
-#include "ARPG/Game/Components/ARPGEquipmentComponent.h"
+#include "ARPG/Game/Components/ARPGEquipmentManager.h"
 #include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "Blueprint/UserWidget.h"
@@ -25,7 +25,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	EquipmentComponent = CreateDefaultSubobject<UARPGEquipmentComponent>(FName("Equipment"));
+	EquipmentManager = CreateDefaultSubobject<UARPGEquipmentManager>(FName("EquipmentManager"));
 	CombatManager = CreateDefaultSubobject<UARPGCombatManager>(FName("CombatManager"));
 	TargetManager = CreateDefaultSubobject<UARPGTargetManager>(FName("TargetManager"));
 
@@ -49,7 +49,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	                                                     ECollisionResponse::ECR_Overlap);
 	GetCapsuleComponent()->
 		SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
-	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
+	GetMesh()->SetCollisionProfileName(FName("HitTraceMesh"));
 
 	bAlwaysRelevant = true;
 
@@ -369,13 +369,22 @@ void AARPGCharacter::Die()
 	}
 	else
 	{
+		EquipmentManager->UnequipAllWeapons();
 		FinishDying();
 	}
 }
 
+void AARPGCharacter::Dying()
+{
+	GetMesh()->SetScalarParameterValueOnMaterials("TimeToDie", GetWorld()->TimeSeconds);
+	
+	FTimerHandle DyingTimerHandle;
+	FTimerDelegate DyingTimerDelegate  = FTimerDelegate::CreateUObject(this, &AARPGCharacter::FinishDying);
+	GetWorld()->GetTimerManager().SetTimer(DyingTimerHandle, DyingTimerDelegate, 4.f, false);
+}
+
 void AARPGCharacter::FinishDying()
 {
-	EquipmentComponent->UnequipAllWeapons();
 	Destroy();
 }
 

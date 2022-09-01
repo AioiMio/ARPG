@@ -9,7 +9,7 @@
 #include "GameFramework/Character.h"
 #include "ARPGCharacter.generated.h"
 
-class UARPGEquipmentComponent;
+class UARPGEquipmentManager;
 class UARPGCombatManager;
 class UARPGTargetManager;
 class UARPGAbilitySystemComponent;
@@ -118,7 +118,7 @@ public:
 	float GetMoveSpeedBaseValue() const;
 
 	virtual void Die();
-
+	virtual void Dying();
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	virtual void FinishDying();
 	
@@ -136,7 +136,7 @@ protected:
 	TWeakObjectPtr<UARPGAttributeSet> AttributeSet;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
-	UARPGEquipmentComponent* EquipmentComponent;
+	UARPGEquipmentManager* EquipmentManager;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	UARPGCombatManager* CombatManager;

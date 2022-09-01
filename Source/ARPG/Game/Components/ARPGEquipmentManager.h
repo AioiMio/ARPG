@@ -5,17 +5,17 @@
 #include "CoreMinimal.h"
 #include "ARPG/Game/Equipments/Weapons/ARPGWeapon.h"
 #include "Components/ActorComponent.h"
-#include "ARPGEquipmentComponent.generated.h"
+#include "ARPGEquipmentManager.generated.h"
 
 class AARPGCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ARPG_API UARPGEquipmentComponent : public UActorComponent
+class ARPG_API UARPGEquipmentManager : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	UARPGEquipmentComponent();
+	UARPGEquipmentManager();
 
 	void EquipRightHandWeapon(int32 Index);
 	void EquipLeftHandWeapon(int32 Index);
@@ -29,11 +29,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipments|Weapons")
 	TArray<TSubclassOf<AARPGWeapon>> RightHandWeapons;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipments|Weapons")
 	TArray<TSubclassOf<AARPGWeapon>> LeftHandWeapons;
 
+	UPROPERTY()
 	AARPGWeapon* CurrentRightHandWeapon;
+	UPROPERTY()
 	AARPGWeapon* CurrentLeftHandWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Equipments")

@@ -10,6 +10,7 @@
 UARPGCombatManager::UARPGCombatManager()
 {
 	HitEventTag = FGameplayTag::RequestGameplayTag(FName("Event.Hit"));
+	TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1);
 }
 
 void UARPGCombatManager::BeginPlay()
