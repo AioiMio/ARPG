@@ -458,17 +458,6 @@ void AARPGCharacter::InitializeHealthBar()
 		return;
 	}
 
-	// // Setup the health bar
-	// if (!HealthBar)
-	// {
-	// 	HealthBar = Cast<UARPGHealthBarWidget>(HealthBarComponent->GetWidget());
-	// }
-	// if (HealthBar)
-	// {
-	// 	HealthBar->SetHealthPercentage(GetHealth() / GetMaxHealth());
-	// 	HealthBar->SetCharacterName(CharacterName);
-	// }
-
 	// Setup FloatingStatusBar UI for Locally Owned Players only, not AI or the server's copy of the PlayerControllers
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (PC && PC->IsLocalPlayerController())

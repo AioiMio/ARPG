@@ -41,7 +41,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float CameraPitchMax;
-
+	
 	// Server only
 	virtual void OnPossess(APawn* InPawn) override;
 

@@ -34,6 +34,7 @@ void UARPGEquipmentComponent::EquipRightHandWeapon(int32 Index)
 
 		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
 		Weapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules, RightHandWeaponSocketName);
+		Weapon->SetOwner(OwnerCharacter.Get());
 
 		if (OwnerCharacter->GetCombatManager())
 		{

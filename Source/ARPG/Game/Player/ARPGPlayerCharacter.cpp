@@ -5,6 +5,7 @@
 
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
+#include "ARPG/Game/Core/ARPGGameModeBase.h"
 #include "ARPG/Game/Core/ARPGPlayerController.h"
 #include "ARPG/Game/Core/ARPGPlayerState.h"
 #include "ARPG/Game/UI/ARPGHUDWidget.h"
@@ -131,10 +132,34 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 	}
 }
 
+void AARPGPlayerCharacter::FinishDying()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		AARPGGameModeBase* GM = Cast<AARPGGameModeBase>(GetWorld()->GetAuthGameMode());
+
+		if (GM)
+		{
+			GM->PlayerCharacterDied(GetController());
+		}
+	}
+	
+	Super::FinishDying();
+}
+
+
+/**
+* On the Server, Possession happens before BeginPlay.
+* On the Client, BeginPlay happens before Possession.
+* So we can't use BeginPlay to do anything with the AbilitySystemComponent because we don't have it until the PlayerState replicates from possession.
+*/
 void AARPGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Only needed for Heroes placed in world and when the player is the Server.
+	// On respawn, they are set up in PossessedBy.
+	// When the player a client, the floating status bars are all set up in OnRep_PlayerState.
 	InitializeHealthBar();
 	if (IsLocallyControlled())
 	{

@@ -3,6 +3,7 @@
 
 #include "ARPGGameModeBase.h"
 
+#include "ARPGPlayerController.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "GameFramework/SpectatorPawn.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,6 +11,12 @@
 AARPGGameModeBase::AARPGGameModeBase()
 {
 	RespawnDelay = 5.0f;
+
+	PlayerClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/_ARPG/Characters/PlayerCharacter_BP.PlayerCharacter_BP_C"));
+	if (!PlayerClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find PlayerClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
+	}
 }
 
 void AARPGGameModeBase::PlayerCharacterDied(AController* Controller)
@@ -26,12 +33,6 @@ void AARPGGameModeBase::PlayerCharacterDied(AController* Controller)
 
 	RespawnDelegate = FTimerDelegate::CreateUObject(this, &AARPGGameModeBase::RespawnPlayerCharacter, Controller);
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, RespawnDelegate, RespawnDelay, false);
-
-	// AARPGPlayerController* PC = Cast<AARPGPlayerController>(Controller);
-	// if (PC)
-	// {
-	// 	PC->SetRespawnCountdown(RespawnDelay);
-	// }
 }
 
 void AARPGGameModeBase::BeginPlay()
@@ -55,7 +56,7 @@ void AARPGGameModeBase::RespawnPlayerCharacter(AController* Controller)
 {
 	if (Controller->IsPlayerController())
 	{
-		// Respawn player hero
+		// Respawn player character
 		AActor* PlayerStart = FindPlayerStart(Controller);
 
 		FActorSpawnParameters SpawnParameters;

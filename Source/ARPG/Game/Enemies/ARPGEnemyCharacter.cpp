@@ -65,7 +65,7 @@ void AARPGEnemyCharacter::HealthChanged(const FOnAttributeChangeData& Data)
 		HealthBar->ShowDamageNumber(Damage);
 	}
 
-	// If the minion died, handle death
+	// If the enemy died, handle death
 	if (!IsAlive() && !AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
 	{
 		Die();
