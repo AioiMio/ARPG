@@ -10,6 +10,7 @@
 #include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
 #include "ARPG/Game/Components/ARPGCombatManager.h"
 #include "ARPG/Game/Components/ARPGEquipmentComponent.h"
+#include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
@@ -25,8 +26,8 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	PrimaryActorTick.bCanEverTick = false;
 
 	EquipmentComponent = CreateDefaultSubobject<UARPGEquipmentComponent>(FName("Equipment"));
-
 	CombatManager = CreateDefaultSubobject<UARPGCombatManager>(FName("CombatManager"));
+	TargetManager = CreateDefaultSubobject<UARPGTargetManager>(FName("TargetManager"));
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
@@ -232,6 +233,11 @@ void AARPGCharacter::PlayHitReact_Implementation(FGameplayTag HitDirection, AAct
 bool AARPGCharacter::PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser)
 {
 	return true;
+}
+
+void AARPGCharacter::SetLockOnPointHiddenInGame(bool bInHidden)
+{
+	LockOnPointComponent->bHiddenInGame = bInHidden;
 }
 
 void AARPGCharacter::JumpAction()

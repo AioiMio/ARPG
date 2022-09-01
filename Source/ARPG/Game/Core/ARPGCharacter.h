@@ -11,6 +11,7 @@
 
 class UARPGEquipmentComponent;
 class UARPGCombatManager;
+class UARPGTargetManager;
 class UARPGAbilitySystemComponent;
 class UARPGAttributeSet;
 class UARPGGameplayAbility;
@@ -69,6 +70,8 @@ public:
 	virtual void PlayHitReact(FGameplayTag HitDirection, AActor* DamageCauser);
 	virtual void PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser);
 	virtual bool PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser);
+
+	void SetLockOnPointHiddenInGame(bool bInHidden);
 
 	/**
 	* Input Actions
@@ -137,6 +140,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	UARPGCombatManager* CombatManager;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target")
+	UARPGTargetManager* TargetManager;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UARPGHealthBarWidget> HealthBarClass;
