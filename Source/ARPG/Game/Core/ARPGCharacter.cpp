@@ -16,6 +16,7 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UARPGCharacterMovementComponent>(
@@ -43,8 +44,10 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	LockOnPointComponent->SetHiddenInGame(true);
 
 	// Setup Collisions
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,
+	                                                     ECollisionResponse::ECR_Overlap);
+	GetCapsuleComponent()->
+		SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
 
 	bAlwaysRelevant = true;
@@ -79,6 +82,17 @@ void AARPGCharacter::PostInitializeComponents()
 void AARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AARPGCharacter::ServerSetEmissive_Implementation(bool bInEmissive)
+{
+	bEmissive = bInEmissive;
+	GetMesh()->SetScalarParameterValueOnMaterials(FName("EmissivePower"), bEmissive ? 10.f : 0.f);
+}
+
+void AARPGCharacter::OnRep_bEmissive(const bool& bOldEmissive)
+{
+	GetMesh()->SetScalarParameterValueOnMaterials(FName("EmissivePower"), bEmissive ? 10.f : 0.f);
 }
 
 void AARPGCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
@@ -491,4 +505,12 @@ void AARPGCharacter::SetStamina(float Stamina)
 	{
 		AttributeSet->SetStamina(Stamina);
 	}
+}
+
+
+void AARPGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AARPGCharacter, bEmissive);
 }

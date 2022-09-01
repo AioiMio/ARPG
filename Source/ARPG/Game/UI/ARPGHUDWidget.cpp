@@ -104,10 +104,66 @@ void UARPGHUDWidget::SetMaxStamina(float InMaxStamina)
 	MaxStamina = InMaxStamina;
 }
 
+void UARPGHUDWidget::SetCurrentStamina(float CurrentStamina)
+{
+	SetStaminaPercentage(CurrentStamina / MaxStamina);
+}
+
+void UARPGHUDWidget::SetStaminaPercentage(float StaminaPercentage)
+{
+	if (Stamina)
+	{
+		Stamina->SetPercent(StaminaPercentage);
+		
+		if (StaminaBottom)
+		{
+			if (Stamina->Percent > StaminaBottom->Percent)
+			{
+				StaminaBottom->SetPercent(Stamina->Percent);
+			}
+			if (Stamina->Percent < StaminaBottom->Percent)
+			{
+				FTimerDelegate Delegate;
+				Delegate.BindUFunction(this, "ChangeStaminaBottomElapsed");
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaBottomDelay, Delegate, 0.8f, false);
+			}
+		}
+	}
+
+}
+
 void UARPGHUDWidget::SetMaxMana(float InMaxMana)
 {
 	ManaBox->SetWidthOverride(InMaxMana);
 	MaxMana = InMaxMana;
+}
+
+void UARPGHUDWidget::SetCurrentMana(float CurrentMana)
+{
+	SetManaPercentage(CurrentMana / MaxMana);
+}
+
+void UARPGHUDWidget::SetManaPercentage(float ManaPercentage)
+{
+	if (Mana)
+	{
+		Mana->SetPercent(ManaPercentage);
+		
+		if (ManaBottom)
+		{
+			if (Mana->Percent > ManaBottom->Percent)
+			{
+				ManaBottom->SetPercent(Mana->Percent);
+			}
+			if (Mana->Percent < ManaBottom->Percent)
+			{
+				FTimerDelegate Delegate;
+				Delegate.BindUFunction(this, "ChangeManaBottomElapsed");
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_ManaBottomDelay, Delegate, 0.8f, false);
+			}
+		}
+	}
+
 }
 
 void UARPGHUDWidget::ChangeHealthBottomElapsed()

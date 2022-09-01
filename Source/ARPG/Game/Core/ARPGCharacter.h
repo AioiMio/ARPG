@@ -32,6 +32,7 @@ public:
 
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PostInitializeComponents() override;
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
 	// Set the Hit React direction in the Animation Blueprint
 	UPROPERTY(BlueprintAssignable, Category = "Character")
@@ -152,6 +153,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Character")
 	FText CharacterName;
 
+	UPROPERTY(ReplicatedUsing = OnRep_bEmissive)
+	bool bEmissive;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetEmissive(bool bInEmissive);
+	
+	UFUNCTION()
+	virtual void OnRep_bEmissive(const bool& bOldEmissive);
+	
 	FGameplayTag HitEventTag;
 	FGameplayTag HitDirectionFrontTag;
 	FGameplayTag HitDirectionBackTag;

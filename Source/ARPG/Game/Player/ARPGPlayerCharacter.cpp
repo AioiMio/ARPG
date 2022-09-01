@@ -23,7 +23,8 @@ AARPGPlayerCharacter::AARPGPlayerCharacter(const FObjectInitializer& ObjectIniti
 	CameraBoom->TargetOffset = FVector(0.0f, 0.0f, 120.0f);
 	CameraBoom->bEnableCameraLag = true;
 	CameraBoom->CameraLagSpeed = 10.0f;
-	CameraBoom->CameraRotationLagSpeed = 10.0f;
+	CameraBoom->bEnableCameraRotationLag = true;
+	CameraBoom->CameraRotationLagSpeed = 15.0f;
 
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -122,6 +123,11 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 		SetHealth(GetMaxHealth());
 		SetMana(GetMaxMana());
 		SetStamina(GetMaxStamina());
+	}
+
+	if (IsLocallyControlled())
+	{
+		ServerSetEmissive(true);
 	}
 }
 

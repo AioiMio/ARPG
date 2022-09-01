@@ -40,10 +40,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetMaxStamina(float InMaxStamina);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void SetCurrentStamina(float CurrentStamina);	
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void SetStaminaPercentage(float StaminaPercentage);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
@@ -52,10 +52,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetMaxMana(float InMaxMana);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void SetCurrentMana(float CurrentMana);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void SetManaPercentage(float ManaPercentage);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
