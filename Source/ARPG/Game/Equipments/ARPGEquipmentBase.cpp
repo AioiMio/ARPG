@@ -11,6 +11,8 @@ AARPGEquipmentBase::AARPGEquipmentBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	SetReplicates(true);
+
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(FName("Box"));
 	SetRootComponent(BoxComponent);
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -20,6 +20,8 @@ public:
 	void EquipRightHandWeapon(int32 Index);
 	void EquipLeftHandWeapon(int32 Index);
 
+	void UnequipAllWeapons();
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -30,6 +32,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipments|Weapons")
 	TArray<TSubclassOf<AARPGWeapon>> LeftHandWeapons;
+
+	AARPGWeapon* CurrentRightHandWeapon;
+	AARPGWeapon* CurrentLeftHandWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Equipments")
 	FName RightHandWeaponSocketName = "Weapon_R";

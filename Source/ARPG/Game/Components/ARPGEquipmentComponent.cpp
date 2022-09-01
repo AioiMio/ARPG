@@ -24,25 +24,40 @@ void UARPGEquipmentComponent::BeginPlay()
 
 void UARPGEquipmentComponent::EquipRightHandWeapon(int32 Index)
 {
-	if (OwnerCharacter.IsValid() && RightHandWeapons[Index])
+	if (OwnerCharacter.IsValid() && OwnerCharacter->HasAuthority() && RightHandWeapons[Index])
 	{
 		FActorSpawnParameters ActorSpawnParameters;
 		ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		AARPGWeapon* Weapon = GetWorld()->SpawnActor<AARPGWeapon>(RightHandWeapons[Index].Get(),
+		CurrentRightHandWeapon = GetWorld()->SpawnActor<AARPGWeapon>(RightHandWeapons[Index].Get(),
 		                                                          OwnerCharacter->GetMesh()->GetSocketTransform(
 			                                                          RightHandWeaponSocketName), ActorSpawnParameters);
 
 		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
-		Weapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules, RightHandWeaponSocketName);
-		Weapon->SetOwner(OwnerCharacter.Get());
+		CurrentRightHandWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules, RightHandWeaponSocketName);
+		CurrentRightHandWeapon->SetOwner(OwnerCharacter.Get());
 
 		if (OwnerCharacter->GetCombatManager())
 		{
-			OwnerCharacter->GetCombatManager()->AddTraceMesh(Weapon->GetMesh(), EAGR_CombatColliderType::ComplexBoxTrace);
+			OwnerCharacter->GetCombatManager()->AddTraceMesh(CurrentRightHandWeapon->GetMesh(), EAGR_CombatColliderType::ComplexBoxTrace);
 		}
 	}
 }
 
 void UARPGEquipmentComponent::EquipLeftHandWeapon(int32 Index)
 {
+}
+
+void UARPGEquipmentComponent::UnequipAllWeapons()
+{
+	if (OwnerCharacter.IsValid() && OwnerCharacter->HasAuthority())
+	{
+		if (CurrentLeftHandWeapon)
+		{
+			CurrentLeftHandWeapon->Destroy();
+		}
+		if (CurrentRightHandWeapon)
+		{
+			CurrentRightHandWeapon->Destroy();
+		}
+	}
 }

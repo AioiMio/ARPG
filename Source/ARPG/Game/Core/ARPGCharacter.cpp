@@ -375,6 +375,7 @@ void AARPGCharacter::Die()
 
 void AARPGCharacter::FinishDying()
 {
+	EquipmentComponent->UnequipAllWeapons();
 	Destroy();
 }
 
