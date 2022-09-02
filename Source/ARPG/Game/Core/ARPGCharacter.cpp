@@ -10,6 +10,7 @@
 #include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
 #include "ARPG/Game/Components/ARPGCombatManager.h"
 #include "ARPG/Game/Components/ARPGEquipmentManager.h"
+#include "ARPG/Game/Components/ARPGMotionWarpingComponent.h"
 #include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "Blueprint/UserWidget.h"
@@ -28,6 +29,8 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	EquipmentManager = CreateDefaultSubobject<UARPGEquipmentManager>(FName("EquipmentManager"));
 	CombatManager = CreateDefaultSubobject<UARPGCombatManager>(FName("CombatManager"));
 	TargetManager = CreateDefaultSubobject<UARPGTargetManager>(FName("TargetManager"));
+	MotionWarpingComponent = CreateDefaultSubobject<UARPGMotionWarpingComponent>(FName("MotionWarping"));
+	MotionWarpingComponent->SetIsReplicated(true);
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));

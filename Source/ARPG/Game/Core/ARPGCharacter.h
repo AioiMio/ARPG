@@ -12,6 +12,7 @@
 class UARPGEquipmentManager;
 class UARPGCombatManager;
 class UARPGTargetManager;
+class UARPGMotionWarpingComponent;
 class UARPGAbilitySystemComponent;
 class UARPGAttributeSet;
 class UARPGGameplayAbility;
@@ -60,6 +61,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UARPGCombatManager* GetCombatManager() const { return CombatManager; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UARPGTargetManager* GetTargetManager() const { return TargetManager; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UARPGMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
 
 	FORCEINLINE UARPGHealthBarWidget* GetHealthBar() const { return HealthBar; }
 
@@ -153,6 +160,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target")
 	UARPGTargetManager* TargetManager;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
+	UARPGMotionWarpingComponent* MotionWarpingComponent;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UARPGHealthBarWidget> HealthBarClass;
