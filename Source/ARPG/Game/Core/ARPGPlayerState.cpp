@@ -219,8 +219,17 @@ void AARPGPlayerState::HealthRegenRateChanged(const FOnAttributeChangeData & Dat
 void AARPGPlayerState::ManaChanged(const FOnAttributeChangeData & Data)
 {
 	float Mana = Data.NewValue;
+	
 	// Update the HUD
-	// Handled in the UI itself using the AsyncTaskAttributeChanged node as an example how to do it in Blueprint
+	AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetOwner());
+	if (PC)
+	{
+		UARPGHUDWidget* HUD = PC->GetHUD();
+		if (HUD)
+		{
+			HUD->SetCurrentMana(Mana);
+		}
+	}
 }
 
 void AARPGPlayerState::MaxManaChanged(const FOnAttributeChangeData & Data)
@@ -236,9 +245,42 @@ void AARPGPlayerState::ManaRegenRateChanged(const FOnAttributeChangeData & Data)
 void AARPGPlayerState::StaminaChanged(const FOnAttributeChangeData & Data)
 {
 	float Stamina = Data.NewValue;
+	float Delta = Stamina - Data.OldValue;
 
+	if (HasAuthority())
+	{
+		if (Stamina == GetMaxStamina())
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
+		}
+	
+		if (Delta < 0.f)
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
+
+			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGPlayerState::StaminaRegenElapsed);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaRegenDelay, Delegate, 1.5f, false);
+		}
+	}
+	
 	// Update the HUD
-	// Handled in the UI itself using the AsyncTaskAttributeChanged node as an example how to do it in Blueprint
+	AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetOwner());
+	if (PC)
+	{
+		UARPGHUDWidget* HUD = PC->GetHUD();
+		if (HUD)
+		{
+			HUD->SetCurrentStamina(Stamina);
+		}
+	}
+}
+
+void AARPGPlayerState::StaminaRegenElapsed()
+{
+	if (HasAuthority())
+	{
+		GetAbilitySystemComponent()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
+	}
 }
 
 void AARPGPlayerState::MaxStaminaChanged(const FOnAttributeChangeData & Data)

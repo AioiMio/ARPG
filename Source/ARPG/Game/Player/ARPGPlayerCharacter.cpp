@@ -134,7 +134,7 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 	}
 }
 
-void AARPGPlayerCharacter::FinishDying()
+void AARPGPlayerCharacter::Dying()
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -146,7 +146,7 @@ void AARPGPlayerCharacter::FinishDying()
 		}
 	}
 	
-	Super::FinishDying();
+	Super::Dying();
 }
 
 

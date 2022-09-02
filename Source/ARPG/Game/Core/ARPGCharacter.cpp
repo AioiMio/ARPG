@@ -363,13 +363,16 @@ void AARPGCharacter::Die()
 		AbilitySystemComponent->AddLooseGameplayTag(DeadTag);
 	}
 
+	HealthBarComponent->SetHiddenInGame(true);
+	LockOnPointComponent->SetHiddenInGame(true);
+
 	if (DeathMontage)
 	{
 		PlayAnimMontage(DeathMontage);
 	}
 	else
 	{
-		FinishDying();
+		Dying();
 	}
 }
 
