@@ -24,7 +24,14 @@ AARPGEquipmentBase::AARPGEquipmentBase()
 	SkeletalMeshComponent->SetupAttachment(RootComponent);
 }
 
+void AARPGEquipmentBase::MulticastLeaveWorld_Implementation()
+{
+	LeaveWorld();
+}
+
 void AARPGEquipmentBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	JoinWorld();
 }

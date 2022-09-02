@@ -61,3 +61,18 @@ void UARPGEquipmentManager::UnequipAllWeapons()
 		}
 	}
 }
+
+void UARPGEquipmentManager::DissolveAllWeapons()
+{
+	if (GetOwnerRole() == ENetRole::ROLE_Authority)
+	{
+		if (CurrentLeftHandWeapon)
+		{
+			CurrentLeftHandWeapon->MulticastLeaveWorld();
+		}
+		if (CurrentRightHandWeapon)
+		{
+			CurrentRightHandWeapon->MulticastLeaveWorld();
+		}
+	}
+}

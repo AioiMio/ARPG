@@ -36,6 +36,15 @@ public:
 	virtual void Destroyed() override;
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void JoinWorld();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void LeaveWorld();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLeaveWorld();
+	
 	// Set the Hit React direction in the Animation Blueprint
 	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FCharacterHitReactDelegate ShowHitReact;

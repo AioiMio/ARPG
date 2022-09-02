@@ -20,6 +20,15 @@ public:
 
 	FORCEINLINE USkeletalMeshComponent* GetMesh() const { return SkeletalMeshComponent; }
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void JoinWorld();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void LeaveWorld();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLeaveWorld();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -29,6 +38,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UArrowComponent* ArrowComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* SkeletalMeshComponent;
 };

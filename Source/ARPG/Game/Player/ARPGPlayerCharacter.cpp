@@ -45,6 +45,11 @@ void AARPGPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
+	if (IsLocallyControlled())
+	{
+		HealthBarComponent->SetHiddenInGame(true);
+	}
+	
 	AARPGPlayerState* PS = GetPlayerState<AARPGPlayerState>();
 	if (PS)
 	{
@@ -167,4 +172,6 @@ void AARPGPlayerCharacter::BeginPlay()
 	{
 		HealthBarComponent->SetHiddenInGame(true);
 	}
+
+	JoinWorld();
 }

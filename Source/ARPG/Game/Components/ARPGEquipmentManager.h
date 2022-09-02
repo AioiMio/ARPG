@@ -21,6 +21,7 @@ public:
 	void EquipLeftHandWeapon(int32 Index);
 
 	void UnequipAllWeapons();
+	void DissolveAllWeapons();
 
 protected:
 	virtual void BeginPlay() override;

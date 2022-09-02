@@ -378,11 +378,8 @@ void AARPGCharacter::Die()
 
 void AARPGCharacter::Dying()
 {
-	GetMesh()->SetScalarParameterValueOnMaterials("TimeToDie", GetWorld()->TimeSeconds);
-	
-	FTimerHandle DyingTimerHandle;
-	FTimerDelegate DyingTimerDelegate  = FTimerDelegate::CreateUObject(this, &AARPGCharacter::FinishDying);
-	GetWorld()->GetTimerManager().SetTimer(DyingTimerHandle, DyingTimerDelegate, 4.f, false);
+	MulticastLeaveWorld();
+	EquipmentManager->DissolveAllWeapons();
 }
 
 void AARPGCharacter::FinishDying()
@@ -525,4 +522,9 @@ void AARPGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AARPGCharacter, bEmissive);
+}
+
+void AARPGCharacter::MulticastLeaveWorld_Implementation()
+{
+	LeaveWorld();
 }
