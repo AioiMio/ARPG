@@ -30,7 +30,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	CombatManager = CreateDefaultSubobject<UARPGCombatManager>(FName("CombatManager"));
 	TargetManager = CreateDefaultSubobject<UARPGTargetManager>(FName("TargetManager"));
 	MotionWarpingComponent = CreateDefaultSubobject<UARPGMotionWarpingComponent>(FName("MotionWarping"));
-	MotionWarpingComponent->SetIsReplicated(true);
+	// MotionWarpingComponent->SetIsReplicated(true);
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
