@@ -32,6 +32,8 @@ AARPGPlayerCharacter::AARPGPlayerCharacter(const FObjectInitializer& ObjectIniti
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetRelativeRotation(FRotator(-20.0f, 0.0f, 0.0f));
+
+	CharacterName = FText::FromString("Player");
 }
 
 void AARPGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

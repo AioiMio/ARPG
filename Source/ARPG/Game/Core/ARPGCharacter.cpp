@@ -369,7 +369,6 @@ void AARPGCharacter::Die()
 	}
 	else
 	{
-		EquipmentManager->UnequipAllWeapons();
 		FinishDying();
 	}
 }
@@ -388,6 +387,11 @@ void AARPGCharacter::FinishDying()
 	Destroy();
 }
 
+void AARPGCharacter::Destroyed()
+{
+	EquipmentManager->UnequipAllWeapons();
+	Super::Destroyed();
+}
 
 void AARPGCharacter::AddCharacterAbilities()
 {

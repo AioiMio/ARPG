@@ -33,6 +33,7 @@ public:
 
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PostInitializeComponents() override;
+	virtual void Destroyed() override;
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
 	// Set the Hit React direction in the Animation Blueprint

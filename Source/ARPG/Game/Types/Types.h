@@ -18,3 +18,14 @@ enum class EARPGAbilityInputID : uint8
 	
 	EAII_MAX UMETA(DisplayName = "DefaultMAX")
 };
+
+UENUM(BlueprintType)
+enum class EAnimationType : uint8
+{
+	EAT_FullBody UMETA(DisplayName = "FullBody"),
+	EAT_UpperBody UMETA(DisplayName = "UpperBody"),
+	EAT_RightArm UMETA(DisplayName = "RightArm"),
+	EAT_LeftArm UMETA(DisplayName = "LeftArm"),
+	
+	EAT_MAX UMETA(DisplayName = "DefaultMAX")
+};

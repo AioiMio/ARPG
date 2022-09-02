@@ -7,6 +7,7 @@
 #include "ARPGCombatManager.generated.h"
 
 class AARPGCharacter;
+class UForceFeedbackEffect;
 
 /**
  * 
@@ -27,6 +28,9 @@ protected:
 	TWeakObjectPtr<AARPGCharacter> OwnerCharacter;
 
 	FGameplayTag HitEventTag;
+
+	UPROPERTY(EditAnywhere, Category = "ForceFeedback")
+	UForceFeedbackEffect* HitFeedback;
 	
 	UFUNCTION()
 	void OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh);

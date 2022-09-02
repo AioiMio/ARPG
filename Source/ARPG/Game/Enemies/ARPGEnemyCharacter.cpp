@@ -28,6 +28,8 @@ AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitial
 
 	// Set our parent's TWeakObjectPtr
 	AttributeSet = HardRefAttributeSet;
+
+	CharacterName = FText::FromString("Enemy");
 }
 
 void AARPGEnemyCharacter::BeginPlay()

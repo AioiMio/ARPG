@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "ARPG/Game/Core/ARPGPlayerController.h"
 
 UARPGCombatManager::UARPGCombatManager()
 {
@@ -23,7 +24,7 @@ void UARPGCombatManager::BeginPlay()
 
 void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 {
-	if (GetOwner()->HasAuthority())
+	if (OwnerCharacter->HasAuthority())
 	{
 		if (!IgnoredActors.Contains(Hit.GetActor()))
 		{
@@ -31,6 +32,12 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 			if (AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor()))
 			{
 				// UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *GetNameSafe(Hit.GetActor()));
+
+				AARPGPlayerController* PC = Cast<AARPGPlayerController>(OwnerCharacter->GetController());
+				if (PC && HitFeedback)
+				{
+					PC->ClientPlayForceFeedback(HitFeedback);
+				}
 				
 				FGameplayEventData GameplayEventData;
 				GameplayEventData.Instigator = GetOwner();
