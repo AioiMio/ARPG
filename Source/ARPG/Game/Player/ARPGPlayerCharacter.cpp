@@ -154,7 +154,6 @@ void AARPGPlayerCharacter::Dying()
 	Super::Dying();
 }
 
-
 /**
 * On the Server, Possession happens before BeginPlay.
 * On the Client, BeginPlay happens before Possession.

@@ -33,16 +33,22 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 			{
 				// UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *GetNameSafe(Hit.GetActor()));
 
-				AARPGPlayerController* PC = Cast<AARPGPlayerController>(OwnerCharacter->GetController());
-				if (PC && HitFeedback)
+				AARPGPlayerController* InstigatorPC = Cast<AARPGPlayerController>(OwnerCharacter->GetController());
+				if (InstigatorPC && HitFeedback)
 				{
-					PC->ClientPlayForceFeedback(HitFeedback);
+					InstigatorPC->ClientPlayForceFeedback(HitFeedback);
 				}
 				
 				FGameplayEventData GameplayEventData;
 				GameplayEventData.Instigator = GetOwner();
 				GameplayEventData.Target = HitCharacter;
 				GameplayEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+
+				AARPGPlayerController* VictimPC = Cast<AARPGPlayerController>(HitCharacter->GetController());
+				if (VictimPC && HitCharacter->GetCombatManager()->HitFeedback)
+				{
+					VictimPC->ClientPlayForceFeedback(HitCharacter->GetCombatManager()->HitFeedback);
+				}
 
 				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, GameplayEventData);
 			}

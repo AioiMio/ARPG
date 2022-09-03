@@ -67,6 +67,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	FallingTag = FGameplayTag::RequestGameplayTag(FName("State.Falling"));
 	JumpTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.Jump"));
 	DodgeTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.Dodge"));
+	SprintTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.Sprint"));
 	RightHandAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.Combo"));
 
 	// Settings
@@ -172,6 +173,10 @@ void AARPGCharacter::RemoveCharacterAbilities()
 	AbilitySystemComponent->CharacterAbilitiesGiven = false;
 }
 
+void AARPGCharacter::OnHitEffect()
+{
+}
+
 EARPGHitReactDirection AARPGCharacter::GetHitReactDirection(const FVector& ImpactPoint)
 {
 	const FVector& ActorLocation = GetActorLocation();
@@ -252,6 +257,18 @@ void AARPGCharacter::JumpAction()
 void AARPGCharacter::DodgeAction()
 {
 	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(DodgeTag));
+}
+
+void AARPGCharacter::SprintStart()
+{
+	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(SprintTag));
+}
+
+void AARPGCharacter::SprintStop()
+{
+	FGameplayTagContainer SprintTagContainer;
+	SprintTagContainer.AddTag(SprintTag);
+	AbilitySystemComponent->CancelAbilities(&SprintTagContainer);
 }
 
 void AARPGCharacter::RightHandAttackAction()

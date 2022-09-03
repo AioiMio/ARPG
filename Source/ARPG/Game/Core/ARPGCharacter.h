@@ -80,13 +80,13 @@ public:
 	// Removes all CharacterAbilities. Can only be called by the Server. Removing on the Server will remove from Client too.
 	virtual void RemoveCharacterAbilities();
 
+	virtual void OnHitEffect();
+
 	UFUNCTION(BlueprintCallable)
 	EARPGHitReactDirection GetHitReactDirection(const FVector& ImpactPoint);
 
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
 	virtual void PlayHitReact(FGameplayTag HitDirection, AActor* DamageCauser);
-	virtual void PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser);
-	virtual bool PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser);
 
 	void SetLockOnPointHiddenInGame(bool bInHidden);
 
@@ -99,6 +99,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "InputActions")
 	virtual void DodgeAction();
+
+	UFUNCTION(BlueprintCallable, Category = "InputActions")
+	virtual void SprintStart();
+
+	UFUNCTION(BlueprintCallable, Category = "InputActions")
+	virtual void SprintStop();
 
 	UFUNCTION(BlueprintCallable, Category = "InputActions")
 	virtual void RightHandAttackAction();
@@ -201,6 +207,7 @@ protected:
 	FGameplayTag FallingTag;
 	FGameplayTag JumpTag;
 	FGameplayTag DodgeTag;
+	FGameplayTag SprintTag;
 	FGameplayTag RightHandAttackTag;
 
 	FTimerHandle TimerHandle_LandDelay;
