@@ -13,5 +13,4 @@ UCLASS()
 class ARPG_API UARPGCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
-	
 };

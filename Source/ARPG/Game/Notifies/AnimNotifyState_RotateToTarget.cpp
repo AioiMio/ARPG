@@ -7,6 +7,7 @@
 #include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshComp,
                                                   UAnimSequenceBase* Animation,
@@ -18,14 +19,14 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 	Character = Cast<AARPGCharacter>(MeshComp->GetOuter());
 	if (Character.IsValid() && Character->IsLocallyControlled())
 	{
-		// AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(Character);
-		// if (PlayerCharacter && PlayerCharacter->IsMovementInputting())
-		// {
-		// 	FVector TargetLocation = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetMovementWorldVector() * 1000.f;
-		// 	PlayerCharacter->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
-		//
-		// 	return;
-		// }
+		AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(Character);
+		if (PlayerCharacter && PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration().Length() > 0.2f)
+		{
+			FVector TargetLocation = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration();
+			PlayerCharacter->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
+		
+			return;
+		}
 		
 		if (bAutoFaceTarget)
 		{

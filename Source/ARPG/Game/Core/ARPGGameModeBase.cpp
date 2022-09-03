@@ -21,12 +21,12 @@ AARPGGameModeBase::AARPGGameModeBase()
 
 void AARPGGameModeBase::PlayerCharacterDied(AController* Controller)
 {
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	ASpectatorPawn* SpectatorPawn = GetWorld()->SpawnActor<ASpectatorPawn>(SpectatorClass, Controller->GetPawn()->GetActorTransform(), SpawnParameters);
-
+	// FActorSpawnParameters SpawnParameters;
+	// SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	// ASpectatorPawn* SpectatorPawn = GetWorld()->SpawnActor<ASpectatorPawn>(SpectatorClass, Controller->GetPawn()->GetActorTransform(), SpawnParameters);
+	//
 	Controller->UnPossess();
-	Controller->Possess(SpectatorPawn);
+	// Controller->Possess(SpectatorPawn);
 
 	FTimerHandle RespawnTimerHandle;
 	FTimerDelegate RespawnDelegate;
@@ -64,9 +64,9 @@ void AARPGGameModeBase::RespawnPlayerCharacter(AController* Controller)
 
 		AARPGPlayerCharacter* NewPlayerCharacter = GetWorld()->SpawnActor<AARPGPlayerCharacter>(PlayerClass, PlayerStart->GetActorLocation(), PlayerStart->GetActorRotation(), SpawnParameters);
 
-		APawn* OldSpectatorPawn = Controller->GetPawn();
-		Controller->UnPossess();
-		OldSpectatorPawn->Destroy();
+		// APawn* OldSpectatorPawn = Controller->GetPawn();
+		// Controller->UnPossess();
+		// OldSpectatorPawn->Destroy();
 		Controller->Possess(NewPlayerCharacter);
 	}
 	else
@@ -77,9 +77,9 @@ void AARPGGameModeBase::RespawnPlayerCharacter(AController* Controller)
 
 		AARPGPlayerCharacter* NewPlayerCharacter = GetWorld()->SpawnActor<AARPGPlayerCharacter>(PlayerClass, EnemySpawnPoint->GetActorTransform(), SpawnParameters);
 		
-		APawn* OldSpectatorPawn = Controller->GetPawn();
-		Controller->UnPossess();
-		OldSpectatorPawn->Destroy();
+		// APawn* OldSpectatorPawn = Controller->GetPawn();
+		// Controller->UnPossess();
+		// OldSpectatorPawn->Destroy();
 		Controller->Possess(NewPlayerCharacter);
 	}
 }
