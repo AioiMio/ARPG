@@ -66,13 +66,14 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag(FName("Effect.RemoveOnDeath"));
 	FallingTag = FGameplayTag::RequestGameplayTag(FName("State.Falling"));
 	JumpTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.Jump"));
+	DodgeTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.Dodge"));
 	RightHandAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.Combo"));
 
 	// Settings
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->GravityScale = 3.f;
-	GetCharacterMovement()->JumpZVelocity = 800.f;
+	GetCharacterMovement()->GravityScale = 2.2f;
+	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.5f;
 	GetCharacterMovement()->RotationRate.Yaw = 1200.f;
 }
@@ -246,6 +247,11 @@ void AARPGCharacter::SetLockOnPointHiddenInGame(bool bInHidden)
 void AARPGCharacter::JumpAction()
 {
 	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(JumpTag));
+}
+
+void AARPGCharacter::DodgeAction()
+{
+	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(DodgeTag));
 }
 
 void AARPGCharacter::RightHandAttackAction()

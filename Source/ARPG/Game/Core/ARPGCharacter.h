@@ -98,6 +98,9 @@ public:
 	virtual void JumpAction();
 
 	UFUNCTION(BlueprintCallable, Category = "InputActions")
+	virtual void DodgeAction();
+
+	UFUNCTION(BlueprintCallable, Category = "InputActions")
 	virtual void RightHandAttackAction();
 
 
@@ -197,6 +200,7 @@ protected:
 	FGameplayTag EffectRemoveOnDeathTag;
 	FGameplayTag FallingTag;
 	FGameplayTag JumpTag;
+	FGameplayTag DodgeTag;
 	FGameplayTag RightHandAttackTag;
 
 	FTimerHandle TimerHandle_LandDelay;
