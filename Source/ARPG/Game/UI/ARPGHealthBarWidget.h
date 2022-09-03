@@ -41,6 +41,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DamageNum;
 
+	float ChangeHealthBottomDelay = 0.7f;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	int32 Damage;

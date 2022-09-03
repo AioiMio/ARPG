@@ -102,6 +102,7 @@ protected:
 	FDelegateHandle StaminaChangedDelegateHandle;
 	FDelegateHandle MaxStaminaChangedDelegateHandle;
 	FDelegateHandle StaminaRegenRateChangedDelegateHandle;
+	FDelegateHandle MoveSpeedChangedDelegateHandle;
 	FDelegateHandle XPChangedDelegateHandle;
 	FDelegateHandle GoldChangedDelegateHandle;
 	FDelegateHandle CharacterLevelChangedDelegateHandle;
@@ -116,6 +117,7 @@ protected:
 	virtual void StaminaChanged(const FOnAttributeChangeData& Data);
 	virtual void MaxStaminaChanged(const FOnAttributeChangeData& Data);
 	virtual void StaminaRegenRateChanged(const FOnAttributeChangeData& Data);
+	virtual void MoveSpeedChanged(const FOnAttributeChangeData& Data);
 	virtual void XPChanged(const FOnAttributeChangeData& Data);
 	virtual void GoldChanged(const FOnAttributeChangeData& Data);
 	virtual void CharacterLevelChanged(const FOnAttributeChangeData& Data);
@@ -123,5 +125,5 @@ protected:
 	// Tag change callbacks
 	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
-	void StaminaRegenElapsed();
+	void StaminaRegenElapsed() const;
 };

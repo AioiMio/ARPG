@@ -106,6 +106,8 @@ protected:
 	float TargetManaPercent;
 	float TargetStaminaPercent;
 
+	float ChangeBottomDelay = 0.7f;
+	
 	FTimerHandle TimerHandle_HealthBottomDelay;
 	FTimerHandle TimerHandle_ManaBottomDelay;
 	FTimerHandle TimerHandle_StaminaBottomDelay;

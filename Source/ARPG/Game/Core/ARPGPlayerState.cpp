@@ -9,6 +9,7 @@
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "ARPG/Game/UI/ARPGHUDWidget.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AARPGPlayerState::AARPGPlayerState()
 {
@@ -275,7 +276,7 @@ void AARPGPlayerState::StaminaChanged(const FOnAttributeChangeData & Data)
 	}
 }
 
-void AARPGPlayerState::StaminaRegenElapsed()
+void AARPGPlayerState::StaminaRegenElapsed() const
 {
 	if (HasAuthority())
 	{
@@ -291,6 +292,17 @@ void AARPGPlayerState::MaxStaminaChanged(const FOnAttributeChangeData & Data)
 void AARPGPlayerState::StaminaRegenRateChanged(const FOnAttributeChangeData & Data)
 {
 	float StaminaRegenRate = Data.NewValue;
+}
+
+void AARPGPlayerState::MoveSpeedChanged(const FOnAttributeChangeData& Data)
+{
+	float MoveSpeed = Data.NewValue;
+
+	AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(GetPawn());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+	}
 }
 
 void AARPGPlayerState::XPChanged(const FOnAttributeChangeData & Data)

@@ -51,7 +51,7 @@ void UARPGHealthBarWidget::SetHealthPercentage(float InPercent)
 			{
 				FTimerDelegate Delegate;
 				Delegate.BindUFunction(this, "ChangeHealthBottomElapsed");
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle_HealthBottomDelay, Delegate, 0.8f, false);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_HealthBottomDelay, Delegate, ChangeHealthBottomDelay, false);
 			}
 		}
 	}

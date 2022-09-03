@@ -92,7 +92,7 @@ void UARPGHUDWidget::SetHealthPercentage(float HealthPercentage)
 			{
 				FTimerDelegate Delegate;
 				Delegate.BindUFunction(this, "ChangeHealthBottomElapsed");
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle_HealthBottomDelay, Delegate, 0.8f, false);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_HealthBottomDelay, Delegate, ChangeBottomDelay, false);
 			}
 		}
 	}
@@ -125,7 +125,7 @@ void UARPGHUDWidget::SetStaminaPercentage(float StaminaPercentage)
 			{
 				FTimerDelegate Delegate;
 				Delegate.BindUFunction(this, "ChangeStaminaBottomElapsed");
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaBottomDelay, Delegate, 0.8f, false);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaBottomDelay, Delegate, ChangeBottomDelay, false);
 			}
 		}
 	}
@@ -159,7 +159,7 @@ void UARPGHUDWidget::SetManaPercentage(float ManaPercentage)
 			{
 				FTimerDelegate Delegate;
 				Delegate.BindUFunction(this, "ChangeManaBottomElapsed");
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle_ManaBottomDelay, Delegate, 0.8f, false);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_ManaBottomDelay, Delegate, ChangeBottomDelay, false);
 			}
 		}
 	}
