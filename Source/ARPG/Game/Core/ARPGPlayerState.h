@@ -62,6 +62,15 @@ public:
 	float GetStaminaRegenRate() const;
 
 	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")
+	float GetPosture() const;
+
+	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")
+	float GetMaxPosture() const;
+
+	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")
+	float GetPostureRegenRate() const;
+
+	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")
 	float GetMoveSpeed() const;
 
 	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")
@@ -102,6 +111,9 @@ protected:
 	FDelegateHandle StaminaChangedDelegateHandle;
 	FDelegateHandle MaxStaminaChangedDelegateHandle;
 	FDelegateHandle StaminaRegenRateChangedDelegateHandle;
+	FDelegateHandle PostureChangedDelegateHandle;
+	FDelegateHandle MaxPostureChangedDelegateHandle;
+	FDelegateHandle PostureRegenRateChangedDelegateHandle;
 	FDelegateHandle MoveSpeedChangedDelegateHandle;
 	FDelegateHandle XPChangedDelegateHandle;
 	FDelegateHandle GoldChangedDelegateHandle;
@@ -117,6 +129,9 @@ protected:
 	virtual void StaminaChanged(const FOnAttributeChangeData& Data);
 	virtual void MaxStaminaChanged(const FOnAttributeChangeData& Data);
 	virtual void StaminaRegenRateChanged(const FOnAttributeChangeData& Data);
+	virtual void PostureChanged(const FOnAttributeChangeData& Data);
+	virtual void MaxPostureChanged(const FOnAttributeChangeData& Data);
+	virtual void PostureRegenRateChanged(const FOnAttributeChangeData& Data);
 	virtual void MoveSpeedChanged(const FOnAttributeChangeData& Data);
 	virtual void XPChanged(const FOnAttributeChangeData& Data);
 	virtual void GoldChanged(const FOnAttributeChangeData& Data);

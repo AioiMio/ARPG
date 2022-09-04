@@ -216,6 +216,11 @@ void UARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	{
 		// Handle stamina changes.
 		SetStamina(FMath::Clamp(GetStamina(), 0.0f, GetMaxStamina()));
+	} // Posture
+	else if (Data.EvaluatedData.Attribute == GetPostureAttribute())
+	{
+		// Handle posture changes.
+		SetPosture(FMath::Clamp(GetPosture(), 0.0f, GetMaxPosture()));
 	}
 }
 
@@ -300,6 +305,21 @@ void UARPGAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxSta
 void UARPGAttributeSet::OnRep_StaminaRegenRate(const FGameplayAttributeData& OldStaminaRegenRate)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, StaminaRegenRate, OldStaminaRegenRate);
+}
+
+void UARPGAttributeSet::OnRep_Posture(const FGameplayAttributeData& OldPosture)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, Posture, OldPosture);
+}
+
+void UARPGAttributeSet::OnRep_MaxPosture(const FGameplayAttributeData& OldMaxPosture)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, MaxPosture, OldMaxPosture);
+}
+
+void UARPGAttributeSet::OnRep_PostureRegenRate(const FGameplayAttributeData& OldPostureRegenRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, PostureRegenRate, OldPostureRegenRate);
 }
 
 void UARPGAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed)

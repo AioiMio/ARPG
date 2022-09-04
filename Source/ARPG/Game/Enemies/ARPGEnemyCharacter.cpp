@@ -74,6 +74,21 @@ void AARPGEnemyCharacter::HealthChanged(const FOnAttributeChangeData& Data)
 	}
 }
 
+void AARPGEnemyCharacter::StaminaChanged(const FOnAttributeChangeData& Data)
+{
+	float Stamina = Data.NewValue;
+
+	if (Stamina == 0.f && Data.OldValue > 0.f)
+	{
+		SprintStop();
+	}
+}
+
+void AARPGEnemyCharacter::PostureChanged(const FOnAttributeChangeData& Data)
+{
+	float Posture = Data.NewValue;
+}
+
 void AARPGEnemyCharacter::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	if (NewCount > 0)

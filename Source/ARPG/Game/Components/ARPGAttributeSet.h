@@ -78,6 +78,21 @@ public:
 	FGameplayAttributeData StaminaRegenRate;
 	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, StaminaRegenRate)
 
+	// Current Posture, used to define hit reaction. Capped by MaxPosture.
+	UPROPERTY(BlueprintReadOnly, Category = "Posture", ReplicatedUsing = OnRep_Posture)
+	FGameplayAttributeData Posture;
+	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, Posture)
+
+	// MaxPosture is its own attribute since GameplayEffects may modify it
+	UPROPERTY(BlueprintReadOnly, Category = "Posture", ReplicatedUsing = OnRep_MaxPosture)
+	FGameplayAttributeData MaxPosture;
+	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, MaxPosture)
+
+	// Posture regen rate will passively increase Posture every second
+	UPROPERTY(BlueprintReadOnly, Category = "Posture", ReplicatedUsing = OnRep_PostureRegenRate)
+	FGameplayAttributeData PostureRegenRate;
+	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, PostureRegenRate)
+
 	// Damage is a meta attribute used by the DamageExecution to calculate final damage, which then turns into -Health
 	// Temporary value that only exists on the Server. Not replicated.
 	UPROPERTY(BlueprintReadOnly, Category = "Damage")
@@ -148,6 +163,15 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_StaminaRegenRate(const FGameplayAttributeData& OldStaminaRegenRate);
+
+	UFUNCTION()
+	virtual void OnRep_Posture(const FGameplayAttributeData& OldPosture);
+
+	UFUNCTION()
+	virtual void OnRep_MaxPosture(const FGameplayAttributeData& OldMaxPosture);
+
+	UFUNCTION()
+	virtual void OnRep_PostureRegenRate(const FGameplayAttributeData& OldPostureRegenRate);
 
 	UFUNCTION()
 	virtual void OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed);

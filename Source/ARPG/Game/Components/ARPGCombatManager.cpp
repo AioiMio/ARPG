@@ -44,12 +44,6 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 				GameplayEventData.Target = HitCharacter;
 				GameplayEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
 
-				AARPGPlayerController* VictimPC = Cast<AARPGPlayerController>(HitCharacter->GetController());
-				if (VictimPC && HitCharacter->GetCombatManager()->HitFeedback)
-				{
-					VictimPC->ClientPlayForceFeedback(HitCharacter->GetCombatManager()->HitFeedback);
-				}
-
 				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, GameplayEventData);
 			}
 		}

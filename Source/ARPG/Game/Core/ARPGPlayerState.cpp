@@ -91,6 +91,21 @@ float AARPGPlayerState::GetStaminaRegenRate() const
 	return AttributeSet->GetStaminaRegenRate();
 }
 
+float AARPGPlayerState::GetPosture() const
+{
+	return AttributeSet->GetPosture();
+}
+
+float AARPGPlayerState::GetMaxPosture() const
+{
+	return AttributeSet->GetMaxPosture();
+}
+
+float AARPGPlayerState::GetPostureRegenRate() const
+{
+	return AttributeSet->GetPostureRegenRate();
+}
+
 float AARPGPlayerState::GetMoveSpeed() const
 {
 	return AttributeSet->GetMoveSpeed();
@@ -137,6 +152,9 @@ void AARPGPlayerState::BeginPlay()
 		StaminaChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute()).AddUObject(this, &AARPGPlayerState::StaminaChanged);
 		MaxStaminaChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxStaminaAttribute()).AddUObject(this, &AARPGPlayerState::MaxStaminaChanged);
 		StaminaRegenRateChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaRegenRateAttribute()).AddUObject(this, &AARPGPlayerState::StaminaRegenRateChanged);
+		PostureChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetPostureAttribute()).AddUObject(this, &AARPGPlayerState::PostureChanged);
+		MaxPostureChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxPostureAttribute()).AddUObject(this, &AARPGPlayerState::MaxPostureChanged);
+		PostureRegenRateChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetPostureRegenRateAttribute()).AddUObject(this, &AARPGPlayerState::PostureRegenRateChanged);
 		MoveSpeedChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMoveSpeedAttribute()).AddUObject(this, &AARPGPlayerState::MoveSpeedChanged);
 		XPChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetXPAttribute()).AddUObject(this, &AARPGPlayerState::XPChanged);
 		GoldChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetGoldAttribute()).AddUObject(this, &AARPGPlayerState::GoldChanged);
@@ -263,6 +281,15 @@ void AARPGPlayerState::StaminaChanged(const FOnAttributeChangeData & Data)
 			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGPlayerState::StaminaRegenElapsed);
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaRegenDelay, Delegate, 1.5f, false);
 		}
+
+		if (Stamina == 0.f)
+		{
+			AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(GetPawn());
+			if (PlayerCharacter)
+			{
+				PlayerCharacter->SprintStop();
+			}
+		}
 	}
 	
 	// Update the HUD
@@ -293,6 +320,18 @@ void AARPGPlayerState::MaxStaminaChanged(const FOnAttributeChangeData & Data)
 void AARPGPlayerState::StaminaRegenRateChanged(const FOnAttributeChangeData & Data)
 {
 	float StaminaRegenRate = Data.NewValue;
+}
+
+void AARPGPlayerState::PostureChanged(const FOnAttributeChangeData& Data)
+{
+}
+
+void AARPGPlayerState::MaxPostureChanged(const FOnAttributeChangeData& Data)
+{
+}
+
+void AARPGPlayerState::PostureRegenRateChanged(const FOnAttributeChangeData& Data)
+{
 }
 
 void AARPGPlayerState::MoveSpeedChanged(const FOnAttributeChangeData& Data)

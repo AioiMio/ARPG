@@ -72,13 +72,13 @@ void AARPGPlayerCharacter::PossessedBy(AController* NewController)
 		// Forcibly set the DeadTag count to 0
 		AbilitySystemComponent->SetTagMapCount(DeadTag, 0);
 
-		// Set Health/Mana/Stamina to their max. This is only necessary for *Respawn*.
+		// Set Health/Mana/Stamina/Posture to their max. This is only necessary for *Respawn*.
 		SetHealth(GetMaxHealth());
 		SetMana(GetMaxMana());
 		SetStamina(GetMaxStamina());
+		SetPosture(GetMaxPosture());
 
 		// End respawn specific things
-
 
 		AddStartupEffects();
 
@@ -131,6 +131,7 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 		SetHealth(GetMaxHealth());
 		SetMana(GetMaxMana());
 		SetStamina(GetMaxStamina());
+		SetPosture(GetMaxPosture());
 	}
 
 	if (IsLocallyControlled())

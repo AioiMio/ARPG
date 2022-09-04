@@ -346,6 +346,26 @@ float AARPGCharacter::GetMaxStamina() const
 	return 0.0f;
 }
 
+float AARPGCharacter::GetPosture() const
+{
+	if (AttributeSet.IsValid())
+	{
+		return AttributeSet->GetPosture();
+	}
+
+	return 0.0f;
+}
+
+float AARPGCharacter::GetMaxPosture() const
+{
+	if (AttributeSet.IsValid())
+	{
+		return AttributeSet->GetMaxPosture();
+	}
+
+	return 0.0f;
+}
+
 float AARPGCharacter::GetMoveSpeed() const
 {
 	if (AttributeSet.IsValid())
@@ -539,6 +559,14 @@ void AARPGCharacter::SetStamina(float Stamina)
 	if (AttributeSet.IsValid())
 	{
 		AttributeSet->SetStamina(Stamina);
+	}
+}
+
+void AARPGCharacter::SetPosture(float Posture)
+{
+	if (AttributeSet.IsValid())
+	{
+		AttributeSet->SetPosture(Posture);
 	}
 }
 

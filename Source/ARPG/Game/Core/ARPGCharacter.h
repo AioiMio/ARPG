@@ -134,6 +134,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMaxStamina() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
+	float GetPosture() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
+	float GetMaxPosture() const;
 	
 	// Gets the Current value of MoveSpeed
 	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
@@ -260,4 +266,5 @@ protected:
 	virtual void SetHealth(float Health);
 	virtual void SetMana(float Mana);
 	virtual void SetStamina(float Stamina);
+	virtual void SetPosture(float Posture);
 };
