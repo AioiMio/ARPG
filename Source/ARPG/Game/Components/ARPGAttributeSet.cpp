@@ -216,12 +216,12 @@ void UARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	{
 		// Handle stamina changes.
 		SetStamina(FMath::Clamp(GetStamina(), 0.0f, GetMaxStamina()));
-	} // Posture
+	} // Stamina
 	else if (Data.EvaluatedData.Attribute == GetPostureAttribute())
 	{
 		// Handle posture changes.
 		SetPosture(FMath::Clamp(GetPosture(), 0.0f, GetMaxPosture()));
-	}
+	} // Posture
 }
 
 void UARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -237,6 +237,9 @@ void UARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, StaminaRegenRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, Posture, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, MaxPosture, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, PostureRegenRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, MoveSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, CharacterLevel, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, XP, COND_None, REPNOTIFY_Always);

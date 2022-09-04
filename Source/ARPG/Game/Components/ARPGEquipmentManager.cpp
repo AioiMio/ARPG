@@ -5,6 +5,7 @@
 
 #include "ARPGCombatManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 
 UARPGEquipmentManager::UARPGEquipmentManager()
@@ -28,13 +29,14 @@ void UARPGEquipmentManager::EquipRightHandWeapon(int32 Index)
 	{
 		FActorSpawnParameters ActorSpawnParameters;
 		ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ActorSpawnParameters.Owner = OwnerCharacter.Get();
 		CurrentRightHandWeapon = GetWorld()->SpawnActor<AARPGWeapon>(RightHandWeapons[Index].Get(),
 		                                                          OwnerCharacter->GetMesh()->GetSocketTransform(
 			                                                          RightHandWeaponSocketName), ActorSpawnParameters);
+		CurrentRightHandWeapon->SetEquipPosition(EEquipPostion::RightHand);
 
 		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
 		CurrentRightHandWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules, RightHandWeaponSocketName);
-		CurrentRightHandWeapon->SetOwner(OwnerCharacter.Get());
 
 		if (OwnerCharacter->GetCombatManager())
 		{

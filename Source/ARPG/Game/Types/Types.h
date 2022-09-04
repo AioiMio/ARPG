@@ -29,3 +29,12 @@ enum class EAnimationType : uint8
 	
 	EAT_MAX UMETA(DisplayName = "DefaultMAX")
 };
+
+UENUM(BlueprintType)
+enum class EEquipPostion : uint8
+{
+	RightHand UMETA(DisplayName = "RightHand"),
+	LeftHand UMETA(DisplayName = "RightHand"),
+	
+	MAX UMETA(DisplayName = "DefaultMAX")
+};

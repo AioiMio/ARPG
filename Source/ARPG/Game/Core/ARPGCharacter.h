@@ -66,6 +66,9 @@ public:
 	FORCEINLINE UARPGTargetManager* GetTargetManager() const { return TargetManager; }
 
 	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UARPGEquipmentManager* GetEquipmentManager() const { return EquipmentManager; }
+
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UARPGMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
 
 	FORCEINLINE UARPGHealthBarWidget* GetHealthBar() const { return HealthBar; }

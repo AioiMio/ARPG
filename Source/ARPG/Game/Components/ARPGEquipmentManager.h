@@ -20,8 +20,24 @@ public:
 	void EquipRightHandWeapon(int32 Index);
 	void EquipLeftHandWeapon(int32 Index);
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE AARPGWeapon* GetCurrentRightHandWeapon() { return CurrentRightHandWeapon; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetCurrentRightHandWeapon(AARPGWeapon* Weapon) { CurrentRightHandWeapon = Weapon; }
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE AARPGWeapon* GetCurrentLeftHandWeapon() { return CurrentLeftHandWeapon; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetCurrentLeftHandWeapon(AARPGWeapon* Weapon) { CurrentLeftHandWeapon = Weapon; }
+
 	void UnequipAllWeapons();
 	void DissolveAllWeapons();
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Equipments")
+	FName RightHandWeaponSocketName = "Weapon_R";
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Equipments")
+	FName LeftHandWeaponSocketName = "Weapon_L";
 
 protected:
 	virtual void BeginPlay() override;
@@ -37,10 +53,4 @@ protected:
 	AARPGWeapon* CurrentRightHandWeapon;
 	UPROPERTY()
 	AARPGWeapon* CurrentLeftHandWeapon;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Equipments")
-	FName RightHandWeaponSocketName = "Weapon_R";
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Equipments")
-	FName LeftHandWeaponSocketName = "Weapon_L";
 };
