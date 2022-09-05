@@ -75,7 +75,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->GravityScale = 2.2f;
 	GetCharacterMovement()->JumpZVelocity = 700.f;
-	GetCharacterMovement()->AirControl = 0.5f;
+	GetCharacterMovement()->AirControl = 0.4f;
 	GetCharacterMovement()->RotationRate.Yaw = 1200.f;
 	GetCapsuleComponent()->SetCapsuleRadius(45.f);
 }
@@ -124,7 +124,7 @@ void AARPGCharacter::LandElapsed()
 
 	FTimerDelegate Delegate;
 	Delegate.BindUFunction(this, "RemoveFallingTagElapsed");
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_FallingTagRemoveDelay, Delegate, 0.1f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_FallingTagRemoveDelay, Delegate, 0.05f, false);
 }
 
 void AARPGCharacter::RemoveFallingTagElapsed()

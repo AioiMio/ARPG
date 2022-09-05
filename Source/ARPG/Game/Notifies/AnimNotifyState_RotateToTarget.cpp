@@ -24,7 +24,10 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 		{
 			FVector TargetLocation = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration();
 			PlayerCharacter->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
-		
+			if (!PlayerCharacter->HasAuthority())
+			{
+				PlayerCharacter->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
+			}
 			return;
 		}
 		
@@ -34,6 +37,10 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 			{
 				FVector TargetLocation = Target->GetActorLocation();
 				Character->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
+				if (!Character->HasAuthority())
+				{
+					Character->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
+				}
 			}
 		}
 	}
