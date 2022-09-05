@@ -3,6 +3,8 @@
 
 #include "ARPGWeapon.h"
 
+#include "AbilitySystemComponent.h"
+#include "ARPG/Game/Abilities/ARPGGameplayAbility.h"
 #include "ARPG/Game/Components/ARPGEquipmentManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "Net/UnrealNetwork.h"
@@ -21,16 +23,12 @@ void AARPGWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 void AARPGWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (GetOwner())
+	
+	if (OwnerCharacter.IsValid() && !HasAuthority())
 	{
-		AARPGCharacter* OwnerCharacter = Cast<AARPGCharacter>(GetOwner());
-		if (OwnerCharacter && !HasAuthority())
+		if (EquipPostion == EEquipPostion::RightHand)
 		{
-			if (EquipPostion == EEquipPostion::RightHand)
-			{
-				OwnerCharacter->GetEquipmentManager()->SetCurrentRightHandWeapon(this);
-			}
+			OwnerCharacter->GetEquipmentManager()->SetCurrentRightHandWeapon(this);
 		}
 	}
 }

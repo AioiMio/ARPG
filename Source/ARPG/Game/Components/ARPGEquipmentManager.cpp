@@ -3,7 +3,9 @@
 
 #include "ARPGEquipmentManager.h"
 
+#include "AbilitySystemComponent.h"
 #include "ARPGCombatManager.h"
+#include "ARPG/Game/Abilities/ARPGGameplayAbility.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "Net/UnrealNetwork.h"
 
@@ -19,28 +21,79 @@ void UARPGEquipmentManager::BeginPlay()
 	Super::BeginPlay();
 
 	OwnerCharacter = Cast<AARPGCharacter>(GetOwner());
-	
+
 	EquipRightHandWeapon(0);
+}
+
+void UARPGEquipmentManager::AddEquipmentAbilitiesToOwner(AARPGEquipmentBase* Equipment)
+{
+	if (Equipment && OwnerCharacter.IsValid())
+	{
+		// Grant abilities, but only on the server	
+		if (GetOwnerRole() != ENetRole::ROLE_Authority || !OwnerCharacter->GetAbilitySystemComponent() || Equipment->
+			bEquipmentAbilitiesGiven)
+		{
+			return;
+		}
+
+		for (TSubclassOf<UARPGGameplayAbility>& Ability : Equipment->Abilities)
+		{
+			FGameplayAbilitySpecHandle AbilitySpecHandle = OwnerCharacter->GetAbilitySystemComponent()->GiveAbility(
+				FGameplayAbilitySpec(Ability, OwnerCharacter->GetAbilityLevel(Ability.GetDefaultObject()->AbilityID),
+				                     static_cast<int32>(Ability.GetDefaultObject()->AbilityInputID),
+				                     this));
+
+			Equipment->AbilitySpecHandles.Add(AbilitySpecHandle);
+		}
+
+		Equipment->bEquipmentAbilitiesGiven = true;
+	}
+}
+
+void UARPGEquipmentManager::RemoveEquipmentAbilitiesFromOwner(AARPGEquipmentBase* Equipment)
+{
+	if (OwnerCharacter.IsValid())
+	{
+		// Remove abilities, but only on the server	
+		if (OwnerCharacter->GetLocalRole() != ROLE_Authority || !OwnerCharacter->GetAbilitySystemComponent())
+		{
+			return;
+		}
+
+		for (FGameplayAbilitySpecHandle& AbilitySpecHandle : Equipment->AbilitySpecHandles)
+		{
+			OwnerCharacter->GetAbilitySystemComponent()->ClearAbility(AbilitySpecHandle);
+		}
+	}
 }
 
 void UARPGEquipmentManager::EquipRightHandWeapon(int32 Index)
 {
+	if (CurrentRightHandWeapon)
+	{
+		DestroyRightHandWeapon();
+	}
+	
 	if (OwnerCharacter.IsValid() && GetOwnerRole() == ENetRole::ROLE_Authority && RightHandWeapons[Index])
 	{
 		FActorSpawnParameters ActorSpawnParameters;
 		ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		ActorSpawnParameters.Owner = OwnerCharacter.Get();
 		CurrentRightHandWeapon = GetWorld()->SpawnActor<AARPGWeapon>(RightHandWeapons[Index].Get(),
-		                                                          OwnerCharacter->GetMesh()->GetSocketTransform(
-			                                                          RightHandWeaponSocketName), ActorSpawnParameters);
+		                                                             OwnerCharacter->GetMesh()->GetSocketTransform(
+			                                                             RightHandWeaponSocketName),
+		                                                             ActorSpawnParameters);
 		CurrentRightHandWeapon->SetEquipPosition(EEquipPostion::RightHand);
+		AddEquipmentAbilitiesToOwner(CurrentRightHandWeapon);
 
 		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
-		CurrentRightHandWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules, RightHandWeaponSocketName);
+		CurrentRightHandWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules,
+		                                          RightHandWeaponSocketName);
 
 		if (OwnerCharacter->GetCombatManager())
 		{
-			OwnerCharacter->GetCombatManager()->AddTraceMesh(CurrentRightHandWeapon->GetMesh(), EAGR_CombatColliderType::ComplexBoxTrace);
+			OwnerCharacter->GetCombatManager()->AddTraceMesh(CurrentRightHandWeapon->GetMesh(),
+			                                                 EAGR_CombatColliderType::ComplexBoxTrace);
 		}
 	}
 }
@@ -49,19 +102,48 @@ void UARPGEquipmentManager::EquipLeftHandWeapon(int32 Index)
 {
 }
 
-void UARPGEquipmentManager::UnequipAllWeapons()
+void UARPGEquipmentManager::DestroyRightHandWeapon()
 {
-	if (GetOwnerRole() == ENetRole::ROLE_Authority)
+	if (GetOwnerRole() == ENetRole::ROLE_Authority && CurrentRightHandWeapon)
 	{
-		if (CurrentLeftHandWeapon)
-		{
-			CurrentLeftHandWeapon->Destroy();
-		}
-		if (CurrentRightHandWeapon)
-		{
-			CurrentRightHandWeapon->Destroy();
-		}
+		RemoveEquipmentAbilitiesFromOwner(CurrentRightHandWeapon);
+		CurrentRightHandWeapon->Destroy();
 	}
+}
+
+void UARPGEquipmentManager::DestroyLeftHandWeapon()
+{
+	if (GetOwnerRole() == ENetRole::ROLE_Authority && CurrentLeftHandWeapon)
+	{
+		RemoveEquipmentAbilitiesFromOwner(CurrentLeftHandWeapon);
+		CurrentLeftHandWeapon->Destroy();
+	}
+}
+
+void UARPGEquipmentManager::ServerEquipRightHandWeapon_Implementation(int32 Index)
+{
+	EquipRightHandWeapon(Index);
+}
+
+void UARPGEquipmentManager::ServerDestroyRightHandWeapon_Implementation()
+{
+	DestroyRightHandWeapon();
+}
+
+void UARPGEquipmentManager::ServerEquipLeftHandWeapon_Implementation(int32 Index)
+{
+	EquipLeftHandWeapon(Index);
+}
+
+void UARPGEquipmentManager::ServerDestroyLeftHandWeapon_Implementation()
+{
+	DestroyLeftHandWeapon();
+}
+
+void UARPGEquipmentManager::DestroyAllWeapons()
+{
+	DestroyRightHandWeapon();
+	DestroyLeftHandWeapon();
 }
 
 void UARPGEquipmentManager::DissolveAllWeapons()

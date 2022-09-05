@@ -3,6 +3,9 @@
 
 #include "ARPGEquipmentBase.h"
 
+#include "AbilitySystemComponent.h"
+#include "ARPG/Game/Abilities/ARPGGameplayAbility.h"
+#include "ARPG/Game/Core/ARPGCharacter.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 
@@ -32,6 +35,7 @@ void AARPGEquipmentBase::MulticastLeaveWorld_Implementation()
 void AARPGEquipmentBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	OwnerCharacter = GetOwner() ? Cast<AARPGCharacter>(GetOwner()) : nullptr;
 	JoinWorld();
 }

@@ -436,7 +436,7 @@ void AARPGCharacter::FinishDying()
 
 void AARPGCharacter::Destroyed()
 {
-	EquipmentManager->UnequipAllWeapons();
+	EquipmentManager->DestroyAllWeapons();
 	Super::Destroyed();
 }
 
@@ -457,6 +457,12 @@ void AARPGCharacter::AddCharacterAbilities()
 	}
 
 	AbilitySystemComponent->CharacterAbilitiesGiven = true;
+
+	if (EquipmentManager)
+	{
+		EquipmentManager->AddEquipmentAbilitiesToOwner(EquipmentManager->GetCurrentRightHandWeapon());
+		EquipmentManager->AddEquipmentAbilitiesToOwner(EquipmentManager->GetCurrentLeftHandWeapon());
+	}
 }
 
 void AARPGCharacter::InitializeAttributes()

@@ -7,6 +7,8 @@
 #include "ARPG/Game/Types/Types.h"
 #include "ARPGWeapon.generated.h"
 
+class AARPGCharacter;
+
 /**
  * 
  */

@@ -5,6 +5,7 @@
 
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
+#include "ARPG/Game/Components/ARPGEquipmentManager.h"
 #include "ARPG/Game/Core/ARPGGameModeBase.h"
 #include "ARPG/Game/Core/ARPGPlayerController.h"
 #include "ARPG/Game/Core/ARPGPlayerState.h"

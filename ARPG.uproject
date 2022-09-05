@@ -13,7 +13,8 @@
 				"GameplayAbilities",
 				"UMG",
 				"AGRPRO",
-				"MotionWarping"
+				"MotionWarping",
+				"CoreUObject"
 			]
 		}
 	],

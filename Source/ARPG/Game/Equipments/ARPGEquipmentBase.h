@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayAbilitySpec.h"
 #include "GameFramework/Actor.h"
 #include "ARPGEquipmentBase.generated.h"
 
 class UBoxComponent;
 class UArrowComponent;
 class USkeletalMeshComponent;
+class UARPGGameplayAbility;
+class AARPGCharacter;
 
 UCLASS()
 class ARPG_API AARPGEquipmentBase : public AActor
@@ -19,6 +22,14 @@ public:
 	AARPGEquipmentBase();
 
 	FORCEINLINE USkeletalMeshComponent* GetMesh() const { return SkeletalMeshComponent; }
+
+	// Equipment abilities for owner Character. These will be removed on Character death and regiven if Character respawns.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Abilities")
+	TArray<TSubclassOf<UARPGGameplayAbility>> Abilities;
+
+	TArray<FGameplayAbilitySpecHandle> AbilitySpecHandles;
+
+	bool bEquipmentAbilitiesGiven = false;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void JoinWorld();
@@ -31,6 +42,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	TWeakObjectPtr<AARPGCharacter> OwnerCharacter;
 
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* BoxComponent;

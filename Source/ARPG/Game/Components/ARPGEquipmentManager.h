@@ -17,8 +17,21 @@ class ARPG_API UARPGEquipmentManager : public UActorComponent
 public:	
 	UARPGEquipmentManager();
 
+	UFUNCTION(BlueprintCallable, Server, Unreliable)
+	void ServerEquipRightHandWeapon(int32 Index);
 	void EquipRightHandWeapon(int32 Index);
+	
+	UFUNCTION(BlueprintCallable, Server, Unreliable)
+	void ServerDestroyRightHandWeapon();
+	void DestroyRightHandWeapon();
+	
+	UFUNCTION(BlueprintCallable, Server, Unreliable)
+	void ServerEquipLeftHandWeapon(int32 Index);
 	void EquipLeftHandWeapon(int32 Index);
+	
+	UFUNCTION(BlueprintCallable, Server, Unreliable)
+	void ServerDestroyLeftHandWeapon();
+	void DestroyLeftHandWeapon();
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE AARPGWeapon* GetCurrentRightHandWeapon() { return CurrentRightHandWeapon; }
@@ -30,7 +43,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCurrentLeftHandWeapon(AARPGWeapon* Weapon) { CurrentLeftHandWeapon = Weapon; }
 
-	void UnequipAllWeapons();
+	// Grant & Remove abilities on the Server. The Ability Specs will be replicated to the owning client.
+	virtual void AddEquipmentAbilitiesToOwner(AARPGEquipmentBase* Equipment);
+	virtual void RemoveEquipmentAbilitiesFromOwner(AARPGEquipmentBase* Equipment);
+
+	UFUNCTION(BlueprintCallable)
+	void DestroyAllWeapons();
 	void DissolveAllWeapons();
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Equipments")
