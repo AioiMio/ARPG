@@ -29,6 +29,7 @@ void AARPGWeapon::BeginPlay()
 		if (EquipPostion == EEquipPostion::RightHand)
 		{
 			OwnerCharacter->GetEquipmentManager()->SetCurrentRightHandWeapon(this);
+			OwnerCharacter->GetEquipmentManager()->SetRightHandWeaponType(WeaponType);
 		}
 	}
 }
