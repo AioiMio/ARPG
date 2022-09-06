@@ -85,6 +85,7 @@ void UARPGEquipmentManager::EquipRightHandWeapon(int32 Index)
 		                                                             ActorSpawnParameters);
 		CurrentRightHandWeapon->SetEquipPosition(EEquipPostion::RightHand);
 		CurrentRightHandWeaponSlotIndex = Index;
+		RightHandWeaponType = CurrentRightHandWeapon->GetWeaponType();
 		AddEquipmentAbilitiesToOwner(CurrentRightHandWeapon);
 
 		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);

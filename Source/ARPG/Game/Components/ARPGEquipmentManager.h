@@ -41,11 +41,15 @@ public:
 	FORCEINLINE AARPGWeapon* GetCurrentRightHandWeapon() { return CurrentRightHandWeapon; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCurrentRightHandWeapon(AARPGWeapon* Weapon) { CurrentRightHandWeapon = Weapon; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE EWeaponType GetRightHandWeaponType() { return RightHandWeaponType; }
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE AARPGWeapon* GetCurrentLeftHandWeapon() { return CurrentLeftHandWeapon; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetCurrentLeftHandWeapon(AARPGWeapon* Weapon) { CurrentLeftHandWeapon = Weapon; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE EWeaponType GetLeftHandWeaponType() { return LeftHandWeaponType; }
 
 	// Grant & Remove abilities on the Server. The Ability Specs will be replicated to the owning client.
 	virtual void AddEquipmentAbilitiesToOwner(AARPGEquipmentBase* Equipment);
@@ -78,4 +82,7 @@ protected:
 
 	uint8 CurrentRightHandWeaponSlotIndex;
 	uint8 CurrentLeftHandWeaponSlotIndex;
+
+	EWeaponType RightHandWeaponType;
+	EWeaponType LeftHandWeaponType;
 };
