@@ -84,17 +84,43 @@ void UARPGEquipmentManager::EquipRightHandWeapon(int32 Index)
 			                                                             RightHandWeaponSocketName),
 		                                                             ActorSpawnParameters);
 		CurrentRightHandWeapon->SetEquipPosition(EEquipPostion::RightHand);
+		CurrentRightHandWeaponSlotIndex = Index;
 		AddEquipmentAbilitiesToOwner(CurrentRightHandWeapon);
 
 		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
 		CurrentRightHandWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules,
 		                                          RightHandWeaponSocketName);
 
+		// Add trace mesh
 		if (OwnerCharacter->GetCombatManager())
 		{
 			OwnerCharacter->GetCombatManager()->AddTraceMesh(CurrentRightHandWeapon->GetMesh(),
 			                                                 EAGR_CombatColliderType::ComplexBoxTrace);
 		}
+	}
+}
+
+void UARPGEquipmentManager::ServerChangeRightHandWeapon_Implementation()
+{
+	ChangeRightHandWeapon();
+}
+
+void UARPGEquipmentManager::ChangeRightHandWeapon()
+{
+	uint8 NextIndex = CurrentRightHandWeaponSlotIndex;
+	for (int8 i = 0; i < 3; i++)
+	{
+		NextIndex = (NextIndex + 1) % 3;
+		if (RightHandWeapons[NextIndex] == nullptr)
+		{
+			continue;
+		}
+		break;
+	}
+	
+	if (RightHandWeapons[NextIndex])
+	{
+		EquipRightHandWeapon(NextIndex);
 	}
 }
 
@@ -106,6 +132,13 @@ void UARPGEquipmentManager::DestroyRightHandWeapon()
 {
 	if (GetOwnerRole() == ENetRole::ROLE_Authority && CurrentRightHandWeapon)
 	{
+		// Remove trace mesh
+		if (OwnerCharacter.IsValid() && OwnerCharacter->GetCombatManager())
+		{
+			OwnerCharacter->GetCombatManager()->RemoveTraceMesh(CurrentRightHandWeapon->GetMesh());
+		}
+
+		// Remove equipment abilities
 		RemoveEquipmentAbilitiesFromOwner(CurrentRightHandWeapon);
 		CurrentRightHandWeapon->Destroy();
 	}

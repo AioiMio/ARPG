@@ -20,6 +20,10 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ServerEquipRightHandWeapon(int32 Index);
 	void EquipRightHandWeapon(int32 Index);
+
+	UFUNCTION(BlueprintCallable, Server, Unreliable)
+	void ServerChangeRightHandWeapon();
+	void ChangeRightHandWeapon();
 	
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ServerDestroyRightHandWeapon();
@@ -71,4 +75,7 @@ protected:
 	AARPGWeapon* CurrentRightHandWeapon;
 	UPROPERTY()
 	AARPGWeapon* CurrentLeftHandWeapon;
+
+	uint8 CurrentRightHandWeaponSlotIndex;
+	uint8 CurrentLeftHandWeaponSlotIndex;
 };
