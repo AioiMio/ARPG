@@ -112,7 +112,7 @@ void UARPGEquipmentManager::ChangeRightHandWeapon()
 	for (int8 i = 0; i < 3; i++)
 	{
 		NextIndex = (NextIndex + 1) % 3;
-		if (RightHandWeapons[NextIndex] == nullptr)
+		if (RightHandWeapons[NextIndex] == nullptr || RightHandWeapons[NextIndex] == HandClass)
 		{
 			continue;
 		}

@@ -73,6 +73,9 @@ protected:
 	virtual void BeginPlay() override;
 	
 	TWeakObjectPtr<AARPGCharacter> OwnerCharacter;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AARPGWeapon> HandClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipments|Weapons")
 	TArray<TSubclassOf<AARPGWeapon>> RightHandWeapons;
