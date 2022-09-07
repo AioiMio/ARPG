@@ -577,15 +577,14 @@ void AARPGCharacter::SetPosture(float Posture)
 	}
 }
 
+void AARPGCharacter::MulticastLeaveWorld_Implementation()
+{
+	LeaveWorld();
+}
 
 void AARPGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AARPGCharacter, bEmissive);
-}
-
-void AARPGCharacter::MulticastLeaveWorld_Implementation()
-{
-	LeaveWorld();
 }

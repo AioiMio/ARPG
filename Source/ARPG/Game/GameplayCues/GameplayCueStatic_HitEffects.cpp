@@ -20,6 +20,13 @@ bool UGameplayCueStatic_HitEffects::OnExecute_Implementation(AActor* MyTarget,
 			PS->GetPlayerController()->ClientPlayForceFeedback(HitForceFeedbackEffect);
 			PS->GetPlayerController()->ClientStartCameraShake(CameraShake);
 		}
+		if (AARPGCharacter* Character = Cast<AARPGCharacter>(PS->GetPawn()))
+		{
+			Character->GetMesh()->GlobalAnimRateScale = HitAnimRateScale;
+
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [Character](){Character->GetMesh()->GlobalAnimRateScale = 1.f;}, HitFeedbackEffectDuration, false);
+		}
 	}
 	
 	FHitResult HitResult = *Parameters.EffectContext.GetHitResult();

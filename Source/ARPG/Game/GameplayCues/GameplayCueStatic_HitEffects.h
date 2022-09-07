@@ -11,6 +11,7 @@ class UNiagaraSystem;
 class USoundCue;
 class USoundAttenuation;
 class UCameraShakeBase;
+class AARPGCharacter;
 
 /**
  * 
@@ -38,4 +39,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "CameraShake")
 	TSubclassOf<UCameraShakeBase> CameraShake;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit")
+	float HitAnimRateScale = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Hit")
+	float HitFeedbackEffectDuration = 0.08f;
 };
