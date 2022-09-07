@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ARPG/Game/Types/Types.h"
 #include "GameFramework/PlayerController.h"
 #include "ARPGPlayerController.generated.h"
 
+class AARPGWeapon;
 class UInputMappingContext;
 class UARPGHUDWidget;
 

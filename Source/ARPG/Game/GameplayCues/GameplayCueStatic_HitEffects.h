@@ -10,6 +10,7 @@ class UForceFeedbackEffect;
 class UNiagaraSystem;
 class USoundCue;
 class USoundAttenuation;
+class UCameraShakeBase;
 
 /**
  * 
@@ -23,15 +24,18 @@ public:
 	virtual bool OnExecute_Implementation(AActor* MyTarget, const FGameplayCueParameters& Parameters) const override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "ForceFeedback")
+	UPROPERTY(EditDefaultsOnly, Category = "ForceFeedback")
 	UForceFeedbackEffect* HitForceFeedbackEffect;
 	
-	UPROPERTY(EditAnywhere, Category = "NiagaraSystem")
+	UPROPERTY(EditDefaultsOnly, Category = "NiagaraSystem")
 	TArray<UNiagaraSystem*> NiagaraSystems;
 
-	UPROPERTY(EditAnywhere, Category = "SoundEffects")
+	UPROPERTY(EditDefaultsOnly, Category = "SoundEffects")
 	USoundCue* BloodSplashSound;
 
-	UPROPERTY(EditAnywhere, Category = "SoundEffects")
+	UPROPERTY(EditDefaultsOnly, Category = "SoundEffects")
 	USoundAttenuation* Attenuation;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CameraShake")
+	TSubclassOf<UCameraShakeBase> CameraShake;
 };

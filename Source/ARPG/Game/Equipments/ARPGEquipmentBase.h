@@ -29,6 +29,12 @@ public:
 
 	TArray<FGameplayAbilitySpecHandle> AbilitySpecHandles;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	FText Name;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	UTexture2D* Icon;
+
 	bool bEquipmentAbilitiesGiven = false;
 
 	UFUNCTION(BlueprintImplementableEvent)

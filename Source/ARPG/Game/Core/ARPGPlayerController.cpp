@@ -7,6 +7,7 @@
 #include "ARPGCharacter.h"
 #include "ARPGPlayerState.h"
 #include "EnhancedInputSubsystems.h"
+#include "ARPG/Game/Equipments/Weapons/ARPGWeapon.h"
 #include "ARPG/Game/UI/ARPGHUDWidget.h"
 
 AARPGPlayerController::AARPGPlayerController()
@@ -69,7 +70,6 @@ void AARPGPlayerController::CreateHUD()
 	UIHUDWidget->AddToViewport();
 }
 
-
 void AARPGPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -89,3 +89,4 @@ void AARPGPlayerController::OnRep_PlayerState()
 	// For edge cases where the PlayerState is repped before the Hero is possessed.
 	CreateHUD();
 }
+

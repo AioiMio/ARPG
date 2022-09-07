@@ -7,6 +7,10 @@
 #include "ARPGCombatManager.h"
 #include "ARPG/Game/Abilities/ARPGGameplayAbility.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "ARPG/Game/Core/ARPGPlayerController.h"
+#include "ARPG/Game/Core/ARPGPlayerController.h"
+#include "ARPG/Game/UI/ARPGHUDWidget.h"
+#include "Components/Image.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -21,6 +25,7 @@ void UARPGEquipmentManager::BeginPlay()
 	Super::BeginPlay();
 
 	OwnerCharacter = Cast<AARPGCharacter>(GetOwner());
+	WeaponChangedDelegate.AddDynamic(this, &UARPGEquipmentManager::OnWeaponChanged);
 
 	EquipRightHandWeapon(0);
 }
@@ -73,9 +78,16 @@ void UARPGEquipmentManager::EquipRightHandWeapon(int32 Index)
 	{
 		DestroyRightHandWeapon();
 	}
-	
-	if (OwnerCharacter.IsValid() && GetOwnerRole() == ENetRole::ROLE_Authority && RightHandWeapons[Index])
+
+	if (OwnerCharacter.IsValid() && GetOwnerRole() == ENetRole::ROLE_Authority)
 	{
+		if (!RightHandWeapons[Index] || Index < 0 || Index > 2)
+		{
+			EquipRightHandWeaponByClass(HandClass);
+			CurrentRightHandWeaponSlotIndex = Index;
+			return;
+		}
+
 		FActorSpawnParameters ActorSpawnParameters;
 		ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		ActorSpawnParameters.Owner = OwnerCharacter.Get();
@@ -91,6 +103,45 @@ void UARPGEquipmentManager::EquipRightHandWeapon(int32 Index)
 		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
 		CurrentRightHandWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules,
 		                                          RightHandWeaponSocketName);
+
+		// Broadcast WeaponChanged Event
+		WeaponChangedDelegate.Broadcast(EEquipPostion::RightHand, CurrentRightHandWeapon);
+
+		// Add trace mesh
+		if (OwnerCharacter->GetCombatManager())
+		{
+			OwnerCharacter->GetCombatManager()->AddTraceMesh(CurrentRightHandWeapon->GetMesh(),
+			                                                 EAGR_CombatColliderType::ComplexBoxTrace);
+		}
+	}
+}
+
+void UARPGEquipmentManager::EquipRightHandWeaponByClass(TSubclassOf<AARPGWeapon> WeaponClass)
+{
+	if (CurrentRightHandWeapon)
+	{
+		DestroyRightHandWeapon();
+	}
+
+	if (OwnerCharacter.IsValid() && GetOwnerRole() == ENetRole::ROLE_Authority && WeaponClass)
+	{
+		FActorSpawnParameters ActorSpawnParameters;
+		ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ActorSpawnParameters.Owner = OwnerCharacter.Get();
+		CurrentRightHandWeapon = GetWorld()->SpawnActor<AARPGWeapon>(WeaponClass.Get(),
+		                                                             OwnerCharacter->GetMesh()->GetSocketTransform(
+			                                                             RightHandWeaponSocketName),
+		                                                             ActorSpawnParameters);
+		CurrentRightHandWeapon->SetEquipPosition(EEquipPostion::RightHand);
+		RightHandWeaponType = CurrentRightHandWeapon->GetWeaponType();
+		AddEquipmentAbilitiesToOwner(CurrentRightHandWeapon);
+
+		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+		CurrentRightHandWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules,
+		                                          RightHandWeaponSocketName);
+
+		// Broadcast WeaponChanged Event
+		WeaponChangedDelegate.Broadcast(EEquipPostion::RightHand, CurrentRightHandWeapon);
 
 		// Add trace mesh
 		if (OwnerCharacter->GetCombatManager())
@@ -109,7 +160,7 @@ void UARPGEquipmentManager::ServerChangeRightHandWeapon_Implementation()
 void UARPGEquipmentManager::ChangeRightHandWeapon()
 {
 	uint8 NextIndex = CurrentRightHandWeaponSlotIndex;
-	for (int8 i = 0; i < 3; i++)
+	for (int8 i = 0; i < 2; i++)
 	{
 		NextIndex = (NextIndex + 1) % 3;
 		if (RightHandWeapons[NextIndex] == nullptr || RightHandWeapons[NextIndex] == HandClass)
@@ -118,14 +169,15 @@ void UARPGEquipmentManager::ChangeRightHandWeapon()
 		}
 		break;
 	}
-	
-	if (RightHandWeapons[NextIndex])
-	{
-		EquipRightHandWeapon(NextIndex);
-	}
+
+	EquipRightHandWeapon(NextIndex);
 }
 
 void UARPGEquipmentManager::EquipLeftHandWeapon(int32 Index)
+{
+}
+
+void UARPGEquipmentManager::EquipLeftHandWeaponByClass(TSubclassOf<AARPGWeapon> WeaponClass)
 {
 }
 
@@ -191,6 +243,33 @@ void UARPGEquipmentManager::DissolveAllWeapons()
 		if (CurrentRightHandWeapon)
 		{
 			CurrentRightHandWeapon->MulticastLeaveWorld();
+		}
+	}
+}
+
+void UARPGEquipmentManager::OnWeaponChanged(EEquipPostion EquipPostion, AARPGWeapon* NewWeapon)
+{
+	if (OwnerCharacter.IsValid() && OwnerCharacter->IsLocallyControlled())
+	{
+		AARPGPlayerController* PC = Cast<AARPGPlayerController>(OwnerCharacter->GetController());
+		if (PC)
+		{
+			UARPGHUDWidget* HUD = PC->GetHUD();
+			if (HUD)
+			{
+				if (EquipPostion == EEquipPostion::RightHand)
+				{
+					if (NewWeapon == nullptr || NewWeapon->GetWeaponType() == EWeaponType::Hand)
+					{
+						HUD->RightHandWeaponIcon->SetOpacity(0.f);
+					}
+					else
+					{
+						HUD->RightHandWeaponIcon->SetBrushFromTexture(NewWeapon->Icon);
+						HUD->RightHandWeaponIcon->SetOpacity(1.f);
+					}
+				}
+			}
 		}
 	}
 }

@@ -7,6 +7,8 @@
 #include "Components/ActorComponent.h"
 #include "ARPGEquipmentManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponChangedDelegate, EEquipPostion, EquipPostion, AARPGWeapon*, NewWeapon);
+
 class AARPGCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -17,9 +19,13 @@ class ARPG_API UARPGEquipmentManager : public UActorComponent
 public:	
 	UARPGEquipmentManager();
 
+	UPROPERTY(BlueprintAssignable)
+	FWeaponChangedDelegate WeaponChangedDelegate;
+
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ServerEquipRightHandWeapon(int32 Index);
 	void EquipRightHandWeapon(int32 Index);
+	void EquipRightHandWeaponByClass(TSubclassOf<AARPGWeapon> WeaponClass);
 
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ServerChangeRightHandWeapon();
@@ -32,6 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ServerEquipLeftHandWeapon(int32 Index);
 	void EquipLeftHandWeapon(int32 Index);
+	void EquipLeftHandWeaponByClass(TSubclassOf<AARPGWeapon> WeaponClass);
 	
 	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ServerDestroyLeftHandWeapon();
@@ -92,4 +99,7 @@ protected:
 
 	EWeaponType RightHandWeaponType;
 	EWeaponType LeftHandWeaponType;
+
+	UFUNCTION()
+	void OnWeaponChanged(EEquipPostion EquipPostion, AARPGWeapon* NewWeapon);
 };

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "ARPGHUDWidget.generated.h"
 
+class UImage;
 class USizeBox;
 class UProgressBar;
 
@@ -21,6 +22,11 @@ public:
 	UARPGHUDWidget(const FObjectInitializer& ObjectInitializer);
 	
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* RightHandWeaponIcon;
+	UPROPERTY(meta = (BindWidget))
+	UImage* LeftHandWeaponIcon;
 	
 	/**
 	* Attribute setters

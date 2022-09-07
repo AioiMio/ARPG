@@ -18,6 +18,7 @@ bool UGameplayCueStatic_HitEffects::OnExecute_Implementation(AActor* MyTarget,
 		if (PS->GetPlayerController() && HitForceFeedbackEffect)
 		{
 			PS->GetPlayerController()->ClientPlayForceFeedback(HitForceFeedbackEffect);
+			PS->GetPlayerController()->ClientStartCameraShake(CameraShake);
 		}
 	}
 	
@@ -40,6 +41,7 @@ bool UGameplayCueStatic_HitEffects::OnExecute_Implementation(AActor* MyTarget,
 		if (AARPGPlayerController* PC = Cast<AARPGPlayerController>(VictimCharacter->GetController()))
 		{
 			PC->ClientPlayForceFeedback(HitForceFeedbackEffect);
+			PC->ClientStartCameraShake(CameraShake);
 		}
 	}
 	
