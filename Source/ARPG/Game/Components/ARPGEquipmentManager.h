@@ -76,6 +76,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Equipments")
 	FName LeftHandWeaponSocketName = "Weapon_L";
 
+	UFUNCTION()
+	void OnWeaponChanged(EEquipPostion EquipPostion, AARPGWeapon* NewWeapon);
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -99,7 +102,4 @@ protected:
 
 	EWeaponType RightHandWeaponType;
 	EWeaponType LeftHandWeaponType;
-
-	UFUNCTION()
-	void OnWeaponChanged(EEquipPostion EquipPostion, AARPGWeapon* NewWeapon);
 };

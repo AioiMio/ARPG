@@ -5,7 +5,9 @@
 
 #include "AbilitySystemComponent.h"
 #include "ARPG/Game/Abilities/ARPGGameplayAbility.h"
+#include "ARPG/Game/Components/ARPGEquipmentManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "ARPG/Game/Core/ARPGPlayerController.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 

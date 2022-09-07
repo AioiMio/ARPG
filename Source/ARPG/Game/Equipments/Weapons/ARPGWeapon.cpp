@@ -31,5 +31,10 @@ void AARPGWeapon::BeginPlay()
 			OwnerCharacter->GetEquipmentManager()->SetCurrentRightHandWeapon(this);
 			OwnerCharacter->GetEquipmentManager()->SetRightHandWeaponType(WeaponType);
 		}
+
+		if (OwnerCharacter->IsPlayerControlled() && OwnerCharacter->IsLocallyControlled() && OwnerCharacter->GetEquipmentManager())
+		{
+			OwnerCharacter->GetEquipmentManager()->OnWeaponChanged(EquipPostion, this);
+		}
 	}
 }
