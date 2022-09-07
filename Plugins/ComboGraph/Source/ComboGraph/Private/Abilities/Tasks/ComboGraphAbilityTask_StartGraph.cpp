@@ -835,7 +835,7 @@ void UComboGraphAbilityTask_StartGraph::HandleComboEndEvent()
 
 void UComboGraphAbilityTask_StartGraph::HandleComboTransition()
 {
-	UAbilityTask_NetworkSyncPoint* Task = UAbilityTask_NetworkSyncPoint::WaitNetSync(Ability, EAbilityTaskNetSyncType::OnlyServerWait);
+	UAbilityTask_NetworkSyncPoint* Task = UAbilityTask_NetworkSyncPoint::WaitNetSync(Ability, EAbilityTaskNetSyncType::BothWait);
 	// Wait for execution synchronization and only advance next node when server is ready
 	Task->OnSync.AddDynamic(this, &UComboGraphAbilityTask_StartGraph::OnServerSyncAdvanceNextNode);
 	Task->ReadyForActivation();

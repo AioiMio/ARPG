@@ -7,8 +7,11 @@
 #include "ComboGraphLog.h"
 #include "InputAction.h"
 #include "Graph/ComboGraph.h"
+
+#include "AbilitySystemComponent.h"
 #include "Abilities/ComboGraphNativeTags.h"
 #include "Abilities/Tasks/GameplayTask_StartComboGraph.h"
+#include "Components/ComboGraphGameplayTasksComponent.h"
 #include "Utils/ComboGraphBlueprintLibrary.h"
 
 UComboGraphBTTask_RunComboGraph::UComboGraphBTTask_RunComboGraph(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
