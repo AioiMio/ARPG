@@ -43,7 +43,7 @@ public:
 	 * reaches this notify state or immediately if animation current time frame is passed the notify state.
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Combo Graph | Transition", meta=(EditCondition = "TransitionBehavior == EComboGraphTransitionBehavior::OnAnimNotifyName", EditConditionHides))
-	FName TransitionAnimNotifyName = NAME_None;
+	FName TransitionAnimNotifyName = FName("ComboBranch");
 
 	/**
 	 * Configure the Anim Notify class to consider when Transition Behavior is set to transition on a specific notify frame.
@@ -53,6 +53,15 @@ public:
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Combo Graph | Transition", meta=(EditCondition = "TransitionBehavior == EComboGraphTransitionBehavior::OnAnimNotifyClass", EditConditionHides))
 	TSoftClassPtr<UAnimNotify> TransitionAnimNotify;
+
+	/**
+	 * Configure the GameplayTag to consider when Transition Behavior is set to transition on a GameplayTag.
+	 *
+	 * By the time an input trigger is received, combo transition will happen when this GameplayTag
+	 * is added to the actor or immediately if actor already has this GameplayTag.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Combo Graph | Transition", meta=(EditCondition = "TransitionBehavior == EComboGraphTransitionBehavior::OnGameplayTag", EditConditionHides))
+	FGameplayTag TransitionTag = FGameplayTag::RequestGameplayTag("Event.ComboGraph.Branch");
 
 	/** Start or parent node for this edge */
 	UPROPERTY(BlueprintReadOnly, Category = "Combo Graph")

@@ -44,5 +44,7 @@ protected:
 	float HitAnimRateScale = 0.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-	float HitFeedbackEffectDuration = 0.08f;
+	float HitFeedbackEffectDuration = 0.15f;
+
+	void ResetAnimRateScaleElapsed(AARPGCharacter* InCharacter) const;
 };

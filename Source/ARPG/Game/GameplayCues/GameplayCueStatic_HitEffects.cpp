@@ -25,21 +25,25 @@ bool UGameplayCueStatic_HitEffects::OnExecute_Implementation(AActor* MyTarget,
 			Character->GetMesh()->GlobalAnimRateScale = HitAnimRateScale;
 
 			FTimerHandle TimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [Character](){Character->GetMesh()->GlobalAnimRateScale = 1.f;}, HitFeedbackEffectDuration, false);
+			FTimerDelegate Delegate;
+			Delegate.BindUObject(this, &UGameplayCueStatic_HitEffects::ResetAnimRateScaleElapsed, Character);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, Delegate, HitFeedbackEffectDuration, false);
 		}
 	}
-	
+
 	FHitResult HitResult = *Parameters.EffectContext.GetHitResult();
-	
+
 	if (NiagaraSystems.Num() > 0)
 	{
 		int32 Index = FMath::RandRange(0, NiagaraSystems.Num() - 1);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystems[Index], HitResult.Location, HitResult.Normal.Rotation());
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystems[Index], HitResult.Location,
+		                                               HitResult.Normal.Rotation());
 	}
 
 	if (BloodSplashSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BloodSplashSound, HitResult.Location, HitResult.Normal.Rotation(), 1.f, 1.f, 0.f, Attenuation);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BloodSplashSound, HitResult.Location,
+		                                      HitResult.Normal.Rotation(), 1.f, 1.f, 0.f, Attenuation);
 	}
 
 	AARPGPlayerCharacter* VictimCharacter = Cast<AARPGPlayerCharacter>(HitResult.GetActor());
@@ -51,6 +55,11 @@ bool UGameplayCueStatic_HitEffects::OnExecute_Implementation(AActor* MyTarget,
 			PC->ClientStartCameraShake(CameraShake);
 		}
 	}
-	
+
 	return Super::OnExecute_Implementation(MyTarget, Parameters);
+}
+
+void UGameplayCueStatic_HitEffects::ResetAnimRateScaleElapsed(AARPGCharacter* InCharacter) const
+{
+	InCharacter->GetMesh()->GlobalAnimRateScale = 1.f;
 }

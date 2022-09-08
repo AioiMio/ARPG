@@ -22,6 +22,7 @@
 #include "Graph/ComboGraphNodeSequence.h"
 #include "Utils/ComboGraphUtils.h"
 #include "TimerManager.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "Graph/ComboGraphNodeConduit.h"
 #include "Graph/ComboGraphNodeMontage.h"
 #include "Kismet/GameplayStatics.h"
@@ -547,6 +548,8 @@ void UComboGraphAbilityTask_StartGraph::OnEventInputReceived(const FGameplayEven
 
 void UComboGraphAbilityTask_StartGraph::HandleInputConfirmed(UComboGraphNodeAnimBase* NextNode, const UComboGraphEdge* Edge)
 {
+	UE_LOG(LogTemp, Warning, TEXT("UComboGraphAbilityTask_StartGraph::HandleInputConfirmed"));
+	
 	check(Ability);
 
 	const UAnimMontage* Montage = Ability->GetCurrentMontage();
@@ -804,6 +807,9 @@ void UComboGraphAbilityTask_StartGraph::OnServerSyncAdvanceNextNode()
 	// Update prev node pointer here
 	PreviousNode = CurrentNode;
 
+	UE_LOG(LogTemp, Warning, TEXT("UComboGraphAbilityTask_StartGraph::OnServerSyncAdvanceNextNode  CurrentNode: %s  QueuedNode: %s  bComboQueued: %s"),
+		*GetNameSafe(CurrentNode), *GetNameSafe(QueuedNode), bComboQueued ? TEXT("true") : TEXT("false"));
+
 	FString FailReason;
 	if (!AdvanceNextNode(QueuedNode, FailReason))
 	{
@@ -835,7 +841,7 @@ void UComboGraphAbilityTask_StartGraph::HandleComboEndEvent()
 
 void UComboGraphAbilityTask_StartGraph::HandleComboTransition()
 {
-	UAbilityTask_NetworkSyncPoint* Task = UAbilityTask_NetworkSyncPoint::WaitNetSync(Ability, EAbilityTaskNetSyncType::BothWait);
+	UAbilityTask_NetworkSyncPoint* Task = UAbilityTask_NetworkSyncPoint::WaitNetSync(Ability, EAbilityTaskNetSyncType::OnlyServerWait);
 	// Wait for execution synchronization and only advance next node when server is ready
 	Task->OnSync.AddDynamic(this, &UComboGraphAbilityTask_StartGraph::OnServerSyncAdvanceNextNode);
 	Task->ReadyForActivation();
@@ -1145,15 +1151,15 @@ bool UComboGraphAbilityTask_StartGraph::CanApplyAttributeModifiers(const UGamepl
 			const float CostValue = ModSpec.GetEvaluatedMagnitude();
 
 			// TODO: Option to allow value to be negative and prevent activation if it is 0 or below 0
-			// if (CurrentValue <= 0.f)
-			// {
-			// 	return false;
-			// }
-
-			if (CurrentValue + CostValue < 0.f)
+			if (CurrentValue <= 0.f)
 			{
 				return false;
 			}
+
+			// if (CurrentValue + CostValue < 0.f)
+			// {
+			// 	return false;
+			// }
 		}
 	}
 
