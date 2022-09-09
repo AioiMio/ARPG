@@ -71,6 +71,12 @@ public:
 	float GetPostureRegenRate() const;
 
 	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")
+	float GetAttackPower() const;
+
+	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")
+	float GetDamageNegation() const;
+
+	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")
 	float GetMoveSpeed() const;
 
 	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState|Attributes")

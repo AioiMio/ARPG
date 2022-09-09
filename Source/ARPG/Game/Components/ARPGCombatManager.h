@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ARPG/Game/Types/Types.h"
 #include "Components/AGR_CombatManager.h"
 #include "ARPGCombatManager.generated.h"
 
@@ -34,4 +35,7 @@ protected:
 	
 	UFUNCTION()
 	void OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh);
+
+	UFUNCTION()
+	void ShowHitReact(EARPGHitReactDirection Direction);
 };

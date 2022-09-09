@@ -19,6 +19,10 @@ void UARPGCombatManager::BeginPlay()
 
 	OwnerCharacter = Cast<AARPGCharacter>(GetOuter());
 	OnAttackHitEvent.AddDynamic(this, &UARPGCombatManager::OnAttackHit);
+	if (OwnerCharacter.IsValid())
+	{
+		OwnerCharacter->ShowHitReact.AddDynamic(this, &UARPGCombatManager::ShowHitReact);
+	}
 }
 
 void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
@@ -39,4 +43,9 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 			}
 		}
 	}
+}
+
+void UARPGCombatManager::ShowHitReact(EARPGHitReactDirection Direction)
+{
+	
 }

@@ -162,16 +162,6 @@ void UARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 					TargetCharacter->PlayHitReact(HitDirectionFrontTag, SourceCharacter);
 				}
 
-				// Show damage number for the Source player unless it was self damage
-				if (SourceActor != TargetActor)
-				{
-					AARPGPlayerController* PC = Cast<AARPGPlayerController>(SourceController);
-					if (PC)
-					{
-						// PC->ShowDamageNumber(LocalDamageDone, TargetCharacter);
-					}
-				}
-
 				if (!TargetCharacter->IsAlive())
 				{
 					// TargetCharacter was alive before this damage and now is not alive, give XP and Gold bounties to Source.
@@ -240,6 +230,8 @@ void UARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, Posture, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, MaxPosture, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, PostureRegenRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, AttackPower, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, DamageNegation, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, MoveSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, CharacterLevel, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, XP, COND_None, REPNOTIFY_Always);
@@ -323,6 +315,16 @@ void UARPGAttributeSet::OnRep_MaxPosture(const FGameplayAttributeData& OldMaxPos
 void UARPGAttributeSet::OnRep_PostureRegenRate(const FGameplayAttributeData& OldPostureRegenRate)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, PostureRegenRate, OldPostureRegenRate);
+}
+
+void UARPGAttributeSet::OnRep_AttackPower(const FGameplayAttributeData& OldAttackPower)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, AttackPower, OldAttackPower);
+}
+
+void UARPGAttributeSet::OnRep_DamageNegation(const FGameplayAttributeData& OldDamageNegation)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, DamageNegation, OldDamageNegation);
 }
 
 void UARPGAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed)

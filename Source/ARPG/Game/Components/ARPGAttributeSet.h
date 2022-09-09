@@ -99,6 +99,16 @@ public:
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, Damage)
 
+	/** AttackPower of the attacker */
+	UPROPERTY(BlueprintReadOnly, Category = "AttackPower", ReplicatedUsing = OnRep_AttackPower)
+	FGameplayAttributeData AttackPower;
+	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, AttackPower)
+	
+	// Negation reduces the amount of damage done by attackers
+	UPROPERTY(BlueprintReadOnly, Category = "DamageNegation", ReplicatedUsing = OnRep_DamageNegation)
+	FGameplayAttributeData DamageNegation;
+	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, DamageNegation)
+
 	// MoveSpeed affects how fast characters can move.
 	UPROPERTY(BlueprintReadOnly, Category = "MoveSpeed", ReplicatedUsing = OnRep_MoveSpeed)
 	FGameplayAttributeData MoveSpeed;
@@ -172,6 +182,12 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_PostureRegenRate(const FGameplayAttributeData& OldPostureRegenRate);
+
+	UFUNCTION()
+	virtual void OnRep_AttackPower(const FGameplayAttributeData& OldAttackPower);
+
+	UFUNCTION()
+	virtual void OnRep_DamageNegation(const FGameplayAttributeData& OldNegation);
 
 	UFUNCTION()
 	virtual void OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed);

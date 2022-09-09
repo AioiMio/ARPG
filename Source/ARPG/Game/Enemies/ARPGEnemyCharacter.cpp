@@ -16,7 +16,7 @@ AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitial
 	HardRefAbilitySystemComponent->SetIsReplicated(true);
 
 	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
-	// HardRefAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	HardRefAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	// Set our parent's TWeakObjectPtr
 	AbilitySystemComponent = HardRefAbilitySystemComponent;

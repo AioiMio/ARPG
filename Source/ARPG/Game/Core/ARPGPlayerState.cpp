@@ -17,7 +17,7 @@ AARPGPlayerState::AARPGPlayerState()
 	AbilitySystemComponent = CreateDefaultSubobject<UARPGAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 
-	// Mixed mode means we only are replicated the GEs to ourself, not the GEs to simulated proxies. If another GDPlayerState (Hero) receives a GE,
+	// Mixed mode means we only are replicated the GEs to ourself, not the GEs to simulated proxies. If another ARPGPlayerState (Hero) receives a GE,
 	// we won't be told about it by the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
@@ -104,6 +104,16 @@ float AARPGPlayerState::GetMaxPosture() const
 float AARPGPlayerState::GetPostureRegenRate() const
 {
 	return AttributeSet->GetPostureRegenRate();
+}
+
+float AARPGPlayerState::GetAttackPower() const
+{
+	return AttributeSet->GetAttackPower();
+}
+
+float AARPGPlayerState::GetDamageNegation() const
+{
+	return AttributeSet->GetDamageNegation();
 }
 
 float AARPGPlayerState::GetMoveSpeed() const
