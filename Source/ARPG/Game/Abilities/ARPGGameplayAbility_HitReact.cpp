@@ -23,21 +23,4 @@ void UARPGGameplayAbility_HitReact::ActivateAbility(const FGameplayAbilitySpecHa
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	}
-
-	switch (TriggerEventData->EventTag)
-	{
-	case HitDirectionLeftTag:
-		StartSection = FName("L");
-		break;
-	case HitDirectionFrontTag:
-		StartSection = FName("F");
-		break;
-	case HitDirectionRightTag:
-		StartSection = FName("R");
-		break;
-	case HitDirectionBackTag:
-		StartSection = FName("B");
-		break;
-	default: StartSection = FName("F");
-	}
 }
