@@ -3,6 +3,7 @@
 
 #include "ARPGAttributeSet.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "ARPG/Game/Core/ARPGPlayerController.h"
@@ -15,6 +16,7 @@ UARPGAttributeSet::UARPGAttributeSet()
 	HitDirectionBackTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Back"));
 	HitDirectionRightTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Right"));
 	HitDirectionLeftTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Left"));
+	HitReactEventTag = FGameplayTag::RequestGameplayTag(FName("Event.HitReact"));
 }
 
 void UARPGAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -136,10 +138,9 @@ void UARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 				// Play HitReact animation and sound with a multicast RPC.
 				const FHitResult* Hit = Data.EffectSpec.GetContext().GetHitResult();
-
 				if (Hit)
 				{
-					EARPGHitReactDirection HitDirection = TargetCharacter->GetHitReactDirection(Data.EffectSpec.GetContext().GetHitResult()->Location);
+					EARPGHitReactDirection HitDirection = TargetCharacter->GetHitReactDirection(SourceCharacter->GetActorLocation());
 					switch (HitDirection)
 					{
 					case EARPGHitReactDirection::Left:
@@ -154,6 +155,7 @@ void UARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 					case EARPGHitReactDirection::Back:
 						TargetCharacter->PlayHitReact(HitDirectionBackTag, SourceCharacter);
 						break;
+					default: TargetCharacter->PlayHitReact(HitDirectionFrontTag, SourceCharacter);
 					}
 				}
 				else

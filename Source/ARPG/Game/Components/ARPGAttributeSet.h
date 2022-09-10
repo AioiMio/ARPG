@@ -212,4 +212,6 @@ private:
 	FGameplayTag HitDirectionBackTag;
 	FGameplayTag HitDirectionRightTag;
 	FGameplayTag HitDirectionLeftTag;
+
+	FGameplayTag HitReactEventTag;
 };

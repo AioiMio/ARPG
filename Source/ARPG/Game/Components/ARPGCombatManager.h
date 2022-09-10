@@ -37,5 +37,5 @@ protected:
 	void OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh);
 
 	UFUNCTION()
-	void ShowHitReact(EARPGHitReactDirection Direction);
+	void ApplyHitReact(EARPGHitReactDirection Direction);
 };

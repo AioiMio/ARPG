@@ -221,6 +221,12 @@ void AARPGCharacter::PlayHitReact_Implementation(FGameplayTag HitDirection, AAct
 {
 	if (IsAlive())
 	{
+		FGameplayEventData HitReactEventData;
+		HitReactEventData.EventTag = HitDirection;
+		HitReactEventData.Instigator = DamageCauser;
+		HitReactEventData.Target = this;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitDirection, HitReactEventData);
+		
 		if (HitDirection == HitDirectionLeftTag)
 		{
 			ShowHitReact.Broadcast(EARPGHitReactDirection::Left);

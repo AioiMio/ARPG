@@ -21,7 +21,7 @@ void UARPGCombatManager::BeginPlay()
 	OnAttackHitEvent.AddDynamic(this, &UARPGCombatManager::OnAttackHit);
 	if (OwnerCharacter.IsValid())
 	{
-		OwnerCharacter->ShowHitReact.AddDynamic(this, &UARPGCombatManager::ShowHitReact);
+		OwnerCharacter->ShowHitReact.AddDynamic(this, &UARPGCombatManager::ApplyHitReact);
 	}
 }
 
@@ -45,7 +45,6 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 	}
 }
 
-void UARPGCombatManager::ShowHitReact(EARPGHitReactDirection Direction)
+void UARPGCombatManager::ApplyHitReact(EARPGHitReactDirection Direction)
 {
-	
 }
