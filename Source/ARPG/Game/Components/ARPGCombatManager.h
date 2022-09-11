@@ -7,6 +7,19 @@
 #include "Components/AGR_CombatManager.h"
 #include "ARPGCombatManager.generated.h"
 
+UENUM(BlueprintType)
+enum class EAttackHitType : uint8
+{
+	Normal UMETA(DisplayName = "Normal"),
+	Heavy UMETA(DisplayName = "Heavy"),
+	KnockDown UMETA(DisplayName = "KnockDown"),
+	KnockUp UMETA(DisplayName = "KnockUp"),
+	KnockBack UMETA(DisplayName = "KnockBack"),
+	
+	MAX UMETA(DisplayName = "DefaultMAX")
+};
+
+
 class AARPGCharacter;
 class UForceFeedbackEffect;
 
@@ -23,6 +36,9 @@ public:
 
 	FORCEINLINE TArray<AActor*> GetIgnoredActors() { return IgnoredActors; }
 
+	FORCEINLINE void SetCurrentAttackHitType(EAttackHitType HitType) { CurrentAttackHitType = HitType; }
+	FORCEINLINE EAttackHitType GetCurrentAttackHitType() const { return CurrentAttackHitType; }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,8 +46,7 @@ protected:
 
 	FGameplayTag HitEventTag;
 
-	UPROPERTY(EditAnywhere, Category = "ForceFeedback")
-	UForceFeedbackEffect* HitFeedback;
+	EAttackHitType CurrentAttackHitType = EAttackHitType::Normal;
 	
 	UFUNCTION()
 	void OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh);

@@ -34,7 +34,7 @@ public:
 	 * Transition Behavior.
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Combo Graph | Transition", meta=(EditCondition = "TransitionInput != nullptr", EditConditionHides))
-	EComboGraphTransitionBehavior TransitionBehavior = EComboGraphTransitionBehavior::OnComboWindowEnd;
+	EComboGraphTransitionBehavior TransitionBehavior = EComboGraphTransitionBehavior::OnAnimNotifyName;
 
 	/**
 	 * Configure the Anim Notify name (skeleton notify) to consider when Transition Behavior is set to transition on a specific notify frame.

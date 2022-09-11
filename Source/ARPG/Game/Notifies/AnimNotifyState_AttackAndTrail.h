@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState_Trail.h"
+#include "ARPG/Game/Components/ARPGCombatManager.h"
 #include "AnimNotifyState_AttackAndTrail.generated.h"
 
 /**
@@ -35,4 +36,7 @@ protected:
 
 	UPROPERTY()
 	USkeletalMeshComponent* LeftHandWeaponMesh;
+
+	UPROPERTY(EditAnywhere)
+	EAttackHitType AttackHitType = EAttackHitType::Normal;
 };

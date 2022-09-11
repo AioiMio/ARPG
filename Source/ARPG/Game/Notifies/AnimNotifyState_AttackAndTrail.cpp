@@ -22,13 +22,13 @@ void UAnimNotifyState_AttackAndTrail::NotifyBegin(USkeletalMeshComponent* MeshCo
 	{
 		if (const AActor* Owner = MeshComp->GetOwner())
 		{
-			UAGR_CombatManager* CombatManager = Owner->FindComponentByClass<UAGR_CombatManager>();
+			UARPGCombatManager* CombatManager = Owner->FindComponentByClass<UARPGCombatManager>();
 			if(!IsValid(CombatManager))
 			{
 				// 	Note: We might also want to check if Owner is not a AAnimationEditorPreviewActor actor (notifiers are triggered in persona preview viewport)
 				return;
 			}
-
+			CombatManager->SetCurrentAttackHitType(AttackHitType);
 			CombatManager->StartTrace();
 		}
 	}

@@ -39,7 +39,24 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 				GameplayEventData.Target = HitCharacter;
 				GameplayEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
 
+				FGameplayTag EventTag;
+				switch (CurrentAttackHitType)
+				{
+				case EAttackHitType::Normal: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.Normal");
+					break;
+				case EAttackHitType::Heavy: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.Heavy");
+					break;
+				case EAttackHitType::KnockDown: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockDown");
+					break;
+				case EAttackHitType::KnockUp: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockUp");
+					break;
+				case EAttackHitType::KnockBack: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockBack");
+					break;
+				default: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.Normal");
+				}
+				
 				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, GameplayEventData);
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), EventTag, GameplayEventData);
 			}
 		}
 	}

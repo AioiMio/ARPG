@@ -17,6 +17,8 @@ class ARPG_API UAnimNotifyState_RotateToTarget : public UAnimNotifyState_MotionW
 	GENERATED_BODY()
 
 public:
+	UAnimNotifyState_RotateToTarget(const FObjectInitializer& ObjectInitializer);
+	
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp,
 	                         UAnimSequenceBase* Animation,
 	                         float TotalDuration,

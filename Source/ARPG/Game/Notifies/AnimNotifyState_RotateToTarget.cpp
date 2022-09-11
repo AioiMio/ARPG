@@ -3,11 +3,17 @@
 
 #include "AnimNotifyState_RotateToTarget.h"
 
+#include "RootMotionModifier_SkewWarp.h"
 #include "ARPG/Game/Components/ARPGMotionWarpingComponent.h"
 #include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
+UAnimNotifyState_RotateToTarget::UAnimNotifyState_RotateToTarget(const FObjectInitializer& ObjectInitializer): Super(
+	ObjectInitializer)
+{
+}
 
 void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshComp,
                                                   UAnimSequenceBase* Animation,
@@ -22,15 +28,17 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 		AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(Character);
 		if (PlayerCharacter && PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration().Length() > 0.2f)
 		{
-			FVector TargetLocation = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration();
+			FVector TargetLocation = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetCharacterMovement()->
+				GetCurrentAcceleration();
 			PlayerCharacter->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
 			if (!PlayerCharacter->HasAuthority())
 			{
-				PlayerCharacter->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
+				PlayerCharacter->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+					"Target", TargetLocation);
 			}
 			return;
 		}
-		
+
 		if (bAutoFaceTarget)
 		{
 			if (AARPGCharacter* Target = Character->GetTargetManager()->GetLockOnTarget())
@@ -47,8 +55,8 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 }
 
 void UAnimNotifyState_RotateToTarget::NotifyEnd(USkeletalMeshComponent* MeshComp,
-	UAnimSequenceBase* Animation,
-	const FAnimNotifyEventReference& EventReference)
+                                                UAnimSequenceBase* Animation,
+                                                const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 
