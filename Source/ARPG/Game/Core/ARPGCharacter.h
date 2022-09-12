@@ -115,6 +115,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InputActions")
 	virtual void RightHandHeavyAttackAction();
 
+	UFUNCTION(BlueprintCallable, Category = "InputActions")
+	virtual void LeftHandHeavyAttackAction();
+
 	/**
 	* Getters for attributes from GDAttributeSetBase
 	**/
@@ -221,6 +224,7 @@ protected:
 	FGameplayTag SprintTag;
 	FGameplayTag RightHandAttackTag;
 	FGameplayTag RightHandHeavyAttackTag;
+	FGameplayTag LeftHandHeavyAttackTag;
 
 	FTimerHandle TimerHandle_LandDelay;
 	FTimerHandle TimerHandle_FallingTagRemoveDelay;

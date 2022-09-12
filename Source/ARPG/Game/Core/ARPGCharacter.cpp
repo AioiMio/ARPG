@@ -69,7 +69,8 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	DodgeTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.Dodge"));
 	SprintTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.Sprint"));
 	RightHandAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.Combo"));
-	RightHandHeavyAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.Heavy"));
+	RightHandHeavyAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.RightHeavy"));
+	LeftHandHeavyAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.LeftHeavy"));
 
 	// Settings
 	bUseControllerRotationYaw = false;
@@ -287,6 +288,11 @@ void AARPGCharacter::RightHandAttackAction()
 void AARPGCharacter::RightHandHeavyAttackAction()
 {
 	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(RightHandHeavyAttackTag));
+}
+
+void AARPGCharacter::LeftHandHeavyAttackAction()
+{
+	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(LeftHandHeavyAttackTag));
 }
 
 int32 AARPGCharacter::GetCharacterLevel() const

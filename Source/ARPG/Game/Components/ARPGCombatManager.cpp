@@ -34,29 +34,33 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 			IgnoredActors.AddUnique(Hit.GetActor());
 			if (AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor()))
 			{
-				FGameplayEventData GameplayEventData;
-				GameplayEventData.Instigator = GetOwner();
-				GameplayEventData.Target = HitCharacter;
-				GameplayEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+				FGameplayEventData HitEventData;
+				HitEventData.Instigator = GetOwner();
+				HitEventData.Target = HitCharacter;
+				HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
 
-				FGameplayTag EventTag;
+				FGameplayTag HitReactTag;
 				switch (CurrentAttackHitType)
 				{
-				case EAttackHitType::Normal: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.Normal");
+				case EAttackHitType::Normal: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.Normal");
 					break;
-				case EAttackHitType::Heavy: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.Heavy");
+				case EAttackHitType::Heavy: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.Heavy");
 					break;
-				case EAttackHitType::KnockDown: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockDown");
+				case EAttackHitType::KnockDown: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockDown");
 					break;
-				case EAttackHitType::KnockUp: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockUp");
+				case EAttackHitType::KnockUp: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockUp");
 					break;
-				case EAttackHitType::KnockBack: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockBack");
+				case EAttackHitType::KnockBack: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockBack");
 					break;
-				default: EventTag = FGameplayTag::RequestGameplayTag("Event.Hit.Normal");
+				default: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.Normal");
 				}
-				
-				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, GameplayEventData);
-				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), EventTag, GameplayEventData);
+
+				FGameplayEventData HitReactEventData;
+				HitReactEventData.Instigator = GetOwner();
+				HitReactEventData.Target = HitCharacter;
+				HitReactEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitCharacter, HitReactTag, HitReactEventData);
 			}
 		}
 	}
