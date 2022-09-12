@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ARPG/Game/Abilities/ARPGGameplayAbility.h"
 #include "ARPG/Game/Types/Types.h"
 #include "Components/AGR_CombatManager.h"
 #include "ARPGCombatManager.generated.h"
@@ -39,6 +40,13 @@ public:
 	FORCEINLINE void SetCurrentAttackHitType(EAttackHitType HitType) { CurrentAttackHitType = HitType; }
 	FORCEINLINE EAttackHitType GetCurrentAttackHitType() const { return CurrentAttackHitType; }
 
+	FORCEINLINE void SetCurrentSkillMultiplier(float InMultiplier) { CurrentSkillMultiplier = InMultiplier; }
+	FORCEINLINE float GetCurrentSkillMultiplier() const { return CurrentSkillMultiplier; }
+
+	void ApplyDamage(float SkillMultiplier, EAttackHitType HitType) const;
+
+	void SendDamageToActor(AActor* Target, EAttackHitType HitType);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -47,6 +55,15 @@ protected:
 	FGameplayTag HitEventTag;
 
 	EAttackHitType CurrentAttackHitType = EAttackHitType::Normal;
+	
+	float CurrentSkillMultiplier = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Passive")
+	TSubclassOf<UGameplayEffect> KnockDownEffect;
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Passive")
+	TSubclassOf<UGameplayEffect> KnockBackEffect;
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Passive")
+	TSubclassOf<UGameplayEffect> KnockUpEffect;
 	
 	UFUNCTION()
 	void OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh);

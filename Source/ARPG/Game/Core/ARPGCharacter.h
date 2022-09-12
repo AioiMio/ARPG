@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "ARPG/Game/Components/ARPGCombatManager.h"
 #include "ARPG/Game/Types/Types.h"
 #include "GameFramework/Character.h"
 #include "ARPGCharacter.generated.h"
