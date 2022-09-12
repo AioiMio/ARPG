@@ -15,11 +15,7 @@ UARPGCombatManager::UARPGCombatManager()
 	TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1);
 }
 
-void UARPGCombatManager::ApplyDamage(float SkillMultiplier, EAttackHitType HitType) const
-{
-}
-
-void UARPGCombatManager::SendDamageToActor(AActor* Target, EAttackHitType HitType)
+void UARPGCombatManager::SendHitReactEventToActor(AActor* Target, EAttackHitType HitType)
 {
 	if (AARPGCharacter* Character = Cast<AARPGCharacter>(Target))
 	{
@@ -42,7 +38,7 @@ void UARPGCombatManager::SendDamageToActor(AActor* Target, EAttackHitType HitTyp
 			
 			if (InEffect)
 			{
-				SourceASC->ApplyHitReactEffectToTarget(InEffect.GetDefaultObject(), TargetASC);
+				SourceASC->ApplyGameplayEffectToTarget(InEffect.GetDefaultObject(), TargetASC);
 			}
 		}
 	}
@@ -92,7 +88,7 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 				// }
 				// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitReactTag, HitEventData);
 
-				SendDamageToActor(HitCharacter, CurrentAttackHitType);
+				SendHitReactEventToActor(HitCharacter, CurrentAttackHitType);
 			}
 		}
 	}

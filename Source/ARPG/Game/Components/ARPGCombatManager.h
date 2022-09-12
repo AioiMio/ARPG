@@ -42,10 +42,8 @@ public:
 
 	FORCEINLINE void SetCurrentSkillMultiplier(float InMultiplier) { CurrentSkillMultiplier = InMultiplier; }
 	FORCEINLINE float GetCurrentSkillMultiplier() const { return CurrentSkillMultiplier; }
-
-	void ApplyDamage(float SkillMultiplier, EAttackHitType HitType) const;
-
-	void SendDamageToActor(AActor* Target, EAttackHitType HitType);
+	
+	void SendHitReactEventToActor(AActor* Target, EAttackHitType HitType);
 
 protected:
 	virtual void BeginPlay() override;
