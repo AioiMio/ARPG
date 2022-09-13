@@ -25,6 +25,10 @@ protected:
 	UPROPERTY()
 	UARPGAbilitySystemComponent* HardRefAbilitySystemComponent;
 
+	// Actual hard pointer to InventoryComponent
+	UPROPERTY()
+	UInventoryComponent* HardRefInventoryComponent;
+
 	// Actual hard pointer to AttributeSet
 	UPROPERTY()
 	UARPGAttributeSet* HardRefAttributeSet;

@@ -5,6 +5,7 @@
 
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
+#include "ARPG/Game/Components/InventoryComponent.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -20,6 +21,13 @@ AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitial
 
 	// Set our parent's TWeakObjectPtr
 	AbilitySystemComponent = HardRefAbilitySystemComponent;
+
+	// Create inventory component, and set it to be explicitly replicated
+	HardRefInventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	HardRefInventoryComponent->SetIsReplicated(true);
+
+	// Set our parent's TWeakObjectPtr
+	InventoryComponent = HardRefInventoryComponent;
 
 	// Create the attribute set, this replicates by default
 	// Adding it as a subobject of the owning actor of an AbilitySystemComponent

@@ -13,5 +13,7 @@ UCLASS()
 class ARPG_API UARPGEquipment : public UARPGItem
 {
 	GENERATED_BODY()
-	
+
+public:
+	UARPGEquipment();
 };

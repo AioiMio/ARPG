@@ -3,3 +3,9 @@
 
 #include "ARPGEquipment.h"
 
+#include "ARPG/Game/Core/ARPGAssetManager.h"
+
+UARPGEquipment::UARPGEquipment()
+{
+	ItemType = UARPGAssetManager::EquipmentItemType;
+}

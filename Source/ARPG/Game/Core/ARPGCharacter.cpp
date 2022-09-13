@@ -75,8 +75,8 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	// Settings
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->GravityScale = 2.2f;
-	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->GravityScale = 4.f;
+	GetCharacterMovement()->JumpZVelocity = 1200.f;
 	GetCharacterMovement()->AirControl = 0.4f;
 	GetCharacterMovement()->RotationRate.Yaw = 1200.f;
 	GetCapsuleComponent()->SetCapsuleRadius(45.f);
@@ -114,6 +114,8 @@ void AARPGCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8
 	}
 	else if (PrevMovementMode == EMovementMode::MOVE_Falling)
 	{
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag("Event.Movement.Land"), FGameplayEventData());
+		
 		FTimerDelegate Delegate;
 		Delegate.BindUFunction(this, "LandElapsed");
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_LandDelay, Delegate, 0.05f, false);
@@ -137,6 +139,11 @@ void AARPGCharacter::RemoveFallingTagElapsed()
 UAbilitySystemComponent* AARPGCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent.Get();
+}
+
+UInventoryComponent* AARPGCharacter::GetInventoryComponent() const
+{
+	return InventoryComponent.Get();
 }
 
 bool AARPGCharacter::IsAlive() const

@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
+#include "ARPG/Game/Interface/InventorySystemInterface.h"
 #include "GameFramework/PlayerState.h"
 #include "ARPGPlayerState.generated.h"
 
@@ -16,7 +17,7 @@ class UARPGAttributeSet;
  * 
  */
 UCLASS()
-class ARPG_API AARPGPlayerState : public APlayerState, public IAbilitySystemInterface
+class ARPG_API AARPGPlayerState : public APlayerState, public IAbilitySystemInterface, public IInventorySystemInterface
 {
 	GENERATED_BODY()
 
@@ -26,6 +27,9 @@ public:
 	// Implement IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	FORCEINLINE UARPGAttributeSet* GetAttributeSet() const { return AttributeSet; }
+
+	// Implement IInventorySystemInterface
+	virtual UInventoryComponent* GetInventoryComponent() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "ARPGPlayerState")
 	bool IsAlive() const;
@@ -100,6 +104,9 @@ protected:
 
 	UPROPERTY()
 	UARPGAbilitySystemComponent* AbilitySystemComponent;
+
+	UPROPERTY()
+	UInventoryComponent* InventoryComponent;
 
 	UPROPERTY()
 	UARPGAttributeSet* AttributeSet;

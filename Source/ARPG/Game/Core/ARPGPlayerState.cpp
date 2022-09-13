@@ -6,6 +6,7 @@
 #include "ARPGPlayerController.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
+#include "ARPG/Game/Components/InventoryComponent.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "ARPG/Game/UI/ARPGHUDWidget.h"
@@ -26,6 +27,10 @@ AARPGPlayerState::AARPGPlayerState()
 	// automatically registers the AttributeSet with the AbilitySystemComponent
 	AttributeSet = CreateDefaultSubobject<UARPGAttributeSet>(TEXT("AttributeSet"));
 
+	// Create inventory component, and set it to be explicitly replicated
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	InventoryComponent->SetIsReplicated(true);
+
 	// Set PlayerState's NetUpdateFrequency to the same as the Character.
 	// Default is very low for PlayerStates and introduces perceived lag in the ability system.
 	// 100 is probably way too high for a shipping game, you can adjust to fit your needs.
@@ -39,6 +44,11 @@ AARPGPlayerState::AARPGPlayerState()
 UAbilitySystemComponent* AARPGPlayerState::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+UInventoryComponent* AARPGPlayerState::GetInventoryComponent() const
+{
+	return InventoryComponent;
 }
 
 bool AARPGPlayerState::IsAlive() const

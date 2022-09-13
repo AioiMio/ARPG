@@ -13,5 +13,7 @@ UCLASS()
 class ARPG_API UARPGPotion : public UARPGItem
 {
 	GENERATED_BODY()
-	
+
+public:
+	UARPGPotion();
 };

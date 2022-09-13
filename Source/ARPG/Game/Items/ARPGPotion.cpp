@@ -3,3 +3,9 @@
 
 #include "ARPGPotion.h"
 
+#include "ARPG/Game/Core/ARPGAssetManager.h"
+
+UARPGPotion::UARPGPotion()
+{
+	ItemType = UARPGAssetManager::PotionItemType;
+}

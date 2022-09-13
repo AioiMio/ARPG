@@ -3,3 +3,9 @@
 
 #include "ARPGToken.h"
 
+#include "ARPG/Game/Core/ARPGAssetManager.h"
+
+UARPGToken::UARPGToken()
+{
+	ItemType = UARPGAssetManager::TokenItemType;
+}

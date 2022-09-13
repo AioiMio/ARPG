@@ -6,6 +6,7 @@
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Components/ARPGEquipmentManager.h"
+#include "ARPG/Game/Components/InventoryComponent.h"
 #include "ARPG/Game/Core/ARPGGameModeBase.h"
 #include "ARPG/Game/Core/ARPGPlayerController.h"
 #include "ARPG/Game/Core/ARPGPlayerState.h"
@@ -54,8 +55,9 @@ void AARPGPlayerCharacter::PossessedBy(AController* NewController)
 	AARPGPlayerState* PS = GetPlayerState<AARPGPlayerState>();
 	if (PS)
 	{
-		// Set the ASC on the Server. Clients do this in OnRep_PlayerState()
+		// Set Components on the Server. Clients do this in OnRep_PlayerState()
 		AbilitySystemComponent = Cast<UARPGAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+		InventoryComponent = PS->GetInventoryComponent();
 
 		// AI won't have PlayerControllers so we can init again here just to be sure. No harm in initing twice for heroes that have PlayerControllers.
 		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
@@ -66,7 +68,6 @@ void AARPGPlayerCharacter::PossessedBy(AController* NewController)
 		// If we handle players disconnecting and rejoining in the future, we'll have to change this so that possession from rejoining doesn't reset attributes.
 		// For now assume possession = spawn/respawn.
 		InitializeAttributes();
-
 		
 		// Respawn specific things that won't affect first possession.
 
@@ -102,8 +103,9 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 	AARPGPlayerState* PS = GetPlayerState<AARPGPlayerState>();
 	if (PS)
 	{
-		// Set the ASC for clients. Server does this in PossessedBy.
+		// Set Components for clients. Server does this in PossessedBy.
 		AbilitySystemComponent = Cast<UARPGAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+		InventoryComponent = PS->GetInventoryComponent();
 
 		// Init ASC Actor Info for clients. Server will init its `ASC` when it possesses a new Actor.
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);

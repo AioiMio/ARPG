@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
 #include "ARPG/Game/Components/ARPGCombatManager.h"
+#include "ARPG/Game/Interface/InventorySystemInterface.h"
 #include "ARPG/Game/Types/Types.h"
 #include "GameFramework/Character.h"
 #include "ARPGCharacter.generated.h"
@@ -26,7 +27,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AARPGCharact
 
 
 UCLASS()
-class ARPG_API AARPGCharacter : public ACharacter, public IAbilitySystemInterface
+class ARPG_API AARPGCharacter : public ACharacter, public IAbilitySystemInterface, public IInventorySystemInterface
 {
 	GENERATED_BODY()
 
@@ -56,6 +57,9 @@ public:
 
 	// Implement IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	// Implement IInventorySystemInterface
+	virtual UInventoryComponent* GetInventoryComponent() const override;
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UARPGAbilitySystemComponent* GetARPGAbilitySystemComponent() const { return AbilitySystemComponent.Get(); }
@@ -175,6 +179,7 @@ protected:
 
 	TWeakObjectPtr<UARPGAbilitySystemComponent> AbilitySystemComponent;
 	TWeakObjectPtr<UARPGAttributeSet> AttributeSet;
+	TWeakObjectPtr<UInventoryComponent> InventoryComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
 	UARPGEquipmentManager* EquipmentManager;
