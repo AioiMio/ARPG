@@ -41,12 +41,13 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DamageNum;
 
-	float ChangeHealthBottomDelay = 0.7f;
+	float ChangeHealthBottomDelay = 1.f;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	int32 Damage;
-	
+
+	bool bCanHealthChangeTimerSet;
 	bool bCanChangeHealthBottom;
 
 	FTimerHandle TimerHandle_HealthBottomDelay;

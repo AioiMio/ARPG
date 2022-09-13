@@ -104,6 +104,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	float MaxStamina;
 
+	bool bCanHealthChangedTimerSet;
+	bool bCanManaChangedTimerSet;
+	bool bCanStaminaChangedTimerSet;
+	
 	bool bCanChangeHealthBottom;
 	bool bCanChangeManaBottom;
 	bool bCanChangeStaminaBottom;
@@ -112,7 +116,7 @@ protected:
 	float TargetManaPercent;
 	float TargetStaminaPercent;
 
-	float ChangeBottomDelay = 0.7f;
+	float ChangeBottomDelay = 1.f;
 	
 	FTimerHandle TimerHandle_HealthBottomDelay;
 	FTimerHandle TimerHandle_ManaBottomDelay;

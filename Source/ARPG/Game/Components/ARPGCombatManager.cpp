@@ -38,7 +38,9 @@ void UARPGCombatManager::SendHitReactEventToActor(AActor* Target, EAttackHitType
 			
 			if (InEffect)
 			{
-				SourceASC->ApplyGameplayEffectToTarget(InEffect.GetDefaultObject(), TargetASC);
+				FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
+				EffectContext.AddInstigator(GetOwner(), GetOwner());
+				SourceASC->ApplyGameplayEffectToTarget(InEffect.GetDefaultObject(), TargetASC, 1, EffectContext);
 			}
 		}
 	}
@@ -70,6 +72,9 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 				HitEventData.Target = HitCharacter;
 				HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
 				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
+
+				// HitCharacter->GetAbilitySystemComponent()->HandleGameplayEvent(FGameplayTag::RequestGameplayTag("Event.HitReact"), &HitEventData);
+				// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), FGameplayTag::RequestGameplayTag("Event.HitReact"), HitEventData);
 
 				// FGameplayTag HitReactTag;
 				// switch (CurrentAttackHitType)

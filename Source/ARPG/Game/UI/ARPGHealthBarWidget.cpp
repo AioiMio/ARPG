@@ -11,6 +11,7 @@ void UARPGHealthBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	bCanHealthChangeTimerSet = true;
 	bCanChangeHealthBottom = false;
 	
 	Damage = 0;
@@ -26,6 +27,7 @@ void UARPGHealthBarWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 		if (HealthTop->Percent >= HealthBottom->Percent)
 		{
 			bCanChangeHealthBottom = false;
+			bCanHealthChangeTimerSet = true;
 		}
 		else
 		{
@@ -47,11 +49,12 @@ void UARPGHealthBarWidget::SetHealthPercentage(float InPercent)
 			{
 				HealthBottom->SetPercent(HealthTop->Percent);
 			}
-			if (HealthTop->Percent < HealthBottom->Percent)
+			if (HealthTop->Percent < HealthBottom->Percent && bCanHealthChangeTimerSet)
 			{
 				FTimerDelegate Delegate;
 				Delegate.BindUFunction(this, "ChangeHealthBottomElapsed");
 				GetWorld()->GetTimerManager().SetTimer(TimerHandle_HealthBottomDelay, Delegate, ChangeHealthBottomDelay, false);
+				bCanHealthChangeTimerSet = false;
 			}
 		}
 	}
