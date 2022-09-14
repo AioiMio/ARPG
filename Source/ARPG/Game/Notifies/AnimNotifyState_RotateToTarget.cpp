@@ -13,6 +13,11 @@
 UAnimNotifyState_RotateToTarget::UAnimNotifyState_RotateToTarget(const FObjectInitializer& ObjectInitializer): Super(
 	ObjectInitializer)
 {
+	URootMotionModifier_SkewWarp* SkewWarp = CreateDefaultSubobject<URootMotionModifier_SkewWarp>(TEXT("SkewWarp"));
+	SkewWarp->WarpTargetName = FName("Target");
+	SkewWarp->bWarpTranslation = false;
+	SkewWarp->RotationType = EMotionWarpRotationType::Facing;
+	RootMotionModifier = SkewWarp;
 }
 
 void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshComp,

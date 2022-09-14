@@ -29,6 +29,7 @@ void UAnimNotifyState_AttackAndTrail::NotifyBegin(USkeletalMeshComponent* MeshCo
 				return;
 			}
 			CombatManager->SetCurrentAttackHitType(AttackHitType);
+			CombatManager->SetCurrentSkillMultiplier(SkillMultiplier);
 			CombatManager->StartTrace();
 		}
 	}
