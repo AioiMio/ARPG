@@ -15,37 +15,6 @@ UARPGCombatManager::UARPGCombatManager()
 	TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1);
 }
 
-void UARPGCombatManager::SendHitReactEventToActor(AActor* Target, EAttackHitType HitType)
-{
-	if (AARPGCharacter* Character = Cast<AARPGCharacter>(Target))
-	{
-		UAbilitySystemComponent* TargetASC = Character->GetAbilitySystemComponent();
-		UAbilitySystemComponent* SourceASC = OwnerCharacter->GetAbilitySystemComponent();
-		if (TargetASC && SourceASC)
-		{
-			TSubclassOf<UGameplayEffect> InEffect;
-			
-			switch (HitType)
-			{
-			case EAttackHitType::KnockBack: InEffect = KnockBackEffect;
-				break;
-			case EAttackHitType::KnockDown: InEffect = KnockDownEffect;
-				break;
-			case EAttackHitType::KnockUp: InEffect = KnockUpEffect;
-				break;
-			default: InEffect = nullptr;
-			}
-			
-			if (InEffect)
-			{
-				FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
-				EffectContext.AddInstigator(GetOwner(), GetOwner());
-				SourceASC->ApplyGameplayEffectToTarget(InEffect.GetDefaultObject(), TargetASC, 1, EffectContext);
-			}
-		}
-	}
-}
-
 void UARPGCombatManager::BeginPlay()
 {
 	Super::BeginPlay();
@@ -67,33 +36,53 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 			IgnoredActors.AddUnique(Hit.GetActor());
 			if (AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor()))
 			{
-				FGameplayEventData HitEventData;
-				HitEventData.Instigator = GetOwner();
-				HitEventData.Target = HitCharacter;
-				HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
-				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
+				// FGameplayEventData HitEventData;
+				// HitEventData.Instigator = GetOwner();
+				// HitEventData.Target = HitCharacter;
+				// HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+				// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
 
-				// HitCharacter->GetAbilitySystemComponent()->HandleGameplayEvent(FGameplayTag::RequestGameplayTag("Event.HitReact"), &HitEventData);
-				// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), FGameplayTag::RequestGameplayTag("Event.HitReact"), HitEventData);
+				SendHitEventToActor(HitCharacter, Hit, CurrentAttackHitType, CurrentSkillMultiplier);
+			}
+		}
+	}
+}
 
-				// FGameplayTag HitReactTag;
-				// switch (CurrentAttackHitType)
-				// {
-				// case EAttackHitType::Normal: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.Normal");
-				// 	break;
-				// case EAttackHitType::Heavy: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.Heavy");
-				// 	break;
-				// case EAttackHitType::KnockDown: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockDown");
-				// 	break;
-				// case EAttackHitType::KnockUp: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockUp");
-				// 	break;
-				// case EAttackHitType::KnockBack: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.KnockBack");
-				// 	break;
-				// default: HitReactTag = FGameplayTag::RequestGameplayTag("Event.Hit.Normal");
-				// }
-				// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitReactTag, HitEventData);
-
-				SendHitReactEventToActor(HitCharacter, CurrentAttackHitType);
+void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAttackHitType HitType, float Multiplier)
+{
+	if (AARPGCharacter* Character = Cast<AARPGCharacter>(Target))
+	{
+		UAbilitySystemComponent* TargetASC = Character->GetAbilitySystemComponent();
+		UAbilitySystemComponent* SourceASC = OwnerCharacter->GetAbilitySystemComponent();
+		if (TargetASC && SourceASC)
+		{
+			if (DamageEffectClass)
+			{
+				FGameplayEffectContextHandle DamageEffectContext = SourceASC->MakeEffectContext();
+				DamageEffectContext.AddInstigator(GetOwner(), GetOwner());
+				DamageEffectContext.AddHitResult(Hit);
+				FGameplayEffectSpecHandle DamageEffectSpecHandle = TargetASC->MakeOutgoingSpec(DamageEffectClass, 1, DamageEffectContext);
+				DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"), Multiplier);
+				SourceASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data, TargetASC);
+			}
+			
+			TSubclassOf<UGameplayEffect> HitReactEffect;
+			switch (HitType)
+			{
+			case EAttackHitType::KnockBack: HitReactEffect = KnockBackEffect;
+				break;
+			case EAttackHitType::KnockDown: HitReactEffect = KnockDownEffect;
+				break;
+			case EAttackHitType::KnockUp: HitReactEffect = KnockUpEffect;
+				break;
+			default: HitReactEffect = nullptr;
+			}
+			if (HitReactEffect)
+			{
+				FGameplayEffectContextHandle HitReactEffectContext = SourceASC->MakeEffectContext();
+				HitReactEffectContext.AddInstigator(GetOwner(), GetOwner());
+				HitReactEffectContext.AddHitResult(Hit);
+				SourceASC->ApplyGameplayEffectToTarget(HitReactEffect.GetDefaultObject(), TargetASC, 1, HitReactEffectContext);
 			}
 		}
 	}

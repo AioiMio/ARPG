@@ -14,6 +14,7 @@
 #include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -31,6 +32,9 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	TargetManager = CreateDefaultSubobject<UARPGTargetManager>(FName("TargetManager"));
 	MotionWarpingComponent = CreateDefaultSubobject<UARPGMotionWarpingComponent>(FName("MotionWarping"));
 	// MotionWarpingComponent->SetIsReplicated(true);
+
+	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
+	Box->SetupAttachment(GetMesh(), FName("Back"));
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
@@ -85,6 +89,12 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 void AARPGCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	if (Box)
+	{
+		Box->OnComponentBeginOverlap.AddDynamic(this, &AARPGCharacter::OnBackBoxBeginOverlap);
+		Box->OnComponentEndOverlap.AddDynamic(this, &AARPGCharacter::OnBackBoxEndOverlap);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -282,9 +292,7 @@ void AARPGCharacter::SprintStart()
 
 void AARPGCharacter::SprintStop()
 {
-	FGameplayTagContainer SprintTagContainer;
-	SprintTagContainer.AddTag(SprintTag);
-	AbilitySystemComponent->CancelAbilities(&SprintTagContainer);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag("Event.Movement.EndSprint"), FGameplayEventData());
 }
 
 void AARPGCharacter::RightHandAttackAction()
@@ -599,6 +607,40 @@ void AARPGCharacter::SetPosture(float Posture)
 	if (AttributeSet.IsValid())
 	{
 		AttributeSet->SetPosture(Posture);
+	}
+}
+
+void AARPGCharacter::OnBackBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
+	if (OtherCharacter && OtherCharacter != this && OtherCharacter->HasAuthority())
+	{
+		UARPGAbilitySystemComponent* ASC = Cast<UARPGAbilitySystemComponent>(OtherCharacter->GetARPGAbilitySystemComponent());
+		if (ASC)
+		{
+			ASC->AddReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("State.CanBackstab"));
+		}
+	}
+}
+
+void AARPGCharacter::OnBackBoxEndOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
+	if (OtherCharacter && OtherCharacter != this && OtherCharacter->HasAuthority())
+	{
+		UARPGAbilitySystemComponent* ASC = Cast<UARPGAbilitySystemComponent>(OtherCharacter->GetARPGAbilitySystemComponent());
+		if (ASC)
+		{
+			ASC->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("State.CanBackstab"));
+		}
 	}
 }
 

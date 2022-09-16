@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "ARPGPlayerController.generated.h"
 
+class UInputAction;
 class AARPGWeapon;
 class UInputMappingContext;
 class UARPGHUDWidget;
@@ -21,6 +22,36 @@ class ARPG_API AARPGPlayerController : public APlayerController
 
 public:
 	AARPGPlayerController();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* MovementInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* CameraInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* JumpInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* DodgeInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* RightAttackInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* RightHeavyAttackInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* LeftAttackInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* LeftHeavyAttackInput;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* LockOnInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* ChangeTargetInput;
 
 	void CreateHUD();
 

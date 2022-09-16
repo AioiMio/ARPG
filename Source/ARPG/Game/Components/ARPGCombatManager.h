@@ -16,7 +16,7 @@ enum class EAttackHitType : uint8
 	KnockDown UMETA(DisplayName = "KnockDown"),
 	KnockUp UMETA(DisplayName = "KnockUp"),
 	KnockBack UMETA(DisplayName = "KnockBack"),
-	
+
 	MAX UMETA(DisplayName = "DefaultMAX")
 };
 
@@ -42,8 +42,8 @@ public:
 
 	FORCEINLINE void SetCurrentSkillMultiplier(float InMultiplier) { CurrentSkillMultiplier = InMultiplier; }
 	FORCEINLINE float GetCurrentSkillMultiplier() const { return CurrentSkillMultiplier; }
-	
-	void SendHitReactEventToActor(AActor* Target, EAttackHitType HitType);
+
+	void SendHitEventToActor(AActor* Target, FHitResult Hit, EAttackHitType HitType, float Multiplier = 1.f);
 
 protected:
 	virtual void BeginPlay() override;
@@ -53,16 +53,18 @@ protected:
 	FGameplayTag HitEventTag;
 
 	EAttackHitType CurrentAttackHitType = EAttackHitType::Normal;
-	
+
 	float CurrentSkillMultiplier = 1.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Damage")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Effects|Passive")
 	TSubclassOf<UGameplayEffect> KnockDownEffect;
 	UPROPERTY(EditDefaultsOnly, Category = "Effects|Passive")
 	TSubclassOf<UGameplayEffect> KnockBackEffect;
 	UPROPERTY(EditDefaultsOnly, Category = "Effects|Passive")
 	TSubclassOf<UGameplayEffect> KnockUpEffect;
-	
+
 	UFUNCTION()
 	void OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh);
 

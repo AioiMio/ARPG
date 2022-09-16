@@ -18,6 +18,17 @@ class ARPG_API UARPGGameplayAbility : public UGameplayAbility
 public:
 	UARPGGameplayAbility();
 
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	                             const FGameplayAbilityActorInfo* ActorInfo,
+	                             const FGameplayAbilityActivationInfo ActivationInfo,
+	                             const FGameplayEventData* TriggerEventData) override;
+
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle,
+	                        const FGameplayAbilityActorInfo* ActorInfo,
+	                        const FGameplayAbilityActivationInfo ActivationInfo,
+	                        bool bReplicateEndAbility,
+	                        bool bWasCancelled) override;
+	
 	// Abilities with this set will automatically activate when the input is pressed
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
 	EARPGAbilityInputID AbilityInputID = EARPGAbilityInputID::None;
@@ -30,6 +41,13 @@ public:
 	// Tells an ability to activate immediately when its granted. Used for passive abilities and abilities forced on others.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ability")
 	bool ActivateAbilityOnGranted = false;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect")
+	TArray<TSubclassOf<UGameplayEffect>> GameplayEffects;
+
+	UPROPERTY()
+	TArray<FActiveGameplayEffectHandle> ActiveGameplayEffects;
 
 	// If an ability is marked as 'ActivateAbilityOnGranted', activate them immediately when given here
 	// Epic's comment: Projects may want to initiate passives or do other "BeginPlay" type of logic here.

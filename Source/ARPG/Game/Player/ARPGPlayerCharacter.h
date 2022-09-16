@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "ARPGPlayerCharacter.generated.h"
 
@@ -19,7 +20,7 @@ class ARPG_API AARPGPlayerCharacter : public AARPGCharacter
 
 public:
 	AARPGPlayerCharacter(const class FObjectInitializer& ObjectInitializer);
-	
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
@@ -27,10 +28,21 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	bool ASCInputBound = false;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
+
+	void MovementInputBegin();
+	void MovementInput(const FInputActionValue& InputActionValue);
+	void MovementInputEnd();
+
+	// Called from both SetupPlayerInputComponent and OnRep_PlayerState because of a potential race condition where the PlayerController might
+	// call ClientRestart which calls SetupPlayerInputComponent before the PlayerState is repped to the client so the PlayerState would be null in SetupPlayerInputComponent.
+	// Conversely, the PlayerState might be repped before the PlayerController calls ClientRestart so the Actor's InputComponent would be null in OnRep_PlayerState.
+	void BindASCInput();
 };

@@ -60,7 +60,7 @@ float UARPGTargetManager::GetActorLockOnPriority(AARPGCharacter* TargetCharacter
 		FVector TargetLocation = TargetCharacter->GetActorLocation();
 
 		return (TargetLocation - CameraLocation).Dot(OwnerPlayerCharacter->GetControlRotation().Vector())
-			/ FMath::Pow((TargetLocation - CameraLocation).Size(), 2.0f);
+			/ FMath::Pow((TargetLocation - CameraLocation).Size(), 1.5f);
 	}
 	return -1;
 }

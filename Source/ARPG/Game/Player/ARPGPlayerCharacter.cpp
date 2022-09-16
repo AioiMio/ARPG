@@ -3,6 +3,7 @@
 
 #include "ARPGPlayerCharacter.h"
 
+#include "EnhancedInputComponent.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Components/ARPGEquipmentManager.h"
@@ -38,9 +39,41 @@ AARPGPlayerCharacter::AARPGPlayerCharacter(const FObjectInitializer& ObjectIniti
 	CharacterName = FText::FromString("Player");
 }
 
+// Input
 void AARPGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetController());
+	if (IsLocallyControlled() && EnhancedInputComponent && PC)
+	{
+		EnhancedInputComponent->BindAction(PC->MovementInput, ETriggerEvent::Started, this,
+										   &AARPGPlayerCharacter::MovementInputBegin);
+		EnhancedInputComponent->BindAction(PC->MovementInput, ETriggerEvent::Triggered, this,
+										   &AARPGPlayerCharacter::MovementInput);
+		EnhancedInputComponent->BindAction(PC->MovementInput, ETriggerEvent::Completed, this,
+										   &AARPGPlayerCharacter::MovementInputEnd);
+		// EnhancedInputComponent->BindAction(PC->CameraInput, ETriggerEvent::Triggered, this,
+		// 								   &AARPGPlayerCharacter::CameraInput);
+		// EnhancedInputComponent->BindAction(PC->CameraInput, ETriggerEvent::Completed, this,
+		// 								   &AARPGPlayerCharacter::EndCameraInput);
+		// EnhancedInputComponent->BindAction(PC->JumpInput, ETriggerEvent::Started, this,
+		// 								   &ASCharacterBase::JumpStarted);
+		// EnhancedInputComponent->BindAction(PC->DodgeInput, ETriggerEvent::Started, this,
+		// 								   &ASCharacterBase::DodgeStarted);
+		// EnhancedInputComponent->BindAction(PC->RightAttackInput, ETriggerEvent::Started, this,
+		// 								   &AARPGPlayerCharacter::RightAttack);
+		// EnhancedInputComponent->BindAction(PC->RightHeavyAttackInput, ETriggerEvent::Started, this,
+		// 								   &AARPGPlayerCharacter::RightHeavyAttack);
+		// EnhancedInputComponent->BindAction(PC->LockOnInput, ETriggerEvent::Started, this,
+		// 								   &AARPGPlayerCharacter::LockOnPressed);
+		// EnhancedInputComponent->BindAction(PC->ChangeTargetInput, ETriggerEvent::Started, this,
+		// 								   &AARPGPlayerCharacter::ChangeTarget);
+	}
+
+	// Bind player input to the AbilitySystemComponent. Also called in OnRep_PlayerState because of a potential race condition.
+	BindASCInput();
 }
 
 void AARPGPlayerCharacter::PossessedBy(AController* NewController)
@@ -110,6 +143,9 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 		// Init ASC Actor Info for clients. Server will init its `ASC` when it possesses a new Actor.
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
+		// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
+		BindASCInput();
+		
 		// Set the AttributeSetBase for convenience attribute functions
 		AttributeSet = PS->GetAttributeSet();
 
@@ -177,4 +213,29 @@ void AARPGPlayerCharacter::BeginPlay()
 	}
 
 	JoinWorld();
+}
+
+void AARPGPlayerCharacter::MovementInputBegin()
+{
+	AbilitySystemComponent->AddReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("Input.Movement.Active"));
+}
+
+void AARPGPlayerCharacter::MovementInput(const FInputActionValue& InputActionValue)
+{
+}
+
+void AARPGPlayerCharacter::MovementInputEnd()
+{
+	AbilitySystemComponent->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("Input.Movement.Active"));
+}
+
+void AARPGPlayerCharacter::BindASCInput()
+{
+	if (!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
+	{
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
+			FString("CancelTarget"), FString("EARPGAbilityInputID"), static_cast<int32>(EARPGAbilityInputID::Confirm), static_cast<int32>(EARPGAbilityInputID::Cancel)));
+
+		ASCInputBound = true;
+	}
 }

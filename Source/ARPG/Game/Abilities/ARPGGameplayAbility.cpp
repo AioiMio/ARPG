@@ -15,6 +15,40 @@ UARPGGameplayAbility::UARPGGameplayAbility()
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
 }
 
+void UARPGGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (GameplayEffects.Num() > 0)
+	{
+		for (const TSubclassOf<UGameplayEffect>& Effect : GameplayEffects)
+		{
+			ActiveGameplayEffects.Add(ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Effect.GetDefaultObject(), 1));
+		}
+	}
+}
+
+void UARPGGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility,
+	bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	if (ActiveGameplayEffects.Num() > 0)
+	{
+		for (const FActiveGameplayEffectHandle& ActiveGameplayEffect : ActiveGameplayEffects)
+		{
+			GetAbilitySystemComponentFromActorInfo()->RemoveActiveGameplayEffect(ActiveGameplayEffect);
+		}
+	}
+	ActiveGameplayEffects.Empty();
+}
+
 void UARPGGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnAvatarSet(ActorInfo, Spec);

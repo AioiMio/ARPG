@@ -13,22 +13,24 @@
 bool UGameplayCueStatic_HitEffects::OnExecute_Implementation(AActor* MyTarget,
                                                              const FGameplayCueParameters& Parameters) const
 {
-	if (AARPGPlayerState* PS = Cast<AARPGPlayerState>(Parameters.GetInstigator()))
+	AARPGCharacter* Character = Cast<AARPGCharacter>(Parameters.EffectContext.GetInstigator());
+	if (Character)
 	{
-		if (PS->GetPlayerController() && HitForceFeedbackEffect)
+		if (AARPGPlayerState* PS = Cast<AARPGPlayerState>(Character->GetPlayerState()))
 		{
-			PS->GetPlayerController()->ClientPlayForceFeedback(HitForceFeedbackEffect);
-			PS->GetPlayerController()->ClientStartCameraShake(CameraShake);
+			if (PS->GetPlayerController() && HitForceFeedbackEffect)
+			{
+				PS->GetPlayerController()->ClientPlayForceFeedback(HitForceFeedbackEffect);
+				PS->GetPlayerController()->ClientStartCameraShake(CameraShake);
+			}
 		}
-		if (AARPGCharacter* Character = Cast<AARPGCharacter>(PS->GetPawn()))
-		{
-			Character->GetMesh()->GlobalAnimRateScale = HitAnimRateScale;
+		
+		Character->GetMesh()->GlobalAnimRateScale = HitAnimRateScale;
 
-			FTimerHandle TimerHandle;
-			FTimerDelegate Delegate;
-			Delegate.BindUObject(this, &UGameplayCueStatic_HitEffects::ResetAnimRateScaleElapsed, Character);
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, Delegate, HitFeedbackEffectDuration, false);
-		}
+		FTimerHandle TimerHandle;
+		FTimerDelegate Delegate;
+		Delegate.BindUObject(this, &UGameplayCueStatic_HitEffects::ResetAnimRateScaleElapsed, Character);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, Delegate, HitFeedbackEffectDuration, false);
 	}
 
 	FHitResult HitResult = *Parameters.EffectContext.GetHitResult();

@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "ARPGCharacter.generated.h"
 
+class UBoxComponent;
 class UARPGEquipmentManager;
 class UARPGCombatManager;
 class UARPGTargetManager;
@@ -23,6 +24,7 @@ class UARPGHealthBarWidget;
 class UWidgetComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterHitReactDelegate, EARPGHitReactDirection, Direction);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AARPGCharacter*, Character);
 
 
@@ -37,7 +39,7 @@ public:
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PostInitializeComponents() override;
 	virtual void Destroyed() override;
-	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void JoinWorld();
@@ -47,7 +49,7 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLeaveWorld();
-	
+
 	// Set the Hit React direction in the Animation Blueprint
 	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FCharacterHitReactDelegate ShowHitReact;
@@ -62,7 +64,10 @@ public:
 	virtual UInventoryComponent* GetInventoryComponent() const override;
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE UARPGAbilitySystemComponent* GetARPGAbilitySystemComponent() const { return AbilitySystemComponent.Get(); }
+	FORCEINLINE UARPGAbilitySystemComponent* GetARPGAbilitySystemComponent() const
+	{
+		return AbilitySystemComponent.Get();
+	}
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UARPGCombatManager* GetCombatManager() const { return CombatManager; }
@@ -101,7 +106,7 @@ public:
 	/**
 	* Input Actions
 	**/
-	
+
 	UFUNCTION(BlueprintCallable, Category = "InputActions")
 	virtual void JumpAction();
 
@@ -126,7 +131,7 @@ public:
 	/**
 	* Getters for attributes from GDAttributeSetBase
 	**/
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	int32 GetCharacterLevel() const;
 
@@ -153,7 +158,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMaxPosture() const;
-	
+
 	// Gets the Current value of MoveSpeed
 	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMoveSpeed() const;
@@ -166,7 +171,7 @@ public:
 	virtual void Dying();
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	virtual void FinishDying();
-	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -180,6 +185,9 @@ protected:
 	TWeakObjectPtr<UARPGAbilitySystemComponent> AbilitySystemComponent;
 	TWeakObjectPtr<UARPGAttributeSet> AttributeSet;
 	TWeakObjectPtr<UInventoryComponent> InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
+	UBoxComponent* Box;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
 	UARPGEquipmentManager* EquipmentManager;
@@ -195,7 +203,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UARPGHealthBarWidget> HealthBarClass;
-	
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
 	UWidgetComponent* HealthBarComponent;
 
@@ -213,10 +221,10 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetEmissive(bool bInEmissive);
-	
+
 	UFUNCTION()
 	virtual void OnRep_bEmissive(const bool& bOldEmissive);
-	
+
 	FGameplayTag HitEventTag;
 	FGameplayTag HitDirectionFrontTag;
 	FGameplayTag HitDirectionBackTag;
@@ -283,4 +291,17 @@ protected:
 	virtual void SetMana(float Mana);
 	virtual void SetStamina(float Stamina);
 	virtual void SetPosture(float Posture);
+
+	UFUNCTION()
+	void OnBackBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent,
+	                           AActor* OtherActor,
+	                           UPrimitiveComponent* OtherComp,
+	                           int32 OtherBodyIndex,
+	                           bool bFromSweep,
+	                           const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnBackBoxEndOverlap(UPrimitiveComponent* OverlappedComponent,
+	                         AActor* OtherActor,
+	                         UPrimitiveComponent* OtherComp,
+	                         int32 OtherBodyIndex);
 };
