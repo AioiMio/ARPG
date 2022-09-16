@@ -24,6 +24,8 @@ enum class EAttackHitType : uint8
 class AARPGCharacter;
 class UForceFeedbackEffect;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBackstabTargetCharacterCountChanged, int32, OldTargetCharacterCount, int32, NewTargetCharacterCount);
+
 /**
  * 
  */
@@ -34,6 +36,19 @@ class ARPG_API UARPGCombatManager : public UAGR_CombatManager
 
 public:
 	UARPGCombatManager();
+
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
+
+	UPROPERTY(Replicated)
+	TArray<TWeakObjectPtr<AARPGCharacter>> BackstabTargetCharacters;
+
+	UFUNCTION()
+	void AddBackstabTargetCharacter(AARPGCharacter* InTargetCharacter);
+
+	UFUNCTION()
+	void RemoveBackstabTargetCharacter(AARPGCharacter* InTargetCharacter);
+
+	FOnBackstabTargetCharacterCountChanged OnBackstabTargetCharacterCountChanged;
 
 	FORCEINLINE TArray<AActor*> GetIgnoredActors() { return IgnoredActors; }
 
@@ -70,4 +85,7 @@ protected:
 
 	UFUNCTION()
 	void ApplyHitReact(EARPGHitReactDirection Direction);
+
+	UFUNCTION()
+	void BackstabTargetCharactersChanged(int32 OldTargetCharacterCount, int32 NewTargetCharacterCount);
 };

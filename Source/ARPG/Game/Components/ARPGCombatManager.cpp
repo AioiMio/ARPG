@@ -5,9 +5,11 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "ARPGAbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "ARPG/Game/Abilities/ARPGGameplayEffect_HitReact.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 UARPGCombatManager::UARPGCombatManager()
 {
@@ -21,6 +23,8 @@ void UARPGCombatManager::BeginPlay()
 
 	OwnerCharacter = Cast<AARPGCharacter>(GetOuter());
 	OnAttackHitEvent.AddDynamic(this, &UARPGCombatManager::OnAttackHit);
+	OnBackstabTargetCharacterCountChanged.AddDynamic(this, &UARPGCombatManager::BackstabTargetCharactersChanged);
+
 	if (OwnerCharacter.IsValid())
 	{
 		OwnerCharacter->ShowHitReact.AddDynamic(this, &UARPGCombatManager::ApplyHitReact);
@@ -61,11 +65,13 @@ void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAt
 				FGameplayEffectContextHandle DamageEffectContext = SourceASC->MakeEffectContext();
 				DamageEffectContext.AddInstigator(GetOwner(), GetOwner());
 				DamageEffectContext.AddHitResult(Hit);
-				FGameplayEffectSpecHandle DamageEffectSpecHandle = TargetASC->MakeOutgoingSpec(DamageEffectClass, 1, DamageEffectContext);
-				DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"), Multiplier);
+				FGameplayEffectSpecHandle DamageEffectSpecHandle = TargetASC->MakeOutgoingSpec(
+					DamageEffectClass, 1, DamageEffectContext);
+				DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"),
+				                                                     Multiplier);
 				SourceASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data, TargetASC);
 			}
-			
+
 			TSubclassOf<UGameplayEffect> HitReactEffect;
 			switch (HitType)
 			{
@@ -82,7 +88,8 @@ void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAt
 				FGameplayEffectContextHandle HitReactEffectContext = SourceASC->MakeEffectContext();
 				HitReactEffectContext.AddInstigator(GetOwner(), GetOwner());
 				HitReactEffectContext.AddHitResult(Hit);
-				SourceASC->ApplyGameplayEffectToTarget(HitReactEffect.GetDefaultObject(), TargetASC, 1, HitReactEffectContext);
+				SourceASC->ApplyGameplayEffectToTarget(HitReactEffect.GetDefaultObject(), TargetASC, 1,
+				                                       HitReactEffectContext);
 			}
 		}
 	}
@@ -90,4 +97,48 @@ void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAt
 
 void UARPGCombatManager::ApplyHitReact(EARPGHitReactDirection Direction)
 {
+}
+
+void UARPGCombatManager::AddBackstabTargetCharacter(AARPGCharacter* InTargetCharacter)
+{
+	if (OwnerCharacter.IsValid() && OwnerCharacter != InTargetCharacter && OwnerCharacter->HasAuthority() && !
+		BackstabTargetCharacters.Contains(InTargetCharacter))
+	{
+		int32 OldTargetCharacterCount = BackstabTargetCharacters.Num();
+		BackstabTargetCharacters.AddUnique(InTargetCharacter);
+		OnBackstabTargetCharacterCountChanged.Broadcast(OldTargetCharacterCount, BackstabTargetCharacters.Num());
+	}
+}
+
+void UARPGCombatManager::RemoveBackstabTargetCharacter(AARPGCharacter* InTargetCharacter)
+{
+	if (OwnerCharacter.IsValid() && OwnerCharacter->HasAuthority() && BackstabTargetCharacters.Contains(
+		InTargetCharacter))
+	{
+		int32 OldTargetCharacterCount = BackstabTargetCharacters.Num();
+		BackstabTargetCharacters.Remove(InTargetCharacter);
+		OnBackstabTargetCharacterCountChanged.Broadcast(OldTargetCharacterCount, BackstabTargetCharacters.Num());
+	}
+}
+
+void UARPGCombatManager::BackstabTargetCharactersChanged(int32 OldTargetCharacterCount, int32 NewTargetCharacterCount)
+{
+	if (OwnerCharacter.IsValid())
+	{
+		if (NewTargetCharacterCount == 0)
+		{
+			OwnerCharacter->GetARPGAbilitySystemComponent()->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("State.CanBackstab"));
+		}
+		else if (OldTargetCharacterCount == 0 && NewTargetCharacterCount > 0)
+		{
+			OwnerCharacter->GetARPGAbilitySystemComponent()->AddReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("State.CanBackstab"));
+		}
+	}
+}
+
+void UARPGCombatManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UARPGCombatManager, BackstabTargetCharacters);
 }

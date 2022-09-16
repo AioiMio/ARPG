@@ -30,6 +30,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	EquipmentManager = CreateDefaultSubobject<UARPGEquipmentManager>(FName("EquipmentManager"));
 	CombatManager = CreateDefaultSubobject<UARPGCombatManager>(FName("CombatManager"));
 	TargetManager = CreateDefaultSubobject<UARPGTargetManager>(FName("TargetManager"));
+	TargetManager->SetIsReplicated(true);
 	MotionWarpingComponent = CreateDefaultSubobject<UARPGMotionWarpingComponent>(FName("MotionWarping"));
 	// MotionWarpingComponent->SetIsReplicated(true);
 
@@ -618,14 +619,7 @@ void AARPGCharacter::OnBackBoxBeginOverlap(UPrimitiveComponent* OverlappedCompon
 	const FHitResult& SweepResult)
 {
 	AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
-	if (OtherCharacter && OtherCharacter != this && OtherCharacter->HasAuthority())
-	{
-		UARPGAbilitySystemComponent* ASC = Cast<UARPGAbilitySystemComponent>(OtherCharacter->GetARPGAbilitySystemComponent());
-		if (ASC)
-		{
-			ASC->AddReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("State.CanBackstab"));
-		}
-	}
+	OtherCharacter->GetCombatManager()->AddBackstabTargetCharacter(this);
 }
 
 void AARPGCharacter::OnBackBoxEndOverlap(UPrimitiveComponent* OverlappedComponent,
@@ -634,14 +628,7 @@ void AARPGCharacter::OnBackBoxEndOverlap(UPrimitiveComponent* OverlappedComponen
 	int32 OtherBodyIndex)
 {
 	AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
-	if (OtherCharacter && OtherCharacter != this && OtherCharacter->HasAuthority())
-	{
-		UARPGAbilitySystemComponent* ASC = Cast<UARPGAbilitySystemComponent>(OtherCharacter->GetARPGAbilitySystemComponent());
-		if (ASC)
-		{
-			ASC->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("State.CanBackstab"));
-		}
-	}
+	OtherCharacter->GetCombatManager()->RemoveBackstabTargetCharacter(this);
 }
 
 void AARPGCharacter::MulticastLeaveWorld_Implementation()
