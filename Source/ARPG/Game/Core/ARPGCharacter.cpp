@@ -272,7 +272,7 @@ bool AARPGCharacter::PlayHitReact_Validate(FGameplayTag HitDirection, AActor* Da
 	return true;
 }
 
-void AARPGCharacter::SetLockOnPointHiddenInGame(bool bInHidden)
+void AARPGCharacter::SetLockOnPointHiddenInGame(bool bInHidden) const
 {
 	LockOnPointComponent->bHiddenInGame = bInHidden;
 }

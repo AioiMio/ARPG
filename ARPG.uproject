@@ -63,12 +63,12 @@
 		},
 		{
 			"Name": "VirtualAnimationTools",
-			"Enabled": true,
+			"Enabled": false,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/afb5d0078ab343b0bfc684d0d05fc951"
 		},
 		{
 			"Name": "VirtualMotionMatching",
-			"Enabled": true,
+			"Enabled": false,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/3cc8c83cde1d48b69e26b96eb5b0d05f"
 		}
 	]

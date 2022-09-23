@@ -18,6 +18,7 @@ public:
 	UARPGTargetManager();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsLockingOn = false;
@@ -47,7 +48,8 @@ protected:
 	
 	TWeakObjectPtr<AARPGCharacter> OwnerCharacter;
 	TWeakObjectPtr<AARPGPlayerCharacter> OwnerPlayerCharacter;
-	
+
+	UPROPERTY(Replicated)
 	TWeakObjectPtr<AARPGCharacter> LockOnTarget;
 
 	UPROPERTY()

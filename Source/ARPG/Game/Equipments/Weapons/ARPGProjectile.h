@@ -19,8 +19,6 @@ class ARPG_API AARPGProjectile : public AActor
 public:
 	AARPGProjectile();
 
-	virtual void PostInitializeComponents() override;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn = true))
 	float Range = 1000.f;
 
@@ -41,11 +39,4 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-	void OnProjectileHit(UPrimitiveComponent* OverlappedComponent,
-	                     AActor* OtherActor,
-	                     UPrimitiveComponent* OtherComp,
-	                     int32 OtherBodyIndex,
-	                     bool bFromSweep,
-	                     const FHitResult& SweepResult);
 };

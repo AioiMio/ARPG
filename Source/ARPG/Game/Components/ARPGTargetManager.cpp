@@ -8,6 +8,7 @@
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 UARPGTargetManager::UARPGTargetManager()
 {
@@ -22,7 +23,9 @@ void UARPGTargetManager::BeginPlay()
 	OwnerPlayerCharacter = Cast<AARPGPlayerCharacter>(GetOuter());
 }
 
-void UARPGTargetManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UARPGTargetManager::TickComponent(float DeltaTime,
+                                       ELevelTick TickType,
+                                       FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -40,7 +43,7 @@ void UARPGTargetManager::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 			{
 				OwnerPlayerCharacter->GetController()->SetControlRotation(
 					UKismetMathLibrary::RInterpTo(OwnerPlayerCharacter->GetController()->GetControlRotation(), Rotation,
-												  DeltaTime, 3.0f));
+					                              DeltaTime, 3.0f));
 			}
 		}
 		else
@@ -157,3 +160,9 @@ void UARPGTargetManager::ChangeTarget()
 	}
 }
 
+void UARPGTargetManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UARPGTargetManager, LockOnTarget);
+}

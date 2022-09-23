@@ -101,7 +101,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
 	virtual void PlayHitReact(FGameplayTag HitDirection, AActor* DamageCauser);
 
-	void SetLockOnPointHiddenInGame(bool bInHidden);
+	void SetLockOnPointHiddenInGame(bool bInHidden) const;
 
 	/**
 	* Input Actions
