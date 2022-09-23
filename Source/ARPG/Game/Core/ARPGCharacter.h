@@ -239,6 +239,7 @@ protected:
 	FGameplayTag RightHandAttackTag;
 	FGameplayTag RightHandHeavyAttackTag;
 	FGameplayTag LeftHandHeavyAttackTag;
+	FGameplayTag GunAttackTag;
 
 	FTimerHandle TimerHandle_LandDelay;
 	FTimerHandle TimerHandle_FallingTagRemoveDelay;

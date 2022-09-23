@@ -14,6 +14,7 @@ enum class EWeaponType : uint8
 	Katana UMETA(DisplayName = "Katana"),
 	Sword UMETA(DisplayName = "Sword"),
 	GreatSword UMETA(DisplayName = "GreatSword"),
+	Gun UMETA(DisplayName = "Gun"),
 	
 	MAX UMETA(DisplayName = "DefaultMAX")
 };

@@ -76,6 +76,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	RightHandAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.Combo"));
 	RightHandHeavyAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.RightHeavy"));
 	LeftHandHeavyAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.LeftHeavy"));
+	GunAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Gun"));
 
 	// Settings
 	bUseControllerRotationYaw = false;
@@ -308,7 +309,10 @@ void AARPGCharacter::RightHandHeavyAttackAction()
 
 void AARPGCharacter::LeftHandHeavyAttackAction()
 {
-	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(LeftHandHeavyAttackTag));
+	if (!AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(GunAttackTag)))
+	{
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(LeftHandHeavyAttackTag));
+	}
 }
 
 int32 AARPGCharacter::GetCharacterLevel() const
@@ -618,8 +622,8 @@ void AARPGCharacter::OnBackBoxBeginOverlap(UPrimitiveComponent* OverlappedCompon
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
-	OtherCharacter->GetCombatManager()->AddBackstabTargetCharacter(this);
+	// AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
+	// OtherCharacter->GetCombatManager()->AddBackstabTargetCharacter(this);
 }
 
 void AARPGCharacter::OnBackBoxEndOverlap(UPrimitiveComponent* OverlappedComponent,
@@ -627,8 +631,8 @@ void AARPGCharacter::OnBackBoxEndOverlap(UPrimitiveComponent* OverlappedComponen
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
-	OtherCharacter->GetCombatManager()->RemoveBackstabTargetCharacter(this);
+	// AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
+	// OtherCharacter->GetCombatManager()->RemoveBackstabTargetCharacter(this);
 }
 
 void AARPGCharacter::MulticastLeaveWorld_Implementation()

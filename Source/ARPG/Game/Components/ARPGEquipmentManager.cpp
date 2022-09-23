@@ -107,6 +107,15 @@ void UARPGEquipmentManager::EquipRightHandWeapon(int32 Index)
 		// Broadcast WeaponChanged Event
 		WeaponChangedDelegate.Broadcast(EEquipPostion::RightHand, CurrentRightHandWeapon);
 
+		if (CurrentRightHandWeapon->GetWeaponType() == EWeaponType::Katana)
+		{
+			EquipLeftHandWeapon(0);
+		}
+		else
+		{
+			DestroyLeftHandWeapon();
+		}
+
 		// Add trace mesh
 		if (OwnerCharacter->GetCombatManager())
 		{
@@ -175,6 +184,37 @@ void UARPGEquipmentManager::ChangeRightHandWeapon()
 
 void UARPGEquipmentManager::EquipLeftHandWeapon(int32 Index)
 {
+	if (CurrentLeftHandWeapon)
+	{
+		DestroyLeftHandWeapon();
+	}
+
+	if (OwnerCharacter.IsValid() && GetOwnerRole() == ENetRole::ROLE_Authority)
+	{
+		if (!LeftHandWeapons[Index] || Index < 0 || Index > 2)
+		{
+			return;
+		}
+
+		FActorSpawnParameters ActorSpawnParameters;
+		ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ActorSpawnParameters.Owner = OwnerCharacter.Get();
+		CurrentLeftHandWeapon = GetWorld()->SpawnActor<AARPGWeapon>(LeftHandWeapons[Index].Get(),
+																	 OwnerCharacter->GetMesh()->GetSocketTransform(
+																		 LeftHandWeaponSocketName),
+																	 ActorSpawnParameters);
+		CurrentLeftHandWeapon->SetEquipPosition(EEquipPostion::LeftHand);
+		CurrentLeftHandWeaponSlotIndex = Index;
+
+		AddEquipmentAbilitiesToOwner(CurrentLeftHandWeapon);
+
+		FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+		CurrentLeftHandWeapon->AttachToComponent(OwnerCharacter->GetMesh(), AttachmentTransformRules,
+												  LeftHandWeaponSocketName);
+
+		// Broadcast WeaponChanged Event
+		WeaponChangedDelegate.Broadcast(EEquipPostion::LeftHand, CurrentLeftHandWeapon);
+	}
 }
 
 void UARPGEquipmentManager::EquipLeftHandWeaponByClass(TSubclassOf<AARPGWeapon> WeaponClass)

@@ -6,6 +6,7 @@
 #include "EngineUtils.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 UARPGTargetManager::UARPGTargetManager()
@@ -46,8 +47,8 @@ void UARPGTargetManager::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		{
 			LockOnTarget = nullptr;
 			bIsLockingOn = false;
-			// PlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-			// PlayerCharacter->bUseControllerRotationYaw = false;
+			OwnerPlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+			OwnerPlayerCharacter->bUseControllerRotationYaw = false;
 		}
 	}
 }
@@ -80,8 +81,8 @@ bool UARPGTargetManager::LockOnPressed()
 	if (LockOnTarget != nullptr)
 	{
 		LockOnTarget->SetLockOnPointHiddenInGame(true);
-		// PlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-		// PlayerCharacter->bUseControllerRotationYaw = false;
+		OwnerPlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+		OwnerPlayerCharacter->bUseControllerRotationYaw = false;
 		SetLockOnTarget(nullptr);
 		return false;
 	}
@@ -130,8 +131,8 @@ bool UARPGTargetManager::LockOnPressed()
 
 	SetLockOnTarget(OtherCharacters[LockOnCharacterIndex]);
 	LockOnTarget->SetLockOnPointHiddenInGame(false);
-	// PlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-	// PlayerCharacter->bUseControllerRotationYaw = true;
+	OwnerPlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	OwnerPlayerCharacter->bUseControllerRotationYaw = true;
 
 	return true;
 }
