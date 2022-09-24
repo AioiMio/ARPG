@@ -13,6 +13,7 @@ UARPGGameplayAbility::UARPGGameplayAbility()
 	// Default tags that block this ability from activating
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Dead")));
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Break")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Lying")));
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
 }
 

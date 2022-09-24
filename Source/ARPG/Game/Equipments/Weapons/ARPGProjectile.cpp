@@ -8,6 +8,8 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 AARPGProjectile::AARPGProjectile()
 {
@@ -27,6 +29,11 @@ AARPGProjectile::AARPGProjectile()
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(FName("ProjectileMovement"));
 	ProjectileMovement->InitialSpeed = 3000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
+}
+
+void AARPGProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 void AARPGProjectile::BeginPlay()

@@ -10,6 +10,7 @@
 #include "ARPG/Game/Equipments/Weapons/ARPGProjectile.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 UARPGGameplayAbility_Gun::UARPGGameplayAbility_Gun()
@@ -96,7 +97,7 @@ void UARPGGameplayAbility_Gun::EventReceived(FGameplayTag EventTag, FGameplayEve
 		FVector End;
 		if (AARPGCharacter* TargetCharacter = SourceCharacter->GetTargetManager()->GetLockOnTarget())
 		{
-			End = TargetCharacter->GetActorLocation();
+			End = TargetCharacter->GetLockOnPointComponent()->GetComponentLocation();
 		}
 		else
 		{

@@ -81,6 +81,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UARPGMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
 
+	FORCEINLINE UWidgetComponent* GetLockOnPointComponent() const { return LockOnPointComponent; }
+
 	FORCEINLINE UARPGHealthBarWidget* GetHealthBar() const { return HealthBar; }
 
 	UFUNCTION(BlueprintCallable, Category = "Character")

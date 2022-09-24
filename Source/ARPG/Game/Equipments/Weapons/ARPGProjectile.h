@@ -19,8 +19,10 @@ class ARPG_API AARPGProjectile : public AActor
 public:
 	AARPGProjectile();
 
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn = true))
-	float Range = 1000.f;
+	float Range = 1500.f;
 
 	UPROPERTY(BlueprintReadWrite, Meta = (ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
@@ -36,6 +38,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UProjectileMovementComponent* ProjectileMovement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
+	TArray<UParticleSystem*> ImpactEffects;
 
 protected:
 	virtual void BeginPlay() override;
