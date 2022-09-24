@@ -183,7 +183,7 @@ protected:
 
 	UFUNCTION()
 	void OnMontageInterrupted(FGameplayTag EventTag, FGameplayEventData EventData);
-
+	
 	UFUNCTION()
 	void HandleEventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
 
@@ -194,6 +194,8 @@ protected:
 
 	void HandleComboBeginEvent();
 	void HandleComboEndEvent();
+	void HandleChanceBeginEvent();
+	void HandleChanceEndEvent();
 	void HandleComboTransition();
 	void HandleComboTransitionForNotifyTriggerTime(float TriggerTime);
 

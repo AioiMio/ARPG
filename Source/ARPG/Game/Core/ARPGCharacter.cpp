@@ -36,6 +36,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	Box->SetupAttachment(GetMesh(), FName("Back"));
+	Box->SetCollisionProfileName(FName("ExecutionBox"));
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
@@ -53,11 +54,9 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	LockOnPointComponent->SetHiddenInGame(true);
 
 	// Setup Collisions
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,
-	                                                     ECollisionResponse::ECR_Overlap);
-	GetCapsuleComponent()->
-		SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionProfileName(FName("PawnCapsule"));
 	GetMesh()->SetCollisionProfileName(FName("HitTraceMesh"));
+	GetMesh()->SetGenerateOverlapEvents(true);
 
 	bAlwaysRelevant = true;
 
@@ -272,7 +271,7 @@ bool AARPGCharacter::PlayHitReact_Validate(FGameplayTag HitDirection, AActor* Da
 	return true;
 }
 
-void AARPGCharacter::SetLockOnPointHiddenInGame(bool bInHidden) const
+void AARPGCharacter::SetLockOnPointHiddenInGame(bool bInHidden)
 {
 	LockOnPointComponent->bHiddenInGame = bInHidden;
 }
@@ -431,7 +430,7 @@ void AARPGCharacter::Die()
 	// Only runs on Server
 	RemoveCharacterAbilities();
 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->GravityScale = 0;
 	GetCharacterMovement()->Velocity = FVector(0);
 

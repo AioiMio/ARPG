@@ -741,6 +741,8 @@ void UComboGraphAbilityTask_StartGraph::HandleEventReceived(const FGameplayTag E
 
 	const FGameplayTag ComboBegin = FComboGraphNativeTags::Get().ComboBegin;
 	const FGameplayTag ComboEnd = FComboGraphNativeTags::Get().ComboEnd;
+	const FGameplayTag ChanceBegin = FComboGraphNativeTags::Get().ChanceBegin;
+	const FGameplayTag ChanceEnd = FComboGraphNativeTags::Get().ChanceEnd;
 
 	if (EventTag == ComboBegin)
 	{
@@ -769,6 +771,28 @@ void UComboGraphAbilityTask_StartGraph::HandleEventReceived(const FGameplayTag E
 		}
 
 		HandleComboEndEvent();
+	}
+	else if(EventTag == ChanceBegin)
+	{
+		if (ShouldBroadcastInternalEvents())
+		{
+			EventReceived.Broadcast(EventTag, EventData);
+			
+			CurrentNode->OnEventReceived(EventTag, EventData);
+		}
+
+		HandleChanceBeginEvent();
+	}
+	else if(EventTag == ChanceEnd)
+	{
+		if (ShouldBroadcastInternalEvents())
+		{
+			EventReceived.Broadcast(EventTag, EventData);
+
+			CurrentNode->OnEventReceived(EventTag, EventData);
+		}
+
+		HandleChanceEndEvent();
 	}
 	else
 	{
@@ -837,6 +861,14 @@ void UComboGraphAbilityTask_StartGraph::HandleComboEndEvent()
 			HandleComboTransition();
 		}
 	}
+}
+
+void UComboGraphAbilityTask_StartGraph::HandleChanceBeginEvent()
+{
+}
+
+void UComboGraphAbilityTask_StartGraph::HandleChanceEndEvent()
+{
 }
 
 void UComboGraphAbilityTask_StartGraph::HandleComboTransition()

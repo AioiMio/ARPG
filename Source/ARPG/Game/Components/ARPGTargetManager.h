@@ -20,16 +20,16 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_bIsLockingOn)
 	bool bIsLockingOn = false;
 	
 	float GetActorLockOnPriority(AARPGCharacter* TargetCharacter);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void LockOn();
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE AARPGCharacter* GetLockOnTarget() { return LockOnTarget.Get(); }
+	FORCEINLINE AARPGCharacter* GetLockOnTarget() { return LockOnTarget; }
 
 	UFUNCTION(BlueprintCallable)
 	void SetLockOnTarget(AARPGCharacter* InCharacter);
@@ -37,7 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool LockOnPressed();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Server, Unreliable)
 	void ChangeTarget();
 
 protected:
@@ -49,12 +49,22 @@ protected:
 	TWeakObjectPtr<AARPGCharacter> OwnerCharacter;
 	TWeakObjectPtr<AARPGPlayerCharacter> OwnerPlayerCharacter;
 
+	UPROPERTY(ReplicatedUsing = OnRep_LockOnTarget)
+	AARPGCharacter* LockOnTarget;
 	UPROPERTY(Replicated)
-	TWeakObjectPtr<AARPGCharacter> LockOnTarget;
+	AARPGCharacter* LastLockOnTarget;
 
 	UPROPERTY()
 	int32 LockOnCharacterIndex;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<AARPGCharacter*> OtherCharacters;
+
+	UFUNCTION()
+	void OnRep_bIsLockingOn(bool bOldIsLockingOn);
+
+	UFUNCTION()
+	void OnRep_LockOnTarget(AARPGCharacter* OldLockOnTarget);
+
+	void OnLockOnStateChanged(bool bNewState);
 };

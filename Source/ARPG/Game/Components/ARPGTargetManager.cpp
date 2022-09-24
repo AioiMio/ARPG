@@ -31,7 +31,7 @@ void UARPGTargetManager::TickComponent(float DeltaTime,
 
 	if (OwnerPlayerCharacter.IsValid() && bIsLockingOn)
 	{
-		if (LockOnTarget.IsValid() && LockOnTarget->IsAlive())
+		if (LockOnTarget && LockOnTarget->IsAlive())
 		{
 			FVector Direction = LockOnTarget->GetActorLocation() - OwnerPlayerCharacter->GetActorLocation();
 			FRotator Rotation = Direction.Rotation();
@@ -69,7 +69,7 @@ float UARPGTargetManager::GetActorLockOnPriority(AARPGCharacter* TargetCharacter
 	return -1;
 }
 
-void UARPGTargetManager::LockOn()
+void UARPGTargetManager::LockOn_Implementation()
 {
 	bIsLockingOn = LockOnPressed();
 }
@@ -83,10 +83,9 @@ bool UARPGTargetManager::LockOnPressed()
 {
 	if (LockOnTarget != nullptr)
 	{
-		LockOnTarget->SetLockOnPointHiddenInGame(true);
-		OwnerPlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-		OwnerPlayerCharacter->bUseControllerRotationYaw = false;
+		LastLockOnTarget = LockOnTarget;
 		SetLockOnTarget(nullptr);
+		OnLockOnStateChanged(false);
 		return false;
 	}
 
@@ -97,7 +96,7 @@ bool UARPGTargetManager::LockOnPressed()
 		AARPGCharacter* Character = Cast<AARPGCharacter>(*It);
 		if (Character == nullptr || Character == OwnerCharacter || !Character->IsAlive())
 		{
-			continue;;
+			continue;
 		}
 
 		OtherCharacters.AddUnique(Character);
@@ -122,25 +121,18 @@ bool UARPGTargetManager::LockOnPressed()
 		break;
 	}
 
-	// if (LockOnCharacterIndex > OtherCharacters.Num())
-	// {
-	// 	LockOnCharacterIndex = OtherCharacters.Num();
-	// }
-
 	if (LockOnCharacterIndex == -1)
 	{
 		return false;
 	}
 
 	SetLockOnTarget(OtherCharacters[LockOnCharacterIndex]);
-	LockOnTarget->SetLockOnPointHiddenInGame(false);
-	OwnerPlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-	OwnerPlayerCharacter->bUseControllerRotationYaw = true;
+	OnLockOnStateChanged(true);
 
 	return true;
 }
 
-void UARPGTargetManager::ChangeTarget()
+void UARPGTargetManager::ChangeTarget_Implementation()
 {
 	if (bIsLockingOn)
 	{
@@ -152,12 +144,58 @@ void UARPGTargetManager::ChangeTarget()
 				continue;
 			}
 			LockOnCharacterIndex = Index;
-			LockOnTarget->SetLockOnPointHiddenInGame(true);
-			LockOnTarget = OtherCharacters[LockOnCharacterIndex];
-			LockOnTarget->SetLockOnPointHiddenInGame(false);
+			LastLockOnTarget = LockOnTarget;
+			SetLockOnTarget(OtherCharacters[LockOnCharacterIndex]);
+			OnLockOnStateChanged(true);
 			return;
 		}
 	}
+}
+
+void UARPGTargetManager::OnRep_bIsLockingOn(bool bOldIsLockingOn)
+{
+	OnLockOnStateChanged(bIsLockingOn);
+}
+
+void UARPGTargetManager::OnRep_LockOnTarget(AARPGCharacter* OldLockOnTarget)
+{
+	if (OldLockOnTarget)
+	{
+		if (OwnerCharacter->IsPlayerControlled() && OwnerCharacter->IsLocallyControlled())
+		{
+			OldLockOnTarget->SetLockOnPointHiddenInGame(true);
+		}
+	}
+
+	if (LockOnTarget)
+	{
+		if (OwnerCharacter->IsPlayerControlled() && OwnerCharacter->IsLocallyControlled())
+		{
+			LockOnTarget->SetLockOnPointHiddenInGame(false);
+		}
+	}
+}
+
+void UARPGTargetManager::OnLockOnStateChanged(bool bNewState)
+{
+	if (LastLockOnTarget)
+	{
+		if (OwnerCharacter->IsPlayerControlled() && OwnerCharacter->IsLocallyControlled())
+		{
+			LastLockOnTarget->SetLockOnPointHiddenInGame(true);
+		}
+	}
+
+	if (LockOnTarget)
+	{
+		if (OwnerCharacter->IsPlayerControlled() && OwnerCharacter->IsLocallyControlled())
+		{
+			LockOnTarget->SetLockOnPointHiddenInGame(false);
+		}
+	}
+
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bNewState;
+	OwnerCharacter->bUseControllerRotationYaw = bNewState;
 }
 
 void UARPGTargetManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -165,4 +203,6 @@ void UARPGTargetManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UARPGTargetManager, LockOnTarget);
+	DOREPLIFETIME(UARPGTargetManager, LastLockOnTarget);
+	DOREPLIFETIME(UARPGTargetManager, bIsLockingOn);
 }
