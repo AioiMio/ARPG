@@ -4,6 +4,7 @@
 #include "ARPGGameplayAbility_Gun.h"
 
 #include "AbilityTasks/AbilityTask_PlayMontageAndWaitForEvent.h"
+#include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
 #include "ARPG/Game/Components/ARPGEquipmentManager.h"
 #include "ARPG/Game/Components/ARPGTargetManager.h"
@@ -85,42 +86,45 @@ void UARPGGameplayAbility_Gun::EventReceived(FGameplayTag EventTag, FGameplayEve
 
 	// Only spawn projectiles on the Server.
 	// Predicting projectiles is an advanced topic not covered in this example.
-	if (GetOwningActorFromActorInfo()->GetLocalRole() == ROLE_Authority && EventTag == FGameplayTag::RequestGameplayTag(FName("Event.Montage.SpawnProjectile")))
+	if (EventTag == FGameplayTag::RequestGameplayTag(FName("Event.Montage.SpawnProjectile")))
 	{
-		AARPGCharacter* SourceCharacter = Cast<AARPGCharacter>(GetAvatarActorFromActorInfo());
-		if (!SourceCharacter)
+		if (GetOwningActorFromActorInfo()->GetLocalRole() == ROLE_Authority)
 		{
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		}
+			AARPGCharacter* SourceCharacter = Cast<AARPGCharacter>(GetAvatarActorFromActorInfo());
+			if (!SourceCharacter)
+			{
+				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+			}
 
-		FVector Start = SourceCharacter->GetEquipmentManager()->GetCurrentLeftHandWeapon()->GetMesh()->GetSocketLocation(FName("Muzzle"));
-		FVector End;
-		if (AARPGCharacter* TargetCharacter = SourceCharacter->GetTargetManager()->GetLockOnTarget())
-		{
-			End = TargetCharacter->GetLockOnPointComponent()->GetComponentLocation();
-		}
-		else
-		{
-			End = Start + SourceCharacter->GetCapsuleComponent()->GetForwardVector() * Range;
-		}
-		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Start, End);
+			FVector Start = SourceCharacter->GetEquipmentManager()->GetCurrentLeftHandWeapon()->GetMesh()->GetSocketLocation(FName("Muzzle"));
+			FVector End;
+			if (AARPGCharacter* TargetCharacter = SourceCharacter->GetTargetManager()->GetLockOnTarget())
+			{
+				End = TargetCharacter->GetLockOnPointComponent()->GetComponentLocation();
+			}
+			else
+			{
+				End = Start + SourceCharacter->GetCapsuleComponent()->GetForwardVector() * Range;
+			}
+			FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Start, End);
 
-		FGameplayEffectSpecHandle DamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGameplayEffect, GetAbilityLevel());
+			FGameplayEffectSpecHandle DamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGameplayEffect, GetAbilityLevel());
 		
-		// Pass the damage to the Damage Execution Calculation through a SetByCaller value on the GameplayEffectSpec
-		DamageEffectSpecHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), Damage);
+			// Pass the damage to the Damage Execution Calculation through a SetByCaller value on the GameplayEffectSpec
+			DamageEffectSpecHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), Damage);
 
-		FTransform MuzzleTransform = SourceCharacter->GetEquipmentManager()->GetCurrentLeftHandWeapon()->GetMesh()->GetSocketTransform(FName("Muzzle"));
-		MuzzleTransform.SetRotation(Rotation.Quaternion());
-		MuzzleTransform.SetScale3D(FVector(1.0f));
+			FTransform MuzzleTransform = SourceCharacter->GetEquipmentManager()->GetCurrentLeftHandWeapon()->GetMesh()->GetSocketTransform(FName("Muzzle"));
+			MuzzleTransform.SetRotation(Rotation.Quaternion());
+			MuzzleTransform.SetScale3D(FVector(1.0f));
 
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		AARPGProjectile* Projectile = GetWorld()->SpawnActorDeferred<AARPGProjectile>(ProjectileClass, MuzzleTransform, GetOwningActorFromActorInfo(),
-			SourceCharacter, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		Projectile->DamageEffectSpecHandle = DamageEffectSpecHandle;
-		Projectile->Range = Range;
-		Projectile->FinishSpawning(MuzzleTransform);
+			AARPGProjectile* Projectile = GetWorld()->SpawnActorDeferred<AARPGProjectile>(ProjectileClass, MuzzleTransform, GetOwningActorFromActorInfo(),
+				SourceCharacter, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+			Projectile->DamageEffectSpecHandle = DamageEffectSpecHandle;
+			Projectile->Range = Range;
+			Projectile->FinishSpawning(MuzzleTransform);
+		}
 	}
 }

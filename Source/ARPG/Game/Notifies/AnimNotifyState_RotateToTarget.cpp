@@ -30,20 +30,6 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 	Character = Cast<AARPGCharacter>(MeshComp->GetOuter());
 	if (Character.IsValid() && Character->IsLocallyControlled())
 	{
-		AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(Character);
-		if (PlayerCharacter && PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration().Length() > 0.2f)
-		{
-			FVector TargetLocation = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetCharacterMovement()->
-				GetCurrentAcceleration();
-			PlayerCharacter->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
-			if (!PlayerCharacter->HasAuthority())
-			{
-				PlayerCharacter->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-					"Target", TargetLocation);
-			}
-			return;
-		}
-
 		if (bAutoFaceTarget)
 		{
 			if (AARPGCharacter* Target = Character->GetTargetManager()->GetLockOnTarget())
@@ -54,6 +40,21 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 				{
 					Character->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
 				}
+
+				return;
+			}
+		}
+		
+		AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(Character);
+		if (PlayerCharacter && PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration().Length() > 0.2f)
+		{
+			FVector TargetLocation = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetCharacterMovement()->
+				GetCurrentAcceleration();
+			PlayerCharacter->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
+			if (!PlayerCharacter->HasAuthority())
+			{
+				PlayerCharacter->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+					"Target", TargetLocation);
 			}
 		}
 	}

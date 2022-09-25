@@ -28,6 +28,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	PrimaryActorTick.bCanEverTick = false;
 
 	EquipmentManager = CreateDefaultSubobject<UARPGEquipmentManager>(FName("EquipmentManager"));
+	EquipmentManager->SetIsReplicated(true);
 	CombatManager = CreateDefaultSubobject<UARPGCombatManager>(FName("CombatManager"));
 	TargetManager = CreateDefaultSubobject<UARPGTargetManager>(FName("TargetManager"));
 	TargetManager->SetIsReplicated(true);

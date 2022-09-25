@@ -26,5 +26,8 @@ protected:
 	FGameplayTag EventTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTag GameplayCueTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FGameplayEventData EventPayload;
 };

@@ -4,6 +4,8 @@
 #include "AnimNotify_SendEventToOwner.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
+#include "ARPG/Game/Core/ARPGCharacter.h"
 
 void UAnimNotify_SendEventToOwner::Notify(USkeletalMeshComponent* MeshComp,
                                           UAnimSequenceBase* Animation,
@@ -11,5 +13,15 @@ void UAnimNotify_SendEventToOwner::Notify(USkeletalMeshComponent* MeshComp,
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(MeshComp->GetOwner(), EventTag, EventPayload);
+	if (AARPGCharacter* OwnerCharacter = Cast<AARPGCharacter>(MeshComp->GetOuter()))
+	{
+		if (UAbilitySystemComponent* ASC = OwnerCharacter->GetAbilitySystemComponent())
+		{
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerCharacter, EventTag, EventPayload);
+			
+			FGameplayEffectContextHandle EffectContext;
+			EffectContext.AddInstigator(OwnerCharacter, OwnerCharacter);
+			ASC->ExecuteGameplayCue(GameplayCueTag, EffectContext);
+		}
+	}
 }

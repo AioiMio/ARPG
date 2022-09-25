@@ -6,7 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "ARPGAbilitySystemComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FReceivedDamageDelegate, UARPGAbilitySystemComponent*, SourceASC, float, UnmitigatedDamage, float, MitigatedDamage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FReceivedDamageDelegate, UARPGAbilitySystemComponent*, SourceASC, float,
+                                               UnmitigatedDamage, float, MitigatedDamage);
 
 /**
  * 
@@ -36,4 +37,17 @@ public:
 	void ServerRemoveReplicatedGameplayTag(FGameplayTag Tag);
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRemoveReplicatedGameplayTag(FGameplayTag Tag);
+
+	UFUNCTION(BlueprintCallable, Category = "GameplayCue",
+		Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
+	void ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag,
+	                             const FGameplayCueParameters& GameplayCueParameters);
+
+	UFUNCTION(BlueprintCallable, Category = "GameplayCue",
+		Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
+	void AddGameplayCueLocal(const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);
+
+	UFUNCTION(BlueprintCallable, Category = "GameplayCue",
+		Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
+	void RemoveGameplayCueLocal(const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);
 };

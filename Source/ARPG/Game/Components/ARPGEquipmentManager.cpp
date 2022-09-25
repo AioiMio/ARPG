@@ -313,3 +313,11 @@ void UARPGEquipmentManager::OnWeaponChanged(EEquipPostion EquipPostion, AARPGWea
 		}
 	}
 }
+
+void UARPGEquipmentManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UARPGEquipmentManager, CurrentLeftHandWeapon);
+	DOREPLIFETIME(UARPGEquipmentManager, CurrentRightHandWeapon);
+}

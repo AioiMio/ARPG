@@ -19,6 +19,8 @@ class ARPG_API UARPGEquipmentManager : public UActorComponent
 public:	
 	UARPGEquipmentManager();
 
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
+
 	UPROPERTY(BlueprintAssignable)
 	FWeaponChangedDelegate WeaponChangedDelegate;
 
@@ -92,9 +94,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipments|Weapons")
 	TArray<TSubclassOf<AARPGWeapon>> LeftHandWeapons;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AARPGWeapon* CurrentRightHandWeapon;
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AARPGWeapon* CurrentLeftHandWeapon;
 
 	uint8 CurrentRightHandWeaponSlotIndex;
