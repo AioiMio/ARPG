@@ -60,6 +60,11 @@ public:
 
 	void SendHitEventToActor(AActor* Target, FHitResult Hit, EAttackHitType HitType, float Multiplier = 1.f);
 
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void ServerSendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload);
+
+	bool TryVisceralAttack();
+
 protected:
 	virtual void BeginPlay() override;
 

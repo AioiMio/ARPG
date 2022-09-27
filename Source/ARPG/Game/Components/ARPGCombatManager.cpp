@@ -9,6 +9,7 @@
 #include "Abilities/GameplayAbilityTypes.h"
 #include "ARPG/Game/Abilities/ARPGGameplayEffect_HitReact.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 UARPGCombatManager::UARPGCombatManager()
@@ -95,6 +96,54 @@ void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAt
 	}
 }
 
+void UARPGCombatManager::ServerSendGameplayEventToActor_Implementation(AActor* Actor,
+	FGameplayTag EventTag,
+	FGameplayEventData Payload)
+{
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
+}
+
+bool UARPGCombatManager::TryVisceralAttack()
+{
+	float Range = 50.f;
+	float Radius = 35.f;
+	FVector Start = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * Radius;
+	FVector End = Start + OwnerCharacter->GetActorForwardVector() * Range;
+	TArray<FHitResult> HitResults;
+	TArray<AActor*> InIgnoreActors;
+	InIgnoreActors.Add(OwnerCharacter.Get());
+	UKismetSystemLibrary::SphereTraceMulti(this, Start, End, Radius, TraceChannel, false, InIgnoreActors,
+	                                       EDrawDebugTrace::None, HitResults, true);
+
+	for (FHitResult HitResult : HitResults)
+	{
+		if (AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(HitResult.GetActor()))
+		{
+			if (OtherCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(
+				FGameplayTag::RequestGameplayTag(FName("State.Break"))))
+			{
+				if (OwnerCharacter->GetActorForwardVector().Dot(OtherCharacter->GetActorForwardVector()) < 0.f)
+				{
+					if (OwnerCharacter->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(
+						FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Common.VisceralAttack")))))
+					{
+						FGameplayEventData EventData;
+						EventData.Instigator = OwnerCharacter.Get();
+						EventData.Target = OtherCharacter;
+						FGameplayEffectContext EffectContext;
+						ServerSendGameplayEventToActor(OtherCharacter, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
+						ServerSendGameplayEventToActor(OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
+					
+						return true;
+					}
+					return false;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 void UARPGCombatManager::ApplyHitReact(EARPGHitReactDirection Direction)
 {
 }
@@ -127,11 +176,13 @@ void UARPGCombatManager::BackstabTargetCharactersChanged(int32 OldTargetCharacte
 	{
 		if (NewTargetCharacterCount == 0)
 		{
-			OwnerCharacter->GetARPGAbilitySystemComponent()->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("State.CanBackstab"));
+			OwnerCharacter->GetARPGAbilitySystemComponent()->RemoveReplicatedGameplayTag(
+				FGameplayTag::RequestGameplayTag("State.CanBackstab"));
 		}
 		else if (OldTargetCharacterCount == 0 && NewTargetCharacterCount > 0)
 		{
-			OwnerCharacter->GetARPGAbilitySystemComponent()->AddReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("State.CanBackstab"));
+			OwnerCharacter->GetARPGAbilitySystemComponent()->AddReplicatedGameplayTag(
+				FGameplayTag::RequestGameplayTag("State.CanBackstab"));
 		}
 	}
 }

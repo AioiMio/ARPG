@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FARPGPlayMontageAndWaitForEventDele
  * This is a good task to look at as an example when creating game-specific tasks
  * It is expected that each game will have a set of game-specific tasks to do what they want
  */
-UCLASS()
+UCLASS(meta = (DisplayName = "PlayMontageAndWaitForEvent"))
 class ARPG_API UAbilityTask_PlayMontageAndWaitForEvent : public UAbilityTask
 {
 	GENERATED_BODY()
@@ -74,7 +74,7 @@ public:
 		bool bStopWhenAbilityEnds = true,
 		float AnimRootMotionTranslationScale = 1.f);
 
-private:
+protected:
 	/** Montage that is playing */
 	UPROPERTY()
 	UAnimMontage* MontageToPlay;
@@ -105,10 +105,10 @@ private:
 	/** Returns our ability system component */
 	UARPGAbilitySystemComponent* GetTargetASC();
 
-	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
-	void OnAbilityCancelled();
-	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-	void OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload);
+	virtual void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+	virtual void OnAbilityCancelled();
+	virtual void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	virtual void OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload);
 
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;

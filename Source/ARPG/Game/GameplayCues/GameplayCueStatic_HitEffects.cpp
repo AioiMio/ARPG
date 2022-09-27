@@ -58,7 +58,7 @@ bool UGameplayCueStatic_HitEffects::OnExecute_Implementation(AActor* MyTarget,
 		}
 	}
 
-	return Super::OnExecute_Implementation(MyTarget, Parameters);
+	return true;
 }
 
 void UGameplayCueStatic_HitEffects::ResetAnimRateScaleElapsed(AARPGCharacter* InCharacter) const

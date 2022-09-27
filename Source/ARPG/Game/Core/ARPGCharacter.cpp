@@ -77,6 +77,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	RightHandHeavyAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.RightHeavy"));
 	LeftHandHeavyAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Melee.LeftHeavy"));
 	GunAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Gun"));
+	VisceralAttackTag = FGameplayTag::RequestGameplayTag(FName("Ability.Common.VisceralAttack"));
 
 	// Settings
 	bUseControllerRotationYaw = false;
@@ -299,7 +300,10 @@ void AARPGCharacter::SprintStop()
 
 void AARPGCharacter::RightHandAttackAction()
 {
-	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(RightHandAttackTag));
+	if (!CombatManager->TryVisceralAttack())
+	{
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(RightHandAttackTag));
+	}
 }
 
 void AARPGCharacter::RightHandHeavyAttackAction()

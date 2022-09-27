@@ -194,8 +194,8 @@ void UARPGTargetManager::OnLockOnStateChanged(bool bNewState)
 		}
 	}
 
-	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bNewState;
-	OwnerCharacter->bUseControllerRotationYaw = bNewState;
+	// OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bNewState;
+	// OwnerCharacter->bUseControllerRotationYaw = bNewState;
 }
 
 void UARPGTargetManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

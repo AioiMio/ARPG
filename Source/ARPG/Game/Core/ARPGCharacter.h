@@ -24,7 +24,6 @@ class UARPGHealthBarWidget;
 class UWidgetComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterHitReactDelegate, EARPGHitReactDirection, Direction);
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AARPGCharacter*, Character);
 
 
@@ -242,6 +241,7 @@ protected:
 	FGameplayTag RightHandHeavyAttackTag;
 	FGameplayTag LeftHandHeavyAttackTag;
 	FGameplayTag GunAttackTag;
+	FGameplayTag VisceralAttackTag;
 
 	FTimerHandle TimerHandle_LandDelay;
 	FTimerHandle TimerHandle_FallingTagRemoveDelay;
