@@ -86,7 +86,7 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	GetCharacterMovement()->JumpZVelocity = 1200.f;
 	GetCharacterMovement()->AirControl = 0.4f;
 	GetCharacterMovement()->RotationRate.Yaw = 1200.f;
-	GetCapsuleComponent()->SetCapsuleRadius(45.f);
+	GetCapsuleComponent()->SetCapsuleRadius(35.f);
 }
 
 void AARPGCharacter::PostInitializeComponents()

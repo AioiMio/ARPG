@@ -19,6 +19,7 @@ enum class EARPGAbilityInputID : uint8
 	Cancel UMETA(DisplayName = "Cancel"),
 	Sprint UMETA(DisplayName = "Sprint"),
 	Block UMETA(DisplayName = "Block"),
+	RightHeavy UMETA(DisplayName = "RightHeavy"),
 
 	MAX UMETA(DisplayName = "DefaultMAX")
 };

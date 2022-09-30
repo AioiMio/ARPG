@@ -35,6 +35,14 @@ void UARPGGameplayAbility_Gun::ActivateAbility(const FGameplayAbilitySpecHandle 
 	if (UARPGCharacterMovementComponent* MovementComponent = Cast<UARPGCharacterMovementComponent>(ActorInfo->MovementComponent))
 	{
 		MovementComponent->StartWalking();
+		if (AARPGCharacter* Character = Cast<AARPGCharacter>(GetAvatarActorFromActorInfo()))
+		{
+			if (Character->GetTargetManager()->bIsLockingOn)
+			{
+				MovementComponent->bOrientRotationToMovement = false;
+				MovementComponent->bUseControllerDesiredRotation = true;
+			}
+		}
 	}
 	
 	UAnimMontage* MontageToPlay = FireMontage;
@@ -59,6 +67,8 @@ void UARPGGameplayAbility_Gun::EndAbility(const FGameplayAbilitySpecHandle Handl
 	if (UARPGCharacterMovementComponent* MovementComponent = Cast<UARPGCharacterMovementComponent>(ActorInfo->MovementComponent))
 	{
 		MovementComponent->StopWalking();
+		MovementComponent->bOrientRotationToMovement = true;
+		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
