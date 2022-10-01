@@ -35,10 +35,6 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 	MotionWarpingComponent = CreateDefaultSubobject<UARPGMotionWarpingComponent>(FName("MotionWarping"));
 	// MotionWarpingComponent->SetIsReplicated(true);
 
-	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
-	Box->SetupAttachment(GetMesh(), FName("Back"));
-	Box->SetCollisionProfileName(FName("ExecutionBox"));
-
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HealthBar"));
 	HealthBarComponent->SetupAttachment(GetMesh(), FName("head"));
 	HealthBarComponent->SetRelativeLocation(FVector(25.f, 0.f, 0.f));
@@ -92,12 +88,6 @@ AARPGCharacter::AARPGCharacter(const FObjectInitializer& ObjectInitializer) : Su
 void AARPGCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	if (Box)
-	{
-		Box->OnComponentBeginOverlap.AddDynamic(this, &AARPGCharacter::OnBackBoxBeginOverlap);
-		Box->OnComponentEndOverlap.AddDynamic(this, &AARPGCharacter::OnBackBoxEndOverlap);
-	}
 }
 
 // Called when the game starts or when spawned
@@ -454,6 +444,7 @@ void AARPGCharacter::Die()
 
 	HealthBarComponent->SetHiddenInGame(true);
 	LockOnPointComponent->SetHiddenInGame(true);
+	TargetManager->SetLockOnTarget(nullptr);
 
 	if (DeathMontage)
 	{
@@ -465,6 +456,10 @@ void AARPGCharacter::Die()
 	}
 }
 
+void AARPGCharacter::Break()
+{
+}
+
 void AARPGCharacter::Dying()
 {
 	MulticastLeaveWorld();
@@ -474,6 +469,25 @@ void AARPGCharacter::Dying()
 void AARPGCharacter::FinishDying()
 {
 	Destroy();
+}
+
+void AARPGCharacter::ResetPosture(float ResetDelay)
+{
+	if (ResetDelay > 0.f)
+	{
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "ResetPostureElapsed");
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_ResetPostureDelay, Delegate, ResetDelay, false);
+	}
+	else
+	{
+		SetPosture(GetMaxPosture());
+	}
+}
+
+void AARPGCharacter::ResetPostureElapsed()
+{
+	SetPosture(GetMaxPosture());
 }
 
 void AARPGCharacter::Destroyed()
@@ -567,7 +581,7 @@ void AARPGCharacter::InitializeHealthBar()
 		return;
 	}
 
-	// Setup FloatingStatusBar UI for Locally Owned Players only, not AI or the server's copy of the PlayerControllers
+	// Setup HealthBar UI for Locally Owned Players only, not AI or the server's copy of the PlayerControllers
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (PC && PC->IsLocalPlayerController())
 	{
@@ -580,6 +594,7 @@ void AARPGCharacter::InitializeHealthBar()
 
 				// Setup the floating status bar
 				HealthBar->SetHealthPercentage(GetHealth() / GetMaxHealth());
+				HealthBar->SetPosturePercentage(GetPosture() / GetMaxPosture());
 
 				HealthBar->SetCharacterName(CharacterName);
 			}
@@ -617,26 +632,6 @@ void AARPGCharacter::SetPosture(float Posture)
 	{
 		AttributeSet->SetPosture(Posture);
 	}
-}
-
-void AARPGCharacter::OnBackBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult)
-{
-	// AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
-	// OtherCharacter->GetCombatManager()->AddBackstabTargetCharacter(this);
-}
-
-void AARPGCharacter::OnBackBoxEndOverlap(UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex)
-{
-	// AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(OtherActor);
-	// OtherCharacter->GetCombatManager()->RemoveBackstabTargetCharacter(this);
 }
 
 void AARPGCharacter::MulticastLeaveWorld_Implementation()

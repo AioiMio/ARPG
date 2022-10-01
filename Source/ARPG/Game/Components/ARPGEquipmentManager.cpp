@@ -204,6 +204,7 @@ void UARPGEquipmentManager::EquipLeftHandWeapon(int32 Index)
 																		 LeftHandWeaponSocketName),
 																	 ActorSpawnParameters);
 		CurrentLeftHandWeapon->SetEquipPosition(EEquipPostion::LeftHand);
+		CurrentLeftHandWeapon->SetActorHiddenInGame(true);
 		CurrentLeftHandWeaponSlotIndex = Index;
 
 		AddEquipmentAbilitiesToOwner(CurrentLeftHandWeapon);

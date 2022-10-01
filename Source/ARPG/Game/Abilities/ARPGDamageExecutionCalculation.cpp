@@ -12,6 +12,7 @@ struct ARPGDamageStatics
 	DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageNegation);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Posture);
 
 	ARPGDamageStatics()
 	{
@@ -25,6 +26,7 @@ struct ARPGDamageStatics
 		// Capture the Target's DamageNegation and Health. Don't snapshot.
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UARPGAttributeSet, DamageNegation, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UARPGAttributeSet, Health, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UARPGAttributeSet, Posture, Target, false);
 	}
 };
 
@@ -39,6 +41,7 @@ UARPGDamageExecutionCalculation::UARPGDamageExecutionCalculation()
 	RelevantAttributesToCapture.Add(DamageStatics().AttackPowerDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DamageNegationDef);
 	RelevantAttributesToCapture.Add(DamageStatics().HealthDef);
+	RelevantAttributesToCapture.Add(DamageStatics().PostureDef);
 }
 
 void UARPGDamageExecutionCalculation::Execute_Implementation(

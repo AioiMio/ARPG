@@ -18,7 +18,7 @@ UARPGGameplayAbility_Gun::UARPGGameplayAbility_Gun()
 {
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability")));
 
-	Range = 2000.0f;
+	Range = 3000.f;
 	Damage = 1.f;
 }
 
@@ -42,6 +42,8 @@ void UARPGGameplayAbility_Gun::ActivateAbility(const FGameplayAbilitySpecHandle 
 				MovementComponent->bOrientRotationToMovement = false;
 				MovementComponent->bUseControllerDesiredRotation = true;
 			}
+
+			Character->GetEquipmentManager()->GetCurrentLeftHandWeapon()->SetActorHiddenInGame(false);
 		}
 	}
 	
@@ -69,6 +71,11 @@ void UARPGGameplayAbility_Gun::EndAbility(const FGameplayAbilitySpecHandle Handl
 		MovementComponent->StopWalking();
 		MovementComponent->bOrientRotationToMovement = true;
 		MovementComponent->bUseControllerDesiredRotation = false;
+		
+		if (AARPGCharacter* Character = Cast<AARPGCharacter>(GetAvatarActorFromActorInfo()))
+		{
+			Character->GetEquipmentManager()->GetCurrentLeftHandWeapon()->SetActorHiddenInGame(true);
+		}
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

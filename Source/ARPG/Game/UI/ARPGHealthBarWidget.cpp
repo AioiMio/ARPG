@@ -4,6 +4,7 @@
 #include "ARPGHealthBarWidget.h"
 
 #include "Components/ProgressBar.h"
+#include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 
 
@@ -42,6 +43,7 @@ void UARPGHealthBarWidget::SetHealthPercentage(float InPercent)
 	if (HealthTop)
 	{
 		HealthTop->SetPercent(InPercent);
+		HealthPivotBox->SetWidthOverride(InPercent * 200.f);
 		
 		if (HealthBottom)
 		{
@@ -57,6 +59,14 @@ void UARPGHealthBarWidget::SetHealthPercentage(float InPercent)
 				bCanHealthChangeTimerSet = false;
 			}
 		}
+	}
+}
+
+void UARPGHealthBarWidget::SetPosturePercentage(float InPercent)
+{
+	if (PostureBar)
+	{
+		PostureBar->SetPercent(InPercent);
 	}
 }
 

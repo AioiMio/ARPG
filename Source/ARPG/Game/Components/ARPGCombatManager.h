@@ -36,19 +36,8 @@ class ARPG_API UARPGCombatManager : public UAGR_CombatManager
 
 public:
 	UARPGCombatManager();
-
+	
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
-
-	UPROPERTY(Replicated)
-	TArray<TWeakObjectPtr<AARPGCharacter>> BackstabTargetCharacters;
-
-	UFUNCTION()
-	void AddBackstabTargetCharacter(AARPGCharacter* InTargetCharacter);
-
-	UFUNCTION()
-	void RemoveBackstabTargetCharacter(AARPGCharacter* InTargetCharacter);
-
-	FOnBackstabTargetCharacterCountChanged OnBackstabTargetCharacterCountChanged;
 
 	FORCEINLINE TArray<AActor*> GetIgnoredActors() { return IgnoredActors; }
 
@@ -63,12 +52,18 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void ServerSendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload);
 
+	UFUNCTION(BlueprintCallable, Client, Reliable)
+	void ClientSendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload);
+	
 	bool TryVisceralAttack();
 
 protected:
 	virtual void BeginPlay() override;
 
 	TWeakObjectPtr<AARPGCharacter> OwnerCharacter;
+
+	UPROPERTY()
+	TArray<AActor*> HitActors;
 
 	FGameplayTag HitEventTag;
 
@@ -86,11 +81,14 @@ protected:
 	TSubclassOf<UGameplayEffect> KnockUpEffect;
 
 	UFUNCTION()
+	void OnAttackStart();
+
+	UFUNCTION()
+	void OnAttackEnd();
+	
+	UFUNCTION()
 	void OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh);
 
 	UFUNCTION()
 	void ApplyHitReact(EARPGHitReactDirection Direction);
-
-	UFUNCTION()
-	void BackstabTargetCharactersChanged(int32 OldTargetCharacterCount, int32 NewTargetCharacterCount);
 };

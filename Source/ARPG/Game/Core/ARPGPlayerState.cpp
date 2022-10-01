@@ -344,14 +344,63 @@ void AARPGPlayerState::StaminaRegenRateChanged(const FOnAttributeChangeData & Da
 
 void AARPGPlayerState::PostureChanged(const FOnAttributeChangeData& Data)
 {
+	float Posture = Data.NewValue;
+	float Delta = Posture - Data.OldValue;
+
+	// Update health bar
+	AARPGPlayerCharacter* PlayerCharacter = Cast<AARPGPlayerCharacter>(GetPawn());
+	if (PlayerCharacter)
+	{
+		UARPGHealthBarWidget* HealthBar = PlayerCharacter->GetHealthBar();
+		if (HealthBar)
+		{
+			HealthBar->SetPosturePercentage(GetPosture() / GetMaxPosture());
+		}
+	}
+
+	if (HasAuthority())
+	{
+		if (Posture == GetMaxPosture())
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+		}
+	
+		if (Delta < 0.f)
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+
+			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGPlayerState::PostureRegenElapsed);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_PostureRegenDelay, Delegate, 3.f, false);
+		}
+	}
+
+	if (IsAlive() && Posture <= 0.f)
+	{
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->Break();
+			PlayerCharacter->ResetPosture();
+		}
+		
+	}
+}
+
+void AARPGPlayerState::PostureRegenElapsed() const
+{
+	if (HasAuthority())
+	{
+		GetAbilitySystemComponent()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+	}
 }
 
 void AARPGPlayerState::MaxPostureChanged(const FOnAttributeChangeData& Data)
 {
+	float MaxPosture = Data.NewValue;
 }
 
 void AARPGPlayerState::PostureRegenRateChanged(const FOnAttributeChangeData& Data)
 {
+	float PostureRegenRate = Data.NewValue;
 }
 
 void AARPGPlayerState::MoveSpeedChanged(const FOnAttributeChangeData& Data)

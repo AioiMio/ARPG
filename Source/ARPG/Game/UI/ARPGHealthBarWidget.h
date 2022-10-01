@@ -8,6 +8,7 @@
 
 class UTextBlock;
 class UProgressBar;
+class USizeBox;
 
 /**
  * 
@@ -22,6 +23,7 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	void SetHealthPercentage(float InPercent);
+	void SetPosturePercentage(float InPercent);
 	void SetCharacterName(const FText& NewName);
 	void ShowDamageNumber(float ActualDelta);
 
@@ -36,6 +38,10 @@ protected:
 	UProgressBar* HealthTop;
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthBottom;
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* HealthPivotBox;
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar* PostureBar;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CharacterName;
 	UPROPERTY(meta = (BindWidget))

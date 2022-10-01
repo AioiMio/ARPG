@@ -169,9 +169,12 @@ public:
 	float GetMoveSpeedBaseValue() const;
 
 	virtual void Die();
+	virtual void Break();
 	virtual void Dying();
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	virtual void FinishDying();
+
+	void ResetPosture(float ResetDelay = 0.f);
 
 protected:
 	// Called when the game starts or when spawned
@@ -186,9 +189,6 @@ protected:
 	TWeakObjectPtr<UARPGAbilitySystemComponent> AbilitySystemComponent;
 	TWeakObjectPtr<UARPGAttributeSet> AttributeSet;
 	TWeakObjectPtr<UInventoryComponent> InventoryComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
-	UBoxComponent* Box;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
 	UARPGEquipmentManager* EquipmentManager;
@@ -244,11 +244,15 @@ protected:
 	FGameplayTag VisceralAttackTag;
 
 	FTimerHandle TimerHandle_LandDelay;
+	FTimerHandle TimerHandle_ResetPostureDelay;
 	FTimerHandle TimerHandle_FallingTagRemoveDelay;
 
 	UFUNCTION()
 	void LandElapsed();
 
+	UFUNCTION()
+	void ResetPostureElapsed();
+	
 	UFUNCTION()
 	void RemoveFallingTagElapsed();
 
@@ -294,17 +298,4 @@ protected:
 	virtual void SetMana(float Mana);
 	virtual void SetStamina(float Stamina);
 	virtual void SetPosture(float Posture);
-
-	UFUNCTION()
-	void OnBackBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent,
-	                           AActor* OtherActor,
-	                           UPrimitiveComponent* OtherComp,
-	                           int32 OtherBodyIndex,
-	                           bool bFromSweep,
-	                           const FHitResult& SweepResult);
-	UFUNCTION()
-	void OnBackBoxEndOverlap(UPrimitiveComponent* OverlappedComponent,
-	                         AActor* OtherActor,
-	                         UPrimitiveComponent* OtherComp,
-	                         int32 OtherBodyIndex);
 };

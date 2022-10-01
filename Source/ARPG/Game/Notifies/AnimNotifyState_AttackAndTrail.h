@@ -42,4 +42,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	float SkillMultiplier = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	float PostureDamage = 0.f;
 };

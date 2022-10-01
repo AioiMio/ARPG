@@ -51,15 +51,22 @@ void AARPGEnemyCharacter::BeginPlay()
 		AddStartupEffects();
 		AddCharacterAbilities();
 		InitializeHealthBar();
-		
+
 		// Attribute change callbacks
 		HealthChangedDelegateHandle = AbilitySystemComponent->
 		                              GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).
 		                              AddUObject(this, &AARPGEnemyCharacter::HealthChanged);
+		StaminaChangedDelegateHandle = AbilitySystemComponent->
+									  GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute()).
+									  AddUObject(this, &AARPGEnemyCharacter::StaminaChanged);
+		PostureChangedDelegateHandle = AbilitySystemComponent->
+									  GetGameplayAttributeValueChangeDelegate(AttributeSet->GetPostureAttribute()).
+									  AddUObject(this, &AARPGEnemyCharacter::PostureChanged);
 
 		// Tag change callbacks
 		AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")),
-		                                                 EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AARPGEnemyCharacter::StunTagChanged);
+		                                                 EGameplayTagEventType::NewOrRemoved).AddUObject(
+			this, &AARPGEnemyCharacter::StunTagChanged);
 	}
 }
 
@@ -85,16 +92,82 @@ void AARPGEnemyCharacter::HealthChanged(const FOnAttributeChangeData& Data)
 void AARPGEnemyCharacter::StaminaChanged(const FOnAttributeChangeData& Data)
 {
 	float Stamina = Data.NewValue;
+	float Delta = Stamina - Data.OldValue;
 
-	if (Stamina == 0.f && Data.OldValue > 0.f)
+	if (HasAuthority())
 	{
-		SprintStop();
+		if (Stamina == GetMaxStamina())
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(
+				FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
+		}
+
+		if (Delta < 0.f)
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(
+				FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
+
+			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::StaminaRegenElapsed);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaRegenDelay, Delegate, 1.5f, false);
+		}
+
+		if (Stamina == 0.f)
+		{
+			SprintStop();
+		}
+	}
+}
+
+void AARPGEnemyCharacter::StaminaRegenElapsed()
+{
+	if (HasAuthority())
+	{
+		GetAbilitySystemComponent()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
 	}
 }
 
 void AARPGEnemyCharacter::PostureChanged(const FOnAttributeChangeData& Data)
 {
 	float Posture = Data.NewValue;
+	float Delta = Posture - Data.OldValue;
+
+	// Update health bar
+	if (HealthBar)
+	{
+		HealthBar->SetPosturePercentage(GetPosture() / GetMaxPosture());
+	}
+
+	if (HasAuthority())
+	{
+		if (Posture == GetMaxPosture())
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(
+				FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+		}
+
+		if (Delta < 0.f)
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(
+				FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+
+			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::PostureRegenElapsed);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_PostureRegenDelay, Delegate, 3.f, false);
+		}
+	}
+
+	if (IsAlive() && Posture <= 0.f)
+	{
+		Break();
+		ResetPosture();
+	}
+}
+
+void AARPGEnemyCharacter::PostureRegenElapsed()
+{
+	if (HasAuthority())
+	{
+		GetAbilitySystemComponent()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+	}
 }
 
 void AARPGEnemyCharacter::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)

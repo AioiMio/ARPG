@@ -196,6 +196,7 @@ protected:
 	void HandleComboEndEvent();
 	void HandleChanceBeginEvent();
 	void HandleChanceEndEvent();
+	void HandleGraphEndEvent();
 	void HandleComboTransition();
 	void HandleComboTransitionForNotifyTriggerTime(float TriggerTime);
 

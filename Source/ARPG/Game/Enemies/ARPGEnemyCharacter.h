@@ -34,6 +34,10 @@ protected:
 	UARPGAttributeSet* HardRefAttributeSet;
 
 	FDelegateHandle HealthChangedDelegateHandle;
+	FDelegateHandle ManaChangedDelegateHandle;
+	FDelegateHandle StaminaChangedDelegateHandle;
+	FDelegateHandle PostureChangedDelegateHandle;
+	FDelegateHandle MoveSpeedChangedDelegateHandle;
 
 	// Attribute changed callbacks
 	virtual void HealthChanged(const FOnAttributeChangeData& Data);
@@ -42,4 +46,10 @@ protected:
 
 	// Tag change callbacks
 	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	FTimerHandle TimerHandle_StaminaRegenDelay;
+	FTimerHandle TimerHandle_PostureRegenDelay;
+	
+	void StaminaRegenElapsed();
+	void PostureRegenElapsed();
 };

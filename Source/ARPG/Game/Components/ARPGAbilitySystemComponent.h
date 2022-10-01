@@ -38,6 +38,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRemoveReplicatedGameplayTag(FGameplayTag Tag);
 
+	void SendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
+	UFUNCTION(Server, Reliable)
+	void ServerSendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
+	UFUNCTION(Client, Reliable)
+	void ClientSendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
+
 	UFUNCTION(BlueprintCallable, Category = "GameplayCue",
 		Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
 	void ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag,

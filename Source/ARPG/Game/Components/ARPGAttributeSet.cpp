@@ -37,6 +37,10 @@ void UARPGAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 	{
 		AdjustAttributeForMaxChange(Stamina, MaxStamina, NewValue, GetStaminaAttribute());
 	}
+	else if (Attribute == GetMaxPostureAttribute())
+	{
+		AdjustAttributeForMaxChange(Posture, MaxPosture, NewValue, GetPostureAttribute());
+	}
 	else if (Attribute == GetMoveSpeedAttribute())
 	{
 		// Cannot slow less than 150 units/s and cannot boost more than 1000 units/s

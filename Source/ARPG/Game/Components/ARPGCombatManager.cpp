@@ -24,7 +24,8 @@ void UARPGCombatManager::BeginPlay()
 
 	OwnerCharacter = Cast<AARPGCharacter>(GetOuter());
 	OnAttackHitEvent.AddDynamic(this, &UARPGCombatManager::OnAttackHit);
-	OnBackstabTargetCharacterCountChanged.AddDynamic(this, &UARPGCombatManager::BackstabTargetCharactersChanged);
+	OnStartAttack.AddDynamic(this, &UARPGCombatManager::OnAttackStart);
+	OnEndAttack.AddDynamic(this, &UARPGCombatManager::OnAttackEnd);
 
 	if (OwnerCharacter.IsValid())
 	{
@@ -32,13 +33,22 @@ void UARPGCombatManager::BeginPlay()
 	}
 }
 
+void UARPGCombatManager::OnAttackStart()
+{
+	HitActors.Empty();
+}
+
+void UARPGCombatManager::OnAttackEnd()
+{
+}
+
 void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 {
 	if (OwnerCharacter->HasAuthority())
 	{
-		if (!IgnoredActors.Contains(Hit.GetActor()))
+		if (!HitActors.Contains(Hit.GetActor()))
 		{
-			IgnoredActors.AddUnique(Hit.GetActor());
+			HitActors.Add(Hit.GetActor());
 			if (AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor()))
 			{
 				// FGameplayEventData HitEventData;
@@ -103,6 +113,13 @@ void UARPGCombatManager::ServerSendGameplayEventToActor_Implementation(AActor* A
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
 }
 
+void UARPGCombatManager::ClientSendGameplayEventToActor_Implementation(AActor* Actor,
+	FGameplayTag EventTag,
+	FGameplayEventData Payload)
+{
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
+}
+
 bool UARPGCombatManager::TryVisceralAttack()
 {
 	float Range = 50.f;
@@ -131,8 +148,10 @@ bool UARPGCombatManager::TryVisceralAttack()
 						EventData.Instigator = OwnerCharacter.Get();
 						EventData.Target = OtherCharacter;
 						FGameplayEffectContext EffectContext;
-						ServerSendGameplayEventToActor(OtherCharacter, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
-						ServerSendGameplayEventToActor(OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
+						OtherCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToOwner(FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
+						OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToOwner(FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
+						// ServerSendGameplayEventToActor(OtherCharacter, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
+						// ServerSendGameplayEventToActor(OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
 					
 						return true;
 					}
@@ -148,48 +167,7 @@ void UARPGCombatManager::ApplyHitReact(EARPGHitReactDirection Direction)
 {
 }
 
-void UARPGCombatManager::AddBackstabTargetCharacter(AARPGCharacter* InTargetCharacter)
-{
-	if (OwnerCharacter.IsValid() && OwnerCharacter != InTargetCharacter && OwnerCharacter->HasAuthority() && !
-		BackstabTargetCharacters.Contains(InTargetCharacter))
-	{
-		int32 OldTargetCharacterCount = BackstabTargetCharacters.Num();
-		BackstabTargetCharacters.AddUnique(InTargetCharacter);
-		OnBackstabTargetCharacterCountChanged.Broadcast(OldTargetCharacterCount, BackstabTargetCharacters.Num());
-	}
-}
-
-void UARPGCombatManager::RemoveBackstabTargetCharacter(AARPGCharacter* InTargetCharacter)
-{
-	if (OwnerCharacter.IsValid() && OwnerCharacter->HasAuthority() && BackstabTargetCharacters.Contains(
-		InTargetCharacter))
-	{
-		int32 OldTargetCharacterCount = BackstabTargetCharacters.Num();
-		BackstabTargetCharacters.Remove(InTargetCharacter);
-		OnBackstabTargetCharacterCountChanged.Broadcast(OldTargetCharacterCount, BackstabTargetCharacters.Num());
-	}
-}
-
-void UARPGCombatManager::BackstabTargetCharactersChanged(int32 OldTargetCharacterCount, int32 NewTargetCharacterCount)
-{
-	if (OwnerCharacter.IsValid())
-	{
-		if (NewTargetCharacterCount == 0)
-		{
-			OwnerCharacter->GetARPGAbilitySystemComponent()->RemoveReplicatedGameplayTag(
-				FGameplayTag::RequestGameplayTag("State.CanBackstab"));
-		}
-		else if (OldTargetCharacterCount == 0 && NewTargetCharacterCount > 0)
-		{
-			OwnerCharacter->GetARPGAbilitySystemComponent()->AddReplicatedGameplayTag(
-				FGameplayTag::RequestGameplayTag("State.CanBackstab"));
-		}
-	}
-}
-
 void UARPGCombatManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(UARPGCombatManager, BackstabTargetCharacters);
 }

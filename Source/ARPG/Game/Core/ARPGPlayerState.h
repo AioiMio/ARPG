@@ -114,6 +114,7 @@ protected:
 	FGameplayTag DeadTag;
 
 	FTimerHandle TimerHandle_StaminaRegenDelay;
+	FTimerHandle TimerHandle_PostureRegenDelay;
 
 	FDelegateHandle HealthChangedDelegateHandle;
 	FDelegateHandle MaxHealthChangedDelegateHandle;
@@ -154,4 +155,5 @@ protected:
 	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
 	void StaminaRegenElapsed() const;
+	void PostureRegenElapsed() const;
 };

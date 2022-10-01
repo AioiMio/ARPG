@@ -5,6 +5,7 @@
 
 #include "AbilitySystemGlobals.h"
 #include "GameplayCueManager.h"
+#include "ARPG/Game/Core/ARPGCharacter.h"
 
 void UARPGAbilitySystemComponent::ReceiveDamage(UARPGAbilitySystemComponent* SourceASC,
                                                 float UnmitigatedDamage,
@@ -47,23 +48,51 @@ void UARPGAbilitySystemComponent::RemoveReplicatedGameplayTag(FGameplayTag Tag)
 	}
 }
 
-void UARPGAbilitySystemComponent::ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag,
-	const FGameplayCueParameters& GameplayCueParameters)
+void UARPGAbilitySystemComponent::SendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload)
 {
-	UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue(GetOwner(), GameplayCueTag, EGameplayCueEvent::Type::Executed, GameplayCueParameters);
+	if (GetOwnerRole() != ENetRole::ROLE_Authority)
+	{
+		ServerSendGameplayEventToOwner(EventTag, Payload);
+	}
+	else
+	{
+		ClientSendGameplayEventToOwner(EventTag, Payload);
+	}
+}
+
+void UARPGAbilitySystemComponent::ServerSendGameplayEventToOwner_Implementation(FGameplayTag EventTag,
+	FGameplayEventData Payload)
+{
+	SendGameplayEventToOwner(EventTag, Payload);
+}
+
+void UARPGAbilitySystemComponent::ClientSendGameplayEventToOwner_Implementation(FGameplayTag EventTag,
+	FGameplayEventData Payload)
+{
+	HandleGameplayEvent(EventTag, &Payload);
+}
+
+void UARPGAbilitySystemComponent::ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag,
+                                                          const FGameplayCueParameters& GameplayCueParameters)
+{
+	UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue(
+		GetOwner(), GameplayCueTag, EGameplayCueEvent::Type::Executed, GameplayCueParameters);
 }
 
 void UARPGAbilitySystemComponent::AddGameplayCueLocal(const FGameplayTag GameplayCueTag,
-	const FGameplayCueParameters& GameplayCueParameters)
+                                                      const FGameplayCueParameters& GameplayCueParameters)
 {
-	UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue(GetOwner(), GameplayCueTag, EGameplayCueEvent::Type::OnActive, GameplayCueParameters);
-	UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue(GetOwner(), GameplayCueTag, EGameplayCueEvent::Type::WhileActive, GameplayCueParameters);
+	UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue(
+		GetOwner(), GameplayCueTag, EGameplayCueEvent::Type::OnActive, GameplayCueParameters);
+	UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue(
+		GetOwner(), GameplayCueTag, EGameplayCueEvent::Type::WhileActive, GameplayCueParameters);
 }
 
 void UARPGAbilitySystemComponent::RemoveGameplayCueLocal(const FGameplayTag GameplayCueTag,
-	const FGameplayCueParameters& GameplayCueParameters)
+                                                         const FGameplayCueParameters& GameplayCueParameters)
 {
-	UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue(GetOwner(), GameplayCueTag, EGameplayCueEvent::Type::Removed, GameplayCueParameters);
+	UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue(
+		GetOwner(), GameplayCueTag, EGameplayCueEvent::Type::Removed, GameplayCueParameters);
 }
 
 void UARPGAbilitySystemComponent::ServerRemoveReplicatedGameplayTag_Implementation(FGameplayTag Tag)

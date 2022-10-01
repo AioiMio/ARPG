@@ -18,6 +18,8 @@ struct COMBOGRAPH_API FComboGraphNativeTags : public FGameplayTagNativeAdder
 	FGameplayTag ChanceBegin;
 	FGameplayTag ChanceEnd;
 
+	FGameplayTag GraphEnd;
+
 	FORCEINLINE static const FComboGraphNativeTags& Get() { return NativeTags; }
 
 	virtual void AddTags() override
@@ -30,6 +32,7 @@ struct COMBOGRAPH_API FComboGraphNativeTags : public FGameplayTagNativeAdder
 		ComboEnd = Manager.AddNativeGameplayTag(TEXT("Event.ComboGraph.Animation.ComboEnd"));
 		ChanceBegin = Manager.AddNativeGameplayTag(TEXT("Event.ComboGraph.Animation.ChanceBegin"));
 		ChanceEnd = Manager.AddNativeGameplayTag(TEXT("Event.ComboGraph.Animation.ChanceEnd"));
+		GraphEnd = Manager.AddNativeGameplayTag(TEXT("Event.ComboGraph.Animation.GraphEnd"));
 	}
 
 private:

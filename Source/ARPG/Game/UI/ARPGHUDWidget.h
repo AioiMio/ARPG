@@ -27,6 +27,13 @@ public:
 	UImage* RightHandWeaponIcon;
 	UPROPERTY(meta = (BindWidget))
 	UImage* LeftHandWeaponIcon;
+
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* HealthPivotBox;
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* ManaPivotBox;
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* StaminaPivotBox;
 	
 	/**
 	* Attribute setters
