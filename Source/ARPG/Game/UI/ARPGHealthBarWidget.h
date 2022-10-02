@@ -41,7 +41,7 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* HealthPivotBox;
 	UPROPERTY(meta = (BindWidget))
-	UProgressBar* PostureBar;
+	USizeBox* PostureBox;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CharacterName;
 	UPROPERTY(meta = (BindWidget))

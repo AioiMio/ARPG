@@ -260,6 +260,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* DeathMontage;
 
+	// Break Effect
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abilities")
+	TSubclassOf<UGameplayEffect> BreakEffect;
+
 	// Default abilities for this Character. These will be removed on Character death and regiven if Character respawns.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Abilities")
 	TArray<TSubclassOf<UARPGGameplayAbility>> CharacterAbilities;

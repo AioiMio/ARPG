@@ -43,6 +43,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void LeaveWorld();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void Dissolve_In(float Period);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Dissolve_Out(float Period);
+
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLeaveWorld();
 

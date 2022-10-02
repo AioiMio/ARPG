@@ -8,8 +8,9 @@
 
 UARPGCharacterMovementComponent::UARPGCharacterMovementComponent()
 {
-	SprintSpeed = 900.f;
-	WalkSpeed = 200.f;
+	SprintSpeed = 800.f;
+	RunSpeed = 600.f;
+	WalkSpeed = 150.f;
 }
 
 float UARPGCharacterMovementComponent::GetMaxSpeed() const
@@ -31,14 +32,19 @@ float UARPGCharacterMovementComponent::GetMaxSpeed() const
 		return 0.0f;
 	}
 
+	if (RequestToStartWalking)
+	{
+		return WalkSpeed;
+	}
+	
 	if (RequestToStartSprinting)
 	{
 		return SprintSpeed;
 	}
 
-	if (RequestToStartWalking)
+	if (RequestToStartRunning)
 	{
-		return WalkSpeed;
+		return RunSpeed;
 	}
 
 	return Owner->GetMoveSpeed();
@@ -52,8 +58,8 @@ void UARPGCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 	//UpdateFromCompressed flags simply copies the flags from the saved move into the movement component.
 	//It basically just resets the movement component to the state when the move was made so it can simulate from there.
 	RequestToStartSprinting = (Flags & FSavedMove_Character::FLAG_Custom_0) != 0;
-
-	RequestToStartWalking = (Flags & FSavedMove_Character::FLAG_Custom_1) != 0;
+	RequestToStartRunning = (Flags & FSavedMove_Character::FLAG_Custom_1) != 0;
+	RequestToStartWalking = (Flags & FSavedMove_Character::FLAG_Custom_2) != 0;
 }
 
 FNetworkPredictionData_Client* UARPGCharacterMovementComponent::GetPredictionData_Client() const
@@ -80,6 +86,16 @@ void UARPGCharacterMovementComponent::StartSprinting()
 void UARPGCharacterMovementComponent::StopSprinting()
 {
 	RequestToStartSprinting = false;
+}
+
+void UARPGCharacterMovementComponent::StartRunning()
+{
+	RequestToStartRunning = true;
+}
+
+void UARPGCharacterMovementComponent::StopRunning()
+{
+	RequestToStartRunning = false;
 }
 
 void UARPGCharacterMovementComponent::StartWalking()

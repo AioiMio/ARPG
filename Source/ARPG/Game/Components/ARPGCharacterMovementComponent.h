@@ -62,9 +62,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Walk")
 	float WalkSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Run")
+	float RunSpeed;
+	
 	uint8 RequestToStartSprinting : 1;
+	uint8 RequestToStartRunning : 1;
 	uint8 RequestToStartWalking : 1;
-
+	
 	virtual float GetMaxSpeed() const override;
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 	virtual class FNetworkPredictionData_Client* GetPredictionData_Client() const override;
@@ -74,6 +78,12 @@ public:
 	void StartSprinting();
 	UFUNCTION(BlueprintCallable, Category = "Movement|Sprint")
 	void StopSprinting();
+
+	// Run
+	UFUNCTION(BlueprintCallable, Category = "Movement|Run")
+	void StartRunning();
+	UFUNCTION(BlueprintCallable, Category = "Movement|Run")
+	void StopRunning();
 
 	// Walk
 	UFUNCTION(BlueprintCallable, Category = "Movement|Walk")

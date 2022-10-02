@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
+#include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
 #include "ARPG/Game/Components/ARPGEquipmentManager.h"
 #include "ARPG/Game/Components/InventoryComponent.h"
 #include "ARPG/Game/Core/ARPGGameModeBase.h"
@@ -15,6 +16,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 
 AARPGPlayerCharacter::AARPGPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -49,11 +52,11 @@ void AARPGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if (IsLocallyControlled() && EnhancedInputComponent && PC)
 	{
 		EnhancedInputComponent->BindAction(PC->MovementInput, ETriggerEvent::Started, this,
-										   &AARPGPlayerCharacter::MovementInputBegin);
+		                                   &AARPGPlayerCharacter::MovementInputBegin);
 		EnhancedInputComponent->BindAction(PC->MovementInput, ETriggerEvent::Triggered, this,
-										   &AARPGPlayerCharacter::MovementInput);
+		                                   &AARPGPlayerCharacter::MovementInput);
 		EnhancedInputComponent->BindAction(PC->MovementInput, ETriggerEvent::Completed, this,
-										   &AARPGPlayerCharacter::MovementInputEnd);
+		                                   &AARPGPlayerCharacter::MovementInputEnd);
 		// EnhancedInputComponent->BindAction(PC->CameraInput, ETriggerEvent::Triggered, this,
 		// 								   &AARPGPlayerCharacter::CameraInput);
 		// EnhancedInputComponent->BindAction(PC->CameraInput, ETriggerEvent::Completed, this,
@@ -84,7 +87,7 @@ void AARPGPlayerCharacter::PossessedBy(AController* NewController)
 	{
 		HealthBarComponent->SetHiddenInGame(true);
 	}
-	
+
 	AARPGPlayerState* PS = GetPlayerState<AARPGPlayerState>();
 	if (PS)
 	{
@@ -101,7 +104,7 @@ void AARPGPlayerCharacter::PossessedBy(AController* NewController)
 		// If we handle players disconnecting and rejoining in the future, we'll have to change this so that possession from rejoining doesn't reset attributes.
 		// For now assume possession = spawn/respawn.
 		InitializeAttributes();
-		
+
 		// Respawn specific things that won't affect first possession.
 
 		// Forcibly set the DeadTag count to 0
@@ -145,7 +148,7 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 
 		// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
 		BindASCInput();
-		
+
 		// Set the AttributeSetBase for convenience attribute functions
 		AttributeSet = PS->GetAttributeSet();
 
@@ -160,7 +163,7 @@ void AARPGPlayerCharacter::OnRep_PlayerState()
 		}
 
 		InitializeHealthBar();
-		
+
 		// Respawn specific things that won't affect first possession.
 
 		// Forcibly set the DeadTag count to 0
@@ -190,7 +193,7 @@ void AARPGPlayerCharacter::Dying()
 			GM->PlayerCharacterDied(GetController());
 		}
 	}
-	
+
 	Super::Dying();
 }
 
@@ -222,20 +225,56 @@ void AARPGPlayerCharacter::MovementInputBegin()
 
 void AARPGPlayerCharacter::MovementInput(const FInputActionValue& InputActionValue)
 {
+	MovementInputVector = InputActionValue.Get<FInputActionValue::Axis2D>();
+	const float Magnitude = InputActionValue.GetMagnitude();
+	UARPGCharacterMovementComponent* CharacterMovementComponent = Cast<UARPGCharacterMovementComponent>(
+		GetCharacterMovement());
+	if (CharacterMovementComponent)
+	{
+		if (Magnitude > 0.2f && Magnitude < 0.6f)
+		{
+			CharacterMovementComponent->RequestToStartWalking = true;
+		}
+		else
+		{
+			CharacterMovementComponent->RequestToStartWalking = false;
+		}
+	}
+
+	if (Magnitude > 0.2f)
+	{
+		FVector WorldDirection = GetControlRotation().RotateVector(FVector(MovementInputVector.Y, MovementInputVector.X, 0.f));
+		WorldDirection.Normalize();
+		AddMovementInput(WorldDirection);
+	}
 }
 
 void AARPGPlayerCharacter::MovementInputEnd()
 {
 	AbilitySystemComponent->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("Input.Movement.Active"));
+	MovementInputVector = FVector2D::Zero();
 }
 
 void AARPGPlayerCharacter::BindASCInput()
 {
 	if (!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
 	{
-		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
-			FString("CancelTarget"), FString("EARPGAbilityInputID"), static_cast<int32>(EARPGAbilityInputID::Confirm), static_cast<int32>(EARPGAbilityInputID::Cancel)));
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(
+			                                                              FString("ConfirmTarget"),
+			                                                              FString("CancelTarget"),
+			                                                              FString("EARPGAbilityInputID"),
+			                                                              static_cast<int32>(
+				                                                              EARPGAbilityInputID::Confirm),
+			                                                              static_cast<int32>(
+				                                                              EARPGAbilityInputID::Cancel)));
 
 		ASCInputBound = true;
 	}
+}
+
+void AARPGPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AARPGPlayerCharacter, MovementInputVector);
 }

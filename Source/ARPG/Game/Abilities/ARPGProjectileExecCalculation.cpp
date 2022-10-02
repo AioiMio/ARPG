@@ -1,20 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ARPGDamageExecutionCalculation.h"
-
+#include "ARPGProjectileExecCalculation.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 
+
 // Declare the attributes to capture and define how we want to capture them from the Source and Target.
-struct ARPGDamageStatics
+struct ARPGProjectileDamageStatics
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageNegation);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Posture);
 
-	ARPGDamageStatics()
+	ARPGProjectileDamageStatics()
 	{
 		// Snapshot happens at time of GESpec creation
 
@@ -30,21 +30,23 @@ struct ARPGDamageStatics
 	}
 };
 
-static const ARPGDamageStatics& DamageStatics()
+static const ARPGProjectileDamageStatics& ProjectileDamageStatics()
 {
-	static ARPGDamageStatics DStatics;
+	static ARPGProjectileDamageStatics DStatics;
 	return DStatics;
 }
 
-UARPGDamageExecutionCalculation::UARPGDamageExecutionCalculation()
+UARPGProjectileExecCalculation::UARPGProjectileExecCalculation()
 {
-	RelevantAttributesToCapture.Add(DamageStatics().AttackPowerDef);
-	RelevantAttributesToCapture.Add(DamageStatics().DamageNegationDef);
-	RelevantAttributesToCapture.Add(DamageStatics().HealthDef);
-	RelevantAttributesToCapture.Add(DamageStatics().PostureDef);
+	RelevantAttributesToCapture.Add(ProjectileDamageStatics().AttackPowerDef);
+	RelevantAttributesToCapture.Add(ProjectileDamageStatics().DamageNegationDef);
+	RelevantAttributesToCapture.Add(ProjectileDamageStatics().HealthDef);
+	RelevantAttributesToCapture.Add(ProjectileDamageStatics().PostureDef);
+
+	ChanceTag = FGameplayTag::RequestGameplayTag(FName("State.Chance"));
 }
 
-void UARPGDamageExecutionCalculation::Execute_Implementation(
+void UARPGProjectileExecCalculation::Execute_Implementation(
 	const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
@@ -65,12 +67,12 @@ void UARPGDamageExecutionCalculation::Execute_Implementation(
 	EvaluationParameters.TargetTags = TargetTags;
 
 	float DamageNegation = 0.0f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageNegationDef, EvaluationParameters, DamageNegation);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(ProjectileDamageStatics().DamageNegationDef, EvaluationParameters, DamageNegation);
 	DamageNegation = FMath::Max<float>(DamageNegation, 0.0f);
 
 	float Damage = 0.0f;
 	// Capture optional damage value set on the damage GE as a CalculationModifier under the ExecutionCalculation
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().AttackPowerDef, EvaluationParameters, Damage);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(ProjectileDamageStatics().AttackPowerDef, EvaluationParameters, Damage);
 	// Add SetByCaller damage if it exists
 	Damage *= FMath::Max<float>(Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), false, -1.0f), 0.0f);
 
@@ -86,7 +88,14 @@ void UARPGDamageExecutionCalculation::Execute_Implementation(
 	}
 
 	// Posture Damage
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UARPGAttributeSet::GetPostureAttribute(), EGameplayModOp::Additive, -5.f));
+	if (TargetAbilitySystemComponent->HasMatchingGameplayTag(ChanceTag))
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UARPGAttributeSet::GetPostureAttribute(), EGameplayModOp::Additive, -5000.f));
+	}
+	else
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UARPGAttributeSet::GetPostureAttribute(), EGameplayModOp::Additive, -5.f));
+	}
 
 	// Broadcast damages to Target ASC
 	UARPGAbilitySystemComponent* TargetASC = Cast<UARPGAbilitySystemComponent>(TargetAbilitySystemComponent);

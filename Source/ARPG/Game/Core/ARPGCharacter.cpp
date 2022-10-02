@@ -458,6 +458,14 @@ void AARPGCharacter::Die()
 
 void AARPGCharacter::Break()
 {
+	if (AbilitySystemComponent.IsValid())
+	{
+		if (BreakEffect)
+		{
+			FGameplayEffectSpecHandle BreakEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(BreakEffect, 1.f, FGameplayEffectContextHandle());
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*BreakEffectSpecHandle.Data.Get());
+		}
+	}
 }
 
 void AARPGCharacter::Dying()

@@ -64,9 +64,9 @@ void UARPGHealthBarWidget::SetHealthPercentage(float InPercent)
 
 void UARPGHealthBarWidget::SetPosturePercentage(float InPercent)
 {
-	if (PostureBar)
+	if (PostureBox)
 	{
-		PostureBar->SetPercent(InPercent);
+		PostureBox->SetWidthOverride(200.f * (1 - InPercent));
 	}
 }
 

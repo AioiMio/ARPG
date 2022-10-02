@@ -28,7 +28,8 @@ void UARPGGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	{
 		for (const TSubclassOf<UGameplayEffect>& Effect : GameplayEffects)
 		{
-			ActiveGameplayEffects.Add(ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Effect.GetDefaultObject(), 1));
+			FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(Effect);
+			ActiveGameplayEffects.Add(ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, EffectSpecHandle));
 		}
 	}
 }
