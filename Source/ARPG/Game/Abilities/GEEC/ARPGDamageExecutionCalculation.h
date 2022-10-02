@@ -19,4 +19,9 @@ public:
 
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 	                                    FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
+
+protected:
+	FGameplayTag ChanceTag;
+
+	float ChancePostureDamageMultiplier = 5.f;
 };

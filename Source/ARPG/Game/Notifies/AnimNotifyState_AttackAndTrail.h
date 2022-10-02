@@ -38,7 +38,10 @@ protected:
 	USkeletalMeshComponent* LeftHandWeaponMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	EAttackHitType AttackHitType = EAttackHitType::Normal;
+	EAttackType AttackType = EAttackType::Normal;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	EHitReactType HitReactType = EHitReactType::None;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	float SkillMultiplier = 1.f;

@@ -42,6 +42,8 @@ UARPGDamageExecutionCalculation::UARPGDamageExecutionCalculation()
 	RelevantAttributesToCapture.Add(DamageStatics().DamageNegationDef);
 	RelevantAttributesToCapture.Add(DamageStatics().HealthDef);
 	RelevantAttributesToCapture.Add(DamageStatics().PostureDef);
+
+	ChanceTag = FGameplayTag::RequestGameplayTag(FName("State.Chance"));
 }
 
 void UARPGDamageExecutionCalculation::Execute_Implementation(
@@ -65,28 +67,42 @@ void UARPGDamageExecutionCalculation::Execute_Implementation(
 	EvaluationParameters.TargetTags = TargetTags;
 
 	float DamageNegation = 0.0f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageNegationDef, EvaluationParameters, DamageNegation);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageNegationDef, EvaluationParameters,
+	                                                           DamageNegation);
 	DamageNegation = FMath::Max<float>(DamageNegation, 0.0f);
 
 	float Damage = 0.0f;
 	// Capture optional damage value set on the damage GE as a CalculationModifier under the ExecutionCalculation
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().AttackPowerDef, EvaluationParameters, Damage);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().AttackPowerDef, EvaluationParameters,
+	                                                           Damage);
 	// Add SetByCaller damage if it exists
-	Damage *= FMath::Max<float>(Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), false, -1.0f), 0.0f);
+	Damage *= FMath::Max<float>(
+		Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), false, -1.0f), 0.0f);
 
 	float UnmitigatedDamage = Damage; // Can multiply any damage boosters here
-	
+
 	float MitigatedDamage = (UnmitigatedDamage) * (1.f - DamageNegation);
 
 	if (MitigatedDamage > 0.f)
 	{
 		// Set the Target's damage meta attribute
 		// OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().DamageProperty, EGameplayModOp::Additive, MitigatedDamage));
-		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UARPGAttributeSet::GetDamageAttribute(), EGameplayModOp::Additive, MitigatedDamage));
+		OutExecutionOutput.AddOutputModifier(
+			FGameplayModifierEvaluatedData(UARPGAttributeSet::GetDamageAttribute(), EGameplayModOp::Additive,
+			                               MitigatedDamage));
 	}
 
 	// Posture Damage
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UARPGAttributeSet::GetPostureAttribute(), EGameplayModOp::Additive, -5.f));
+	if (TargetAbilitySystemComponent->HasMatchingGameplayTag(ChanceTag))
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
+			UARPGAttributeSet::GetPostureAttribute(), EGameplayModOp::Additive, -5.f * ChancePostureDamageMultiplier));
+	}
+	else
+	{
+		OutExecutionOutput.AddOutputModifier(
+			FGameplayModifierEvaluatedData(UARPGAttributeSet::GetPostureAttribute(), EGameplayModOp::Additive, -5.f));
+	}
 
 	// Broadcast damages to Target ASC
 	UARPGAbilitySystemComponent* TargetASC = Cast<UARPGAbilitySystemComponent>(TargetAbilitySystemComponent);

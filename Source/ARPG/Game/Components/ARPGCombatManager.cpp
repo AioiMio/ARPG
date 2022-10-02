@@ -46,24 +46,24 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 {
 	if (OwnerCharacter->HasAuthority())
 	{
-		if (!HitActors.Contains(Hit.GetActor()))
+		if (!IgnoredActors.Contains(Hit.GetActor()))
 		{
-			HitActors.Add(Hit.GetActor());
+			IgnoredActors.Add(Hit.GetActor());
 			if (AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor()))
 			{
-				// FGameplayEventData HitEventData;
-				// HitEventData.Instigator = GetOwner();
-				// HitEventData.Target = HitCharacter;
-				// HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
-				// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
+				FGameplayEventData HitEventData;
+				HitEventData.Instigator = GetOwner();
+				HitEventData.Target = HitCharacter;
+				HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
 
-				SendHitEventToActor(HitCharacter, Hit, CurrentAttackHitType, CurrentSkillMultiplier);
+				SendHitEventToActor(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
 			}
 		}
 	}
 }
 
-void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAttackHitType HitType, float Multiplier)
+void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAttackType AttackType, EHitReactType HitReactType, float Multiplier)
 {
 	if (AARPGCharacter* Character = Cast<AARPGCharacter>(Target))
 	{
@@ -71,7 +71,18 @@ void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAt
 		UAbilitySystemComponent* SourceASC = OwnerCharacter->GetAbilitySystemComponent();
 		if (TargetASC && SourceASC)
 		{
-			if (DamageEffectClass)
+			if (AttackType == EAttackType::Charge && ChargeDamageEffectClass)
+			{
+				FGameplayEffectContextHandle DamageEffectContext = SourceASC->MakeEffectContext();
+				DamageEffectContext.AddInstigator(GetOwner(), GetOwner());
+				DamageEffectContext.AddHitResult(Hit);
+				FGameplayEffectSpecHandle DamageEffectSpecHandle = TargetASC->MakeOutgoingSpec(
+					ChargeDamageEffectClass, 1, DamageEffectContext);
+				DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"),
+																	 Multiplier);
+				SourceASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data, TargetASC);
+			}
+			else if (DamageEffectClass)
 			{
 				FGameplayEffectContextHandle DamageEffectContext = SourceASC->MakeEffectContext();
 				DamageEffectContext.AddInstigator(GetOwner(), GetOwner());
@@ -84,13 +95,13 @@ void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAt
 			}
 
 			TSubclassOf<UGameplayEffect> HitReactEffect;
-			switch (HitType)
+			switch (HitReactType)
 			{
-			case EAttackHitType::KnockBack: HitReactEffect = KnockBackEffect;
+			case EHitReactType::KnockBack: HitReactEffect = KnockBackEffect;
 				break;
-			case EAttackHitType::KnockDown: HitReactEffect = KnockDownEffect;
+			case EHitReactType::KnockDown: HitReactEffect = KnockDownEffect;
 				break;
-			case EAttackHitType::KnockUp: HitReactEffect = KnockUpEffect;
+			case EHitReactType::KnockUp: HitReactEffect = KnockUpEffect;
 				break;
 			default: HitReactEffect = nullptr;
 			}
