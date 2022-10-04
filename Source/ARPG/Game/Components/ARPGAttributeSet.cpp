@@ -218,6 +218,11 @@ void UARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		// Handle posture changes.
 		SetPosture(FMath::Clamp(GetPosture(), 0.0f, GetMaxPosture()));
 	} // Posture
+	else if (Data.EvaluatedData.Attribute == GetTenacityAttribute())
+	{
+		// Handle tenacity changes.
+		SetTenacity(FMath::Clamp(GetTenacity(), 0.0f, GetMaxTenacity()));
+	} // Tenacity
 }
 
 void UARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -233,6 +238,8 @@ void UARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, StaminaRegenRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, Tenacity, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, MaxTenacity, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, Posture, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, MaxPosture, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UARPGAttributeSet, PostureRegenRate, COND_None, REPNOTIFY_Always);
@@ -306,6 +313,16 @@ void UARPGAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxSta
 void UARPGAttributeSet::OnRep_StaminaRegenRate(const FGameplayAttributeData& OldStaminaRegenRate)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, StaminaRegenRate, OldStaminaRegenRate);
+}
+
+void UARPGAttributeSet::OnRep_Tenacity(const FGameplayAttributeData& OldTenacity)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, Tenacity, OldTenacity);
+}
+
+void UARPGAttributeSet::OnRep_MaxTenacity(const FGameplayAttributeData& OldMaxTenacity)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UARPGAttributeSet, MaxTenacity, OldMaxTenacity);
 }
 
 void UARPGAttributeSet::OnRep_Posture(const FGameplayAttributeData& OldPosture)

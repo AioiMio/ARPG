@@ -78,7 +78,17 @@ public:
 	FGameplayAttributeData StaminaRegenRate;
 	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, StaminaRegenRate)
 
-	// Current Posture, used to define hit reaction. Capped by MaxPosture.
+	// Current Tenacity, used to define hit reaction. Capped by MaxTenacity.
+	UPROPERTY(BlueprintReadOnly, Category = "Tenacity", ReplicatedUsing = OnRep_Tenacity)
+	FGameplayAttributeData Tenacity;
+	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, Tenacity)
+
+	// MaxTenacity is its own attribute since GameplayEffects may modify it
+	UPROPERTY(BlueprintReadOnly, Category = "Tenacity", ReplicatedUsing = OnRep_MaxTenacity)
+	FGameplayAttributeData MaxTenacity;
+	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, MaxTenacity)
+	
+	// Current Posture, used to define break reaction. Capped by MaxPosture.
 	UPROPERTY(BlueprintReadOnly, Category = "Posture", ReplicatedUsing = OnRep_Posture)
 	FGameplayAttributeData Posture;
 	ATTRIBUTE_ACCESSORS(UARPGAttributeSet, Posture)
@@ -174,6 +184,12 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_StaminaRegenRate(const FGameplayAttributeData& OldStaminaRegenRate);
 
+	UFUNCTION()
+	virtual void OnRep_Tenacity(const FGameplayAttributeData& OldTenacity);
+
+	UFUNCTION()
+	virtual void OnRep_MaxTenacity(const FGameplayAttributeData& OldMaxTenacity);
+	
 	UFUNCTION()
 	virtual void OnRep_Posture(const FGameplayAttributeData& OldPosture);
 

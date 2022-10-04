@@ -4,6 +4,7 @@
 #include "ARPGGameplayAbility.h"
 
 #include "AbilitySystemComponent.h"
+#include "ARPG/Game/Core/ARPGCharacter.h"
 
 UARPGGameplayAbility::UARPGGameplayAbility()
 {

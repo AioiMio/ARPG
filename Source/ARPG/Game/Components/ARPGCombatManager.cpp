@@ -53,6 +53,11 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 			IgnoredActors.Add(Hit.GetActor());
 			if (AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor()))
 			{
+				if (HitCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Immunity"))))
+				{
+					return;
+				}
+
 				FGameplayEventData HitEventData;
 				HitEventData.Instigator = GetOwner();
 				HitEventData.Target = HitCharacter;

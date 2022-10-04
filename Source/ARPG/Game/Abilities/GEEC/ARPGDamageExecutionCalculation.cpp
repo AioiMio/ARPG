@@ -30,7 +30,7 @@ struct ARPGDamageStatics
 	}
 };
 
-static const ARPGDamageStatics& DamageStatics()
+static const ARPGDamageStatics& ChargeDamageStatics()
 {
 	static ARPGDamageStatics DStatics;
 	return DStatics;
@@ -38,10 +38,10 @@ static const ARPGDamageStatics& DamageStatics()
 
 UARPGDamageExecutionCalculation::UARPGDamageExecutionCalculation()
 {
-	RelevantAttributesToCapture.Add(DamageStatics().AttackPowerDef);
-	RelevantAttributesToCapture.Add(DamageStatics().DamageNegationDef);
-	RelevantAttributesToCapture.Add(DamageStatics().HealthDef);
-	RelevantAttributesToCapture.Add(DamageStatics().PostureDef);
+	RelevantAttributesToCapture.Add(ChargeDamageStatics().AttackPowerDef);
+	RelevantAttributesToCapture.Add(ChargeDamageStatics().DamageNegationDef);
+	RelevantAttributesToCapture.Add(ChargeDamageStatics().HealthDef);
+	RelevantAttributesToCapture.Add(ChargeDamageStatics().PostureDef);
 
 	ChanceTag = FGameplayTag::RequestGameplayTag(FName("State.Chance"));
 }
@@ -67,13 +67,13 @@ void UARPGDamageExecutionCalculation::Execute_Implementation(
 	EvaluationParameters.TargetTags = TargetTags;
 
 	float DamageNegation = 0.0f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageNegationDef, EvaluationParameters,
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(ChargeDamageStatics().DamageNegationDef, EvaluationParameters,
 	                                                           DamageNegation);
 	DamageNegation = FMath::Max<float>(DamageNegation, 0.0f);
 
 	float Damage = 0.0f;
 	// Capture optional damage value set on the damage GE as a CalculationModifier under the ExecutionCalculation
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().AttackPowerDef, EvaluationParameters,
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(ChargeDamageStatics().AttackPowerDef, EvaluationParameters,
 	                                                           Damage);
 	// Add SetByCaller damage if it exists
 	Damage *= FMath::Max<float>(

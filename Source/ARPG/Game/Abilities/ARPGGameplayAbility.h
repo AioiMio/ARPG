@@ -7,6 +7,8 @@
 #include "ARPG/Game/Types/Types.h"
 #include "ARPGGameplayAbility.generated.h"
 
+class AARPGCharacter;
+
 /**
  * 
  */
