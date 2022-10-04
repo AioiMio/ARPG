@@ -24,10 +24,13 @@ void UARPGBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp
 				if (ensure(AIPawn))
 				{
 					float Distance = FVector::Distance(TargetActor->GetActorLocation(), AIPawn->GetActorLocation());
-
 					bool bWithinRange = Distance < 300.f;
-
-					BlackboardComponent->SetValueAsBool(AttackRangeKey.SelectedKeyName, bWithinRange);
+					bool bHasLOS = false;
+					if (bWithinRange)
+					{
+						bHasLOS = MyController->LineOfSightTo(TargetActor);
+					}
+					BlackboardComponent->SetValueAsBool(AttackRangeKey.SelectedKeyName, (bWithinRange && bHasLOS));
 				}
 			}
 		}

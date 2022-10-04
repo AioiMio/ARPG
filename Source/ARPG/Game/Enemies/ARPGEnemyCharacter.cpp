@@ -125,6 +125,7 @@ void AARPGEnemyCharacter::OnPawnSeen(APawn* Pawn)
 		if (TargetManager->GetLockOnTarget() == nullptr)
 		{
 			TargetManager->SetLockOnTarget(Character);
+			TargetManager->bIsLockingOn = true;
 
 			AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
 			if (AIC)
@@ -144,6 +145,7 @@ void AARPGEnemyCharacter::OnDamageReceived(UARPGAbilitySystemComponent* SourceAS
 	if (Character && Character != TargetManager->GetLockOnTarget())
 	{
 		TargetManager->SetLockOnTarget(Character);
+		TargetManager->bIsLockingOn = true;
 
 		AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
 		if (AIC)

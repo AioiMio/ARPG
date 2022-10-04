@@ -33,10 +33,11 @@ void UARPGGameplayAbility_Gun::ActivateAbility(const FGameplayAbilitySpecHandle 
 	{
 		if (AARPGCharacter* Character = Cast<AARPGCharacter>(GetAvatarActorFromActorInfo()))
 		{
-			if (Character->GetTargetManager()->bIsLockingOn)
+			if (Character->GetTargetManager()->GetLockOnTarget() != nullptr)
 			{
 				MovementComponent->bOrientRotationToMovement = false;
-				MovementComponent->bUseControllerDesiredRotation = true;
+				// MovementComponent->bUseControllerDesiredRotation = true;
+				Character->GetTargetManager()->bFaceToTarget = true;
 			}
 
 			Character->GetEquipmentManager()->GetCurrentLeftHandWeapon()->SetActorHiddenInGame(false);
@@ -65,11 +66,12 @@ void UARPGGameplayAbility_Gun::EndAbility(const FGameplayAbilitySpecHandle Handl
 	if (UARPGCharacterMovementComponent* MovementComponent = Cast<UARPGCharacterMovementComponent>(ActorInfo->MovementComponent))
 	{
 		MovementComponent->bOrientRotationToMovement = true;
-		MovementComponent->bUseControllerDesiredRotation = false;
+		// MovementComponent->bUseControllerDesiredRotation = false;
 		
 		if (AARPGCharacter* Character = Cast<AARPGCharacter>(GetAvatarActorFromActorInfo()))
 		{
 			Character->GetEquipmentManager()->GetCurrentLeftHandWeapon()->SetActorHiddenInGame(true);
+			Character->GetTargetManager()->bFaceToTarget = false;
 		}
 	}
 	

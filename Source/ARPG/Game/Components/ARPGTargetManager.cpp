@@ -29,29 +29,33 @@ void UARPGTargetManager::TickComponent(float DeltaTime,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (OwnerPlayerCharacter.IsValid() && bIsLockingOn)
+	if (OwnerCharacter.IsValid() && bIsLockingOn)
 	{
+		
+		
 		if (LockOnTarget && LockOnTarget->IsAlive())
 		{
-			FVector Direction = LockOnTarget->GetActorLocation() - OwnerPlayerCharacter->GetActorLocation();
-			FRotator Rotation = Direction.Rotation();
+			FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(OwnerCharacter->GetActorLocation(), LockOnTarget->GetActorLocation());
 			Rotation.Roll = 0.0f;
-			// Rotation.Yaw += OwnerPlayerCharacter->GetCameraInputVector().X * LockOnOffset;
-			// Rotation.Pitch -= OwnerPlayerCharacter->GetCameraInputVector().Y * LockOnOffset * 0.5f;
-
-			if (OwnerPlayerCharacter->GetController())
+			
+			if (OwnerCharacter->GetController())
 			{
-				OwnerPlayerCharacter->GetController()->SetControlRotation(
-					UKismetMathLibrary::RInterpTo(OwnerPlayerCharacter->GetController()->GetControlRotation(), Rotation,
+				OwnerCharacter->GetController()->SetControlRotation(
+					UKismetMathLibrary::RInterpTo(OwnerCharacter->GetController()->GetControlRotation(), Rotation,
 					                              DeltaTime, 3.0f));
+			}
+
+			if (bFaceToTarget)
+			{
+				OwnerCharacter->SetActorRotation(UKismetMathLibrary::RInterpTo(OwnerCharacter->GetActorRotation(), Rotation,DeltaTime, 20.0f));
 			}
 		}
 		else
 		{
 			LockOnTarget = nullptr;
 			bIsLockingOn = false;
-			OwnerPlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-			OwnerPlayerCharacter->bUseControllerRotationYaw = false;
+			// OwnerPlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+			// OwnerPlayerCharacter->bUseControllerRotationYaw = false;
 		}
 	}
 }
@@ -155,6 +159,10 @@ void UARPGTargetManager::ChangeTarget_Implementation()
 void UARPGTargetManager::OnRep_bIsLockingOn(bool bOldIsLockingOn)
 {
 	OnLockOnStateChanged(bIsLockingOn);
+}
+
+void UARPGTargetManager::OnRep_bFaceToTarget(bool bOldFaceToTarget)
+{
 }
 
 void UARPGTargetManager::OnRep_LockOnTarget(AARPGCharacter* OldLockOnTarget)

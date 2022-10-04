@@ -3,6 +3,8 @@
 
 #include "ARPGAIController.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
+
 void AARPGAIController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -10,5 +12,10 @@ void AARPGAIController::BeginPlay()
 	if (ensureMsgf(BehaviorTree, TEXT("Behavior Tree is nullptr! Please assign BehaviorTree in your AI Controller.")))
 	{
 		RunBehaviorTree(BehaviorTree);
+	}
+
+	if (GetBlackboardComponent())
+	{
+		GetBlackboardComponent()->SetValueAsVector(FName("DefaultLocation"), GetPawn()->GetActorLocation());
 	}
 }

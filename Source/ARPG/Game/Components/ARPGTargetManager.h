@@ -22,6 +22,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_bIsLockingOn)
 	bool bIsLockingOn = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_bFaceToTarget)
+	bool bFaceToTarget = false;
 	
 	float GetActorLockOnPriority(AARPGCharacter* TargetCharacter);
 
@@ -62,6 +65,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_bIsLockingOn(bool bOldIsLockingOn);
+
+	UFUNCTION()
+	void OnRep_bFaceToTarget(bool bOldFaceToTarget);
 
 	UFUNCTION()
 	void OnRep_LockOnTarget(AARPGCharacter* OldLockOnTarget);
