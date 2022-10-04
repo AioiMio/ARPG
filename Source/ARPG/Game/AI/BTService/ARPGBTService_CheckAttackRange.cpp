@@ -25,7 +25,7 @@ void UARPGBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp
 				{
 					float Distance = FVector::Distance(TargetActor->GetActorLocation(), AIPawn->GetActorLocation());
 
-					bool bWithinRange = Distance < 200.f;
+					bool bWithinRange = Distance < 300.f;
 
 					BlackboardComponent->SetValueAsBool(AttackRangeKey.SelectedKeyName, bWithinRange);
 				}

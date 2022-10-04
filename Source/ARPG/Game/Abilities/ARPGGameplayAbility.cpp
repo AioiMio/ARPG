@@ -16,6 +16,7 @@ UARPGGameplayAbility::UARPGGameplayAbility()
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Break")));
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Lying")));
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Rolling")));
 }
 
 void UARPGGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

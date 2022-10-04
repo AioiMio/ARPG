@@ -122,15 +122,16 @@ void AARPGEnemyCharacter::OnPawnSeen(APawn* Pawn)
 {
 	if (AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(Pawn))
 	{
-		TargetManager->SetLockOnTarget(Character);
-
-		AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
-		if (AIC)
+		if (TargetManager->GetLockOnTarget() == nullptr)
 		{
-			UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
-			BlackboardComponent->SetValueAsObject("TargetActor", Pawn);
+			TargetManager->SetLockOnTarget(Character);
 
-			// DrawDebugString(GetWorld(), GetActorLocation(), "Player Spotted", nullptr, FColor::White, 4.f, true);
+			AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+			if (AIC)
+			{
+				UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+				BlackboardComponent->SetValueAsObject("TargetActor", Pawn);
+			}
 		}
 	}
 }
@@ -139,10 +140,17 @@ void AARPGEnemyCharacter::OnDamageReceived(UARPGAbilitySystemComponent* SourceAS
 	float UnmitigatedDamage,
 	float MitigatedDamage)
 {
-	AARPGCharacter* Character = Cast<AARPGCharacter>(SourceASC->GetAvatarActor());
+	AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(SourceASC->GetAvatarActor());
 	if (Character && Character != TargetManager->GetLockOnTarget())
 	{
 		TargetManager->SetLockOnTarget(Character);
+
+		AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+		if (AIC)
+		{
+			UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+			BlackboardComponent->SetValueAsObject("TargetActor", Character);
+		}
 	}
 }
 
