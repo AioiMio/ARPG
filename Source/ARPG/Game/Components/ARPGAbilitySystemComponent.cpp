@@ -3,6 +3,7 @@
 
 #include "ARPGAbilitySystemComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
 #include "GameplayCueManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
@@ -48,28 +49,35 @@ void UARPGAbilitySystemComponent::RemoveReplicatedGameplayTag(FGameplayTag Tag)
 	}
 }
 
-void UARPGAbilitySystemComponent::SendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload)
+void UARPGAbilitySystemComponent::SendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload)
 {
 	if (GetOwnerRole() != ENetRole::ROLE_Authority)
 	{
-		ServerSendGameplayEventToOwner(EventTag, Payload);
+		ServerSendGameplayEventToActor(Actor, EventTag, Payload);
 	}
 	else
 	{
-		ClientSendGameplayEventToOwner(EventTag, Payload);
+		AARPGCharacter* InCharacter = Cast<AARPGCharacter>(Actor);
+		if (!InCharacter->IsLocallyControlled())
+		{
+			InCharacter->GetARPGAbilitySystemComponent()->ClientSendGameplayEventToActor(Actor, EventTag, Payload);
+		}
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
+		UE_LOG(LogTemp, Warning, TEXT("[Server] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(GetAvatarActor()));
 	}
 }
 
-void UARPGAbilitySystemComponent::ServerSendGameplayEventToOwner_Implementation(FGameplayTag EventTag,
+void UARPGAbilitySystemComponent::ServerSendGameplayEventToActor_Implementation(AActor* Actor, FGameplayTag EventTag,
 	FGameplayEventData Payload)
 {
-	SendGameplayEventToOwner(EventTag, Payload);
+	SendGameplayEventToActor(Actor, EventTag, Payload);
 }
 
-void UARPGAbilitySystemComponent::ClientSendGameplayEventToOwner_Implementation(FGameplayTag EventTag,
+void UARPGAbilitySystemComponent::ClientSendGameplayEventToActor_Implementation(AActor* Actor, FGameplayTag EventTag,
 	FGameplayEventData Payload)
 {
-	HandleGameplayEvent(EventTag, &Payload);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
+	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(GetAvatarActor()));
 }
 
 void UARPGAbilitySystemComponent::ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag,

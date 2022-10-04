@@ -62,12 +62,12 @@ public:
 
 	void SendHitEventToActor(AActor* Target, FHitResult Hit, EAttackType AttackType, EHitReactType HitReactType, float Multiplier = 1.f);
 
-	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void ServerSendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload);
-
-	UFUNCTION(BlueprintCallable, Client, Reliable)
-	void ClientSendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload);
-
+	void SendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
+	UFUNCTION(Server, Reliable)
+	void ServerSendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
+	UFUNCTION(Client, Reliable)
+	void ClientSendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
+	
 	bool TryVisceralAttack();
 
 protected:

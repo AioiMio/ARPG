@@ -28,7 +28,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
-UComboGraphAbilityTask_StartGraph* UComboGraphAbilityTask_StartGraph::CreateStartComboGraph(UGameplayAbility* OwningAbility, UComboGraph* ComboGraph, UInputAction* InitialInput, const bool bBroadcastInternalEvents)
+UComboGraphAbilityTask_StartGraph* UComboGraphAbilityTask_StartGraph::CreateStartComboGraph(UGameplayAbility* OwningAbility, UComboGraph* ComboGraph, UInputAction* InitialInput, const bool bBroadcastInternalEvents,const bool bStopWhenAbilityEnds)
 {
 	CG_RUNTIME_LOG(
 		Log,
@@ -44,6 +44,7 @@ UComboGraphAbilityTask_StartGraph* UComboGraphAbilityTask_StartGraph::CreateStar
 		Task->RunningGraph = ComboGraph;
 		Task->InitialInput = InitialInput;
 		Task->bBroadcastInternalEvents = bBroadcastInternalEvents;
+		Task->bStopWhenAbilityEnds = bStopWhenAbilityEnds;
 	}
 
 	return Task;
@@ -677,7 +678,7 @@ void UComboGraphAbilityTask_StartGraph::CreatePlayMontageTask(UAnimMontage* Mont
 		EventTags,
 		CurrentNode->MontagePlayRate,
 		StartSection,
-		true,
+		bStopWhenAbilityEnds,
 		CurrentNode->RootMotionScale
 	);
 

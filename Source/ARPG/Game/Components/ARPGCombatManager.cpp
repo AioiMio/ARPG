@@ -8,6 +8,8 @@
 #include "ARPGAbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "ARPG/Game/Abilities/ARPGGameplayEffect_HitReact.h"
+#include "ARPG/Game/Abilities/GEEC/ARPGChargeAttackExecCalculation.h"
+#include "ARPG/Game/Abilities/GEEC/ARPGDamageExecutionCalculation.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -63,7 +65,11 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 	}
 }
 
-void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAttackType AttackType, EHitReactType HitReactType, float Multiplier)
+void UARPGCombatManager::SendHitEventToActor(AActor* Target,
+                                             FHitResult Hit,
+                                             EAttackType AttackType,
+                                             EHitReactType HitReactType,
+                                             float Multiplier)
 {
 	if (AARPGCharacter* Character = Cast<AARPGCharacter>(Target))
 	{
@@ -71,29 +77,26 @@ void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAt
 		UAbilitySystemComponent* SourceASC = OwnerCharacter->GetAbilitySystemComponent();
 		if (TargetASC && SourceASC)
 		{
-			if (AttackType == EAttackType::Charge && ChargeDamageEffectClass)
-			{
-				FGameplayEffectContextHandle DamageEffectContext = SourceASC->MakeEffectContext();
-				DamageEffectContext.AddInstigator(GetOwner(), GetOwner());
-				DamageEffectContext.AddHitResult(Hit);
-				FGameplayEffectSpecHandle DamageEffectSpecHandle = TargetASC->MakeOutgoingSpec(
-					ChargeDamageEffectClass, 1, DamageEffectContext);
-				DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"),
-																	 Multiplier);
-				SourceASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data, TargetASC);
-			}
-			else if (DamageEffectClass)
-			{
-				FGameplayEffectContextHandle DamageEffectContext = SourceASC->MakeEffectContext();
-				DamageEffectContext.AddInstigator(GetOwner(), GetOwner());
-				DamageEffectContext.AddHitResult(Hit);
-				FGameplayEffectSpecHandle DamageEffectSpecHandle = TargetASC->MakeOutgoingSpec(
-					DamageEffectClass, 1, DamageEffectContext);
-				DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"),
-				                                                     Multiplier);
-				SourceASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data, TargetASC);
-			}
+			FGameplayEffectContextHandle DamageEffectContext = SourceASC->MakeEffectContext();
+			DamageEffectContext.AddInstigator(GetOwner(), GetOwner());
+			DamageEffectContext.AddHitResult(Hit);
 
+			TSubclassOf<UGameplayEffect> DamageEffect;
+			if (AttackType == EAttackType::Charge)
+			{
+				DamageEffect = ChargeDamageEffectClass;
+			}
+			else
+			{
+				DamageEffect = DamageEffectClass;
+			}
+			FGameplayEffectSpecHandle DamageEffectSpecHandle = TargetASC->MakeOutgoingSpec(
+				DamageEffect, 1, DamageEffectContext);
+			DamageEffectSpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"),
+			                                                     Multiplier);
+			SourceASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data, TargetASC);
+
+			// HitReact
 			TSubclassOf<UGameplayEffect> HitReactEffect;
 			switch (HitReactType)
 			{
@@ -117,18 +120,35 @@ void UARPGCombatManager::SendHitEventToActor(AActor* Target, FHitResult Hit, EAt
 	}
 }
 
-void UARPGCombatManager::ServerSendGameplayEventToActor_Implementation(AActor* Actor,
-	FGameplayTag EventTag,
-	FGameplayEventData Payload)
+void UARPGCombatManager::SendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload)
 {
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
+	if (GetOwnerRole() != ENetRole::ROLE_Authority)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Actor: %s, Owner: %s"), *GetNameSafe(GetOwner()), *GetNameSafe(GetOwner()->GetOwner()));
+		ServerSendGameplayEventToOwner(EventTag, Payload);
+	}
+	else
+	{
+		if (!OwnerCharacter->IsLocallyControlled())
+		{
+			ClientSendGameplayEventToOwner(EventTag, Payload);
+		}
+		OwnerCharacter->GetAbilitySystemComponent()->HandleGameplayEvent(EventTag, &Payload);
+		UE_LOG(LogTemp, Warning, TEXT("[Server] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(OwnerCharacter.Get()));
+	}
 }
 
-void UARPGCombatManager::ClientSendGameplayEventToActor_Implementation(AActor* Actor,
-	FGameplayTag EventTag,
+void UARPGCombatManager::ServerSendGameplayEventToOwner_Implementation(FGameplayTag EventTag,
 	FGameplayEventData Payload)
 {
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
+	SendGameplayEventToOwner(EventTag, Payload);
+}
+
+void UARPGCombatManager::ClientSendGameplayEventToOwner_Implementation(FGameplayTag EventTag,
+	FGameplayEventData Payload)
+{
+	OwnerCharacter->GetAbilitySystemComponent()->HandleGameplayEvent(EventTag, &Payload);
+	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(OwnerCharacter.Get()));
 }
 
 bool UARPGCombatManager::TryVisceralAttack()
@@ -150,24 +170,20 @@ bool UARPGCombatManager::TryVisceralAttack()
 			if (OtherCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(
 				FGameplayTag::RequestGameplayTag(FName("State.Break"))))
 			{
-				if (OwnerCharacter->GetActorForwardVector().Dot(OtherCharacter->GetActorForwardVector()) < 0.f)
+				if (OwnerCharacter->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(
+					FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Common.VisceralAttack")))))
 				{
-					if (OwnerCharacter->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(
-						FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Common.VisceralAttack")))))
-					{
-						FGameplayEventData EventData;
-						EventData.Instigator = OwnerCharacter.Get();
-						EventData.Target = OtherCharacter;
-						FGameplayEffectContext EffectContext;
-						OtherCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToOwner(FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
-						OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToOwner(FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
-						// ServerSendGameplayEventToActor(OtherCharacter, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
-						// ServerSendGameplayEventToActor(OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
+					FGameplayEventData EventData;
+					EventData.Instigator = OwnerCharacter.Get();
+					EventData.Target = OtherCharacter;
+					FGameplayEffectContext EffectContext;
+
+					OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(OtherCharacter, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
+					OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
 					
-						return true;
-					}
-					return false;
+					return true;
 				}
+				return false;
 			}
 		}
 	}

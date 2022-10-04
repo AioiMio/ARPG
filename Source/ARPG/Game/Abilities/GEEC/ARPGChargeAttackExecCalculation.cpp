@@ -6,14 +6,14 @@
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 
 // Declare the attributes to capture and define how we want to capture them from the Source and Target.
-struct ARPGDamageStatics
+struct ARPGChargeDamageStatics
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageNegation);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Posture);
 
-	ARPGDamageStatics()
+	ARPGChargeDamageStatics()
 	{
 		// Snapshot happens at time of GESpec creation
 
@@ -29,9 +29,9 @@ struct ARPGDamageStatics
 	}
 };
 
-static const ARPGDamageStatics& DamageStatics()
+static const ARPGChargeDamageStatics& DamageStatics()
 {
-	static ARPGDamageStatics DStatics;
+	static ARPGChargeDamageStatics DStatics;
 	return DStatics;
 }
 

@@ -40,7 +40,8 @@ public:
 		UGameplayAbility* OwningAbility,
 		UComboGraph* ComboGraph,
 		UInputAction* InitialInput,
-		bool bBroadcastInternalEvents = false
+		bool bBroadcastInternalEvents = false,
+		bool bStopWhenAbilityEnds = false
 	);
 
 	/** Event invoked when the combat graph is started. */
@@ -117,6 +118,9 @@ protected:
 
 	/** Whether HandleEventReceived should broadcast internal events (task param) */
 	bool bBroadcastInternalEvents = false;
+
+	/** Whether Montage should stop when ability ends (task param) */
+	bool bStopWhenAbilityEnds = false;
 
 	int32 NodeIndex = 0;
 	uint32 OnPressedHandle = 0;

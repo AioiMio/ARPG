@@ -12,12 +12,12 @@ void UAnimNotify_SendEventToOwner::Notify(USkeletalMeshComponent* MeshComp,
                                           const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
-
-	if (AARPGCharacter* OwnerCharacter = Cast<AARPGCharacter>(MeshComp->GetOwner()))
+	
+	if (AARPGCharacter* OwnerCharacter = Cast<AARPGCharacter>(MeshComp->GetOuter()))
 	{
 		if (UAbilitySystemComponent* ASC = OwnerCharacter->GetAbilitySystemComponent())
 		{
-			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerCharacter, EventTag, EventPayload);
+			ASC->HandleGameplayEvent(EventTag, &EventPayload);
 
 			if (GameplayCueTag.IsValid())
 			{

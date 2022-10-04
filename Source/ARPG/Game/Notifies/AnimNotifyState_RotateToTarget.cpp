@@ -8,6 +8,7 @@
 #include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 UAnimNotifyState_RotateToTarget::UAnimNotifyState_RotateToTarget(const FObjectInitializer& ObjectInitializer): Super(
@@ -34,7 +35,7 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 		{
 			if (AARPGCharacter* Target = Character->GetTargetManager()->GetLockOnTarget())
 			{
-				FVector TargetLocation = Target->GetActorLocation();
+				FVector TargetLocation = Target->GetLockOnPointComponent()->GetComponentLocation();
 				Character->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
 				if (!Character->HasAuthority())
 				{

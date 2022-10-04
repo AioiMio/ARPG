@@ -27,11 +27,8 @@ void UARPGGameplayAbility_Gun::ActivateAbility(const FGameplayAbilitySpecHandle 
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-	}
-
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 	if (UARPGCharacterMovementComponent* MovementComponent = Cast<UARPGCharacterMovementComponent>(ActorInfo->MovementComponent))
 	{
 		if (AARPGCharacter* Character = Cast<AARPGCharacter>(GetAvatarActorFromActorInfo()))
@@ -57,8 +54,6 @@ void UARPGGameplayAbility_Gun::ActivateAbility(const FGameplayAbilitySpecHandle 
 	Task->EventReceived.AddDynamic(this, &UARPGGameplayAbility_Gun::EventReceived);
 	// ReadyForActivation() is how you activate the AbilityTask in C++. Blueprint has magic from K2Node_LatentGameplayTaskCall that will automatically call ReadyForActivation().
 	Task->ReadyForActivation();
-
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 void UARPGGameplayAbility_Gun::EndAbility(const FGameplayAbilitySpecHandle Handle,

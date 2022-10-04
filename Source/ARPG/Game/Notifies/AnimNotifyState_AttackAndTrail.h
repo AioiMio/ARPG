@@ -31,10 +31,8 @@ public:
 	                       const FAnimNotifyEventReference& EventReference) override;
 
 protected:
-	UPROPERTY()
 	USkeletalMeshComponent* RightHandWeaponMesh;
-
-	UPROPERTY()
+	
 	USkeletalMeshComponent* LeftHandWeaponMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
