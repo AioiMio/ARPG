@@ -74,6 +74,18 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetManaRegenRate(float ManaRegenRate);
 
+	UFUNCTION(BlueprintCallable)
+	void SetMaxPosture(float InMaxPosture);
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentPosture(float CurrentPosture);
+
+	UFUNCTION(BlueprintCallable)
+	void SetPosturePercentage(float PosturePercentage);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetPostureRegenRate(float PostureRegenRate);
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetExperience(int32 Experience);
 
@@ -90,6 +102,10 @@ protected:
 	USizeBox* ManaBox;
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* StaminaBox;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	USizeBox* PostureBox;
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* PostureBar;
 
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* Health;
@@ -110,6 +126,8 @@ protected:
 	float MaxMana;
 	UPROPERTY(VisibleAnywhere)
 	float MaxStamina;
+	UPROPERTY(VisibleAnywhere)
+	float MaxPosture;
 
 	bool bCanHealthChangedTimerSet;
 	bool bCanManaChangedTimerSet;
@@ -137,4 +155,10 @@ protected:
 	
 	UFUNCTION()
 	void ChangeStaminaBottomElapsed();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowPostureBar();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HidePostureBar();
 };

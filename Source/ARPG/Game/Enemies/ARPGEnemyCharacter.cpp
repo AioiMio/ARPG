@@ -3,12 +3,19 @@
 
 #include "ARPGEnemyCharacter.h"
 
+#include "Abilities/ComboGraphNativeAbility.h"
+#include "ARPG/Game/AI/ARPGAIController.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
+#include "ARPG/Game/Components/ARPGEquipmentManager.h"
+#include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/Components/InventoryComponent.h"
+#include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Perception/PawnSensingComponent.h"
 
 AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -21,6 +28,8 @@ AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitial
 
 	// Set our parent's TWeakObjectPtr
 	AbilitySystemComponent = HardRefAbilitySystemComponent;
+
+	SensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("SensingComponent"));
 
 	// Create inventory component, and set it to be explicitly replicated
 	HardRefInventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
@@ -38,6 +47,13 @@ AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitial
 	AttributeSet = HardRefAttributeSet;
 
 	CharacterName = FText::FromString("Enemy");
+}
+
+void AARPGEnemyCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	SensingComponent->OnSeePawn.AddDynamic(this, &AARPGEnemyCharacter::OnPawnSeen);
 }
 
 void AARPGEnemyCharacter::BeginPlay()
@@ -67,6 +83,66 @@ void AARPGEnemyCharacter::BeginPlay()
 		AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")),
 		                                                 EGameplayTagEventType::NewOrRemoved).AddUObject(
 			this, &AARPGEnemyCharacter::StunTagChanged);
+
+		if (UARPGAbilitySystemComponent* ASC = GetARPGAbilitySystemComponent())
+		{
+			ASC->ReceivedDamage.AddDynamic(this, &AARPGEnemyCharacter::OnDamageReceived);
+		}
+	}
+}
+
+void AARPGEnemyCharacter::AddCharacterAbilities()
+{
+	// Grant abilities, but only on the server	
+	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->
+		CharacterAbilitiesGiven)
+	{
+		return;
+	}
+
+	for (TSubclassOf<UARPGGameplayAbility>& StartupAbility : CharacterAbilities)
+	{
+		AbilitySystemComponent->GiveAbility(
+			FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID),
+								 static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
+	}
+	// Grant ComboGraphNativeAbility for behavior tree
+	AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(UComboGraphNativeAbility::StaticClass()));
+
+	AbilitySystemComponent->CharacterAbilitiesGiven = true;
+
+	if (EquipmentManager)
+	{
+		EquipmentManager->AddEquipmentAbilitiesToOwner(EquipmentManager->GetCurrentRightHandWeapon());
+		EquipmentManager->AddEquipmentAbilitiesToOwner(EquipmentManager->GetCurrentLeftHandWeapon());
+	}
+}
+
+void AARPGEnemyCharacter::OnPawnSeen(APawn* Pawn)
+{
+	if (AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(Pawn))
+	{
+		TargetManager->SetLockOnTarget(Character);
+
+		AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+		if (AIC)
+		{
+			UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+			BlackboardComponent->SetValueAsObject("TargetActor", Pawn);
+
+			// DrawDebugString(GetWorld(), GetActorLocation(), "Player Spotted", nullptr, FColor::White, 4.f, true);
+		}
+	}
+}
+
+void AARPGEnemyCharacter::OnDamageReceived(UARPGAbilitySystemComponent* SourceASC,
+	float UnmitigatedDamage,
+	float MitigatedDamage)
+{
+	AARPGCharacter* Character = Cast<AARPGCharacter>(SourceASC->GetAvatarActor());
+	if (Character && Character != TargetManager->GetLockOnTarget())
+	{
+		TargetManager->SetLockOnTarget(Character);
 	}
 }
 

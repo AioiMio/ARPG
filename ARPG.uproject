@@ -14,7 +14,8 @@
 				"UMG",
 				"AGRPRO",
 				"MotionWarping",
-				"CoreUObject"
+				"CoreUObject",
+				"AIModule"
 			]
 		}
 	],

@@ -69,6 +69,8 @@ void AARPGPlayerController::CreateHUD()
 	UIHUDWidget->SetCurrentMana(PS->GetMana());
 	UIHUDWidget->SetMaxStamina(PS->GetMaxStamina());
 	UIHUDWidget->SetCurrentStamina(PS->GetStamina());
+	UIHUDWidget->SetMaxPosture(PS->GetMaxPosture());
+	UIHUDWidget->SetCurrentPosture(PS->GetPosture());
 	
 	UIHUDWidget->AddToViewport();
 }

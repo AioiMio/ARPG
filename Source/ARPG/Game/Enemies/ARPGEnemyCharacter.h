@@ -7,6 +7,8 @@
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "ARPGEnemyCharacter.generated.h"
 
+class UPawnSensingComponent;
+
 /**
  * 
  */
@@ -20,6 +22,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void AddCharacterAbilities() override;
+	virtual void PostInitializeComponents() override;
 	
 	// Actual hard pointer to AbilitySystemComponent
 	UPROPERTY()
@@ -32,6 +36,12 @@ protected:
 	// Actual hard pointer to AttributeSet
 	UPROPERTY()
 	UARPGAttributeSet* HardRefAttributeSet;
+
+	UPROPERTY(VisibleAnywhere)
+	UPawnSensingComponent* SensingComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	TSubclassOf<UGameplayAbility> ComboGraphNativeAbility;
 
 	FDelegateHandle HealthChangedDelegateHandle;
 	FDelegateHandle ManaChangedDelegateHandle;
@@ -52,4 +62,10 @@ protected:
 	
 	void StaminaRegenElapsed();
 	void PostureRegenElapsed();
+
+	UFUNCTION()
+	void OnPawnSeen(APawn* Pawn);
+
+	UFUNCTION()
+	void OnDamageReceived(UARPGAbilitySystemComponent* SourceASC, float UnmitigatedDamage, float MitigatedDamage);
 };

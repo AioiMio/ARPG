@@ -374,6 +374,17 @@ void AARPGPlayerState::PostureChanged(const FOnAttributeChangeData& Data)
 		}
 	}
 
+	// Update the HUD
+	AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetOwner());
+	if (PC)
+	{
+		UARPGHUDWidget* HUD = PC->GetHUD();
+		if (HUD)
+		{
+			HUD->SetCurrentPosture(Posture);
+		}
+	}
+
 	if (IsAlive() && Posture <= 0.f)
 	{
 		if (PlayerCharacter)
@@ -381,7 +392,6 @@ void AARPGPlayerState::PostureChanged(const FOnAttributeChangeData& Data)
 			PlayerCharacter->Break();
 			PlayerCharacter->ResetPosture();
 		}
-		
 	}
 }
 

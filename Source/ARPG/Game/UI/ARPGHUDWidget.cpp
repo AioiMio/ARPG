@@ -183,6 +183,32 @@ void UARPGHUDWidget::SetManaPercentage(float ManaPercentage)
 	}
 }
 
+void UARPGHUDWidget::SetMaxPosture(float InMaxPosture)
+{
+	// PostureBox->SetWidthOverride(InMaxPosture * 10.f);
+	MaxPosture = InMaxPosture;
+}
+
+void UARPGHUDWidget::SetCurrentPosture(float CurrentPosture)
+{
+	if (CurrentPosture >= MaxPosture && PostureBar->WidthOverride > 0.f)
+	{
+		// PostureBox->SetVisibility(ESlateVisibility::Hidden);
+		HidePostureBar();
+	}
+	else if (CurrentPosture < MaxPosture && PostureBar->WidthOverride == 0.f)
+	{
+		// PostureBox->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		ShowPostureBar();
+	}
+	SetPosturePercentage(CurrentPosture / MaxPosture);
+}
+
+void UARPGHUDWidget::SetPosturePercentage(float PosturePercentage)
+{
+	PostureBar->SetWidthOverride(PostureBox->WidthOverride * (1 - PosturePercentage));
+}
+
 void UARPGHUDWidget::ChangeHealthBottomElapsed()
 {
 	bCanChangeHealthBottom = true;
