@@ -68,7 +68,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientSendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
 	
-	bool TryVisceralAttack();
+	bool TryVisceralAttack(bool bUseLockOnTarget = false);
+	bool TryExecuteVisceralAttackToTarget(AARPGCharacter* Target);
 
 protected:
 	virtual void BeginPlay() override;

@@ -47,6 +47,7 @@ AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitial
 	AttributeSet = HardRefAttributeSet;
 
 	CharacterName = FText::FromString("Enemy");
+	HealthBarComponent->SetHiddenInGame(true);
 }
 
 void AARPGEnemyCharacter::PostInitializeComponents()
@@ -161,6 +162,15 @@ void AARPGEnemyCharacter::HealthChanged(const FOnAttributeChangeData& Data)
 	float Health = Data.NewValue;
 	float Damage = Health - Data.OldValue;
 
+	if (Health == GetMaxHealth())
+	{
+		HealthBarComponent->SetHiddenInGame(true);
+	}
+	else if (HealthBarComponent->bHiddenInGame == true)
+	{
+		HealthBarComponent->SetHiddenInGame(false);
+	}
+	
 	// Update health bar
 	if (HealthBar)
 	{

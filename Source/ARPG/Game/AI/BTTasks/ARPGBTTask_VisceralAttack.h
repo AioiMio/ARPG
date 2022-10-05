@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "ARPGBTTask_Shot.generated.h"
+#include "ARPGBTTask_VisceralAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ARPG_API UARPGBTTask_Shot : public UBTTaskNode
+class ARPG_API UARPGBTTask_VisceralAttack : public UBTTaskNode
 {
 	GENERATED_BODY()
 

@@ -1,13 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ARPGBTTask_Shot.h"
+#include "ARPGBTTask_VisceralAttack.h"
 
-#include "AbilitySystemComponent.h"
 #include "AIController.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 
-EBTNodeResult::Type UARPGBTTask_Shot::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UARPGBTTask_VisceralAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAIController* MyController = OwnerComp.GetAIOwner();
 	if (ensure(MyController))
@@ -18,9 +17,9 @@ EBTNodeResult::Type UARPGBTTask_Shot::ExecuteTask(UBehaviorTreeComponent& OwnerC
 			return EBTNodeResult::Failed;
 		}
 
-		if (UAbilitySystemComponent* ASC = MyCharacter->GetAbilitySystemComponent())
+		if (UARPGCombatManager* CombatManager = MyCharacter->GetCombatManager())
 		{
-			return ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Gun")))) ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
+			return CombatManager->TryVisceralAttack(true) ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 		}
 	}
 	return EBTNodeResult::Failed;

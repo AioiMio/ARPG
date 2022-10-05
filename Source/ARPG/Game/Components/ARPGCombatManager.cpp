@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "ARPGAbilitySystemComponent.h"
+#include "ARPGTargetManager.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "ARPG/Game/Abilities/ARPGGameplayEffect_HitReact.h"
 #include "ARPG/Game/Abilities/GEEC/ARPGChargeAttackExecCalculation.h"
@@ -156,8 +157,13 @@ void UARPGCombatManager::ClientSendGameplayEventToOwner_Implementation(FGameplay
 	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(OwnerCharacter.Get()));
 }
 
-bool UARPGCombatManager::TryVisceralAttack()
+bool UARPGCombatManager::TryVisceralAttack(bool bUseLockOnTarget)
 {
+	if (bUseLockOnTarget)
+	{
+		return TryExecuteVisceralAttackToTarget(OwnerCharacter->GetTargetManager()->GetLockOnTarget());
+	}
+	
 	float Range = 50.f;
 	float Radius = 35.f;
 	FVector Start = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * Radius;
@@ -172,24 +178,29 @@ bool UARPGCombatManager::TryVisceralAttack()
 	{
 		if (AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(HitResult.GetActor()))
 		{
-			if (OtherCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(
-				FGameplayTag::RequestGameplayTag(FName("State.Break"))))
-			{
-				if (OwnerCharacter->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(
-					FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Common.VisceralAttack")))))
-				{
-					FGameplayEventData EventData;
-					EventData.Instigator = OwnerCharacter.Get();
-					EventData.Target = OtherCharacter;
-					FGameplayEffectContext EffectContext;
+			return TryExecuteVisceralAttackToTarget(OtherCharacter);
+		}
+	}
+	return false;
+}
 
-					OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(OtherCharacter, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
-					OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
+bool UARPGCombatManager::TryExecuteVisceralAttackToTarget(AARPGCharacter* Target)
+{
+	if (Target->GetAbilitySystemComponent()->HasMatchingGameplayTag(
+				FGameplayTag::RequestGameplayTag(FName("State.Break"))))
+	{
+		if (OwnerCharacter->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(
+			FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Common.VisceralAttack")))))
+		{
+			FGameplayEventData EventData;
+			EventData.Instigator = OwnerCharacter.Get();
+			EventData.Target = Target;
+			FGameplayEffectContext EffectContext;
+
+			OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(Target, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
+			OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
 					
-					return true;
-				}
-				return false;
-			}
+			return true;
 		}
 	}
 	return false;

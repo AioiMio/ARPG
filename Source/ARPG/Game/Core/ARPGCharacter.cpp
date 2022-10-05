@@ -444,7 +444,12 @@ void AARPGCharacter::Die()
 
 	HealthBarComponent->SetHiddenInGame(true);
 	LockOnPointComponent->SetHiddenInGame(true);
+	if (AARPGCharacter* Target = TargetManager->GetLockOnTarget())
+	{
+		Target->SetLockOnPointHiddenInGame(true);
+	}
 	TargetManager->SetLockOnTarget(nullptr);
+	TargetManager->bIsLockingOn = false;
 
 	if (DeathMontage)
 	{
