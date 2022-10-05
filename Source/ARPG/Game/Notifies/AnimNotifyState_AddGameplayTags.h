@@ -27,4 +27,6 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, Category = "GameplayTags")
 	FGameplayTagContainer GameplayTags;
+
+	bool bTagAdded = false;
 };

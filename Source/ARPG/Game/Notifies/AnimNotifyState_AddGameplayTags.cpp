@@ -16,7 +16,11 @@ void UAnimNotifyState_AddGameplayTags::NotifyBegin(USkeletalMeshComponent* MeshC
 	AARPGCharacter* Character = Cast<AARPGCharacter>(MeshComp->GetOuter());
 	if (Character)
 	{
-		Character->GetAbilitySystemComponent()->AddLooseGameplayTags(GameplayTags);
+		if (UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent())
+		{
+			ASC->AddLooseGameplayTags(GameplayTags);
+			bTagAdded = true;
+		}
 	}
 }
 
@@ -27,7 +31,11 @@ void UAnimNotifyState_AddGameplayTags::NotifyEnd(USkeletalMeshComponent* MeshCom
 	AARPGCharacter* Character = Cast<AARPGCharacter>(MeshComp->GetOuter());
 	if (Character)
 	{
-		Character->GetAbilitySystemComponent()->RemoveLooseGameplayTags(GameplayTags);
+		UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
+		if (ASC && bTagAdded)
+		{
+			ASC->RemoveLooseGameplayTags(GameplayTags);
+		}
 	}
 	
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
