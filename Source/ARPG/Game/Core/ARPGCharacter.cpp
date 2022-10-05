@@ -94,6 +94,8 @@ void AARPGCharacter::PostInitializeComponents()
 void AARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
 }
 
 void AARPGCharacter::ServerSetEmissive_Implementation(bool bInEmissive)

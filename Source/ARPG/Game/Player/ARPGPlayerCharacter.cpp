@@ -8,12 +8,14 @@
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Components/ARPGCharacterMovementComponent.h"
 #include "ARPG/Game/Components/ARPGEquipmentManager.h"
+#include "ARPG/Game/Components/ARPGInteractComponent.h"
 #include "ARPG/Game/Components/InventoryComponent.h"
 #include "ARPG/Game/Core/ARPGGameModeBase.h"
 #include "ARPG/Game/Core/ARPGPlayerController.h"
 #include "ARPG/Game/Core/ARPGPlayerState.h"
 #include "ARPG/Game/UI/ARPGHUDWidget.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -39,6 +41,12 @@ AARPGPlayerCharacter::AARPGPlayerCharacter(const FObjectInitializer& ObjectIniti
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetRelativeRotation(FRotator(-20.0f, 0.0f, 0.0f));
 
+	InteractSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractSphere"));
+	InteractSphere->SetupAttachment(RootComponent);
+	InteractSphere->SetSphereRadius(100.f);
+
+	InteractComponent = CreateDefaultSubobject<UARPGInteractComponent>(TEXT("InteractComponent"));
+
 	CharacterName = FText::FromString("Player");
 }
 
@@ -57,6 +65,8 @@ void AARPGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		                                   &AARPGPlayerCharacter::MovementInput);
 		EnhancedInputComponent->BindAction(PC->MovementInput, ETriggerEvent::Completed, this,
 		                                   &AARPGPlayerCharacter::MovementInputEnd);
+		EnhancedInputComponent->BindAction(PC->InteractInput, ETriggerEvent::Started, this,
+										   &AARPGPlayerCharacter::Interact);
 		// EnhancedInputComponent->BindAction(PC->CameraInput, ETriggerEvent::Triggered, this,
 		// 								   &AARPGPlayerCharacter::CameraInput);
 		// EnhancedInputComponent->BindAction(PC->CameraInput, ETriggerEvent::Completed, this,
@@ -253,6 +263,14 @@ void AARPGPlayerCharacter::MovementInputEnd()
 {
 	AbilitySystemComponent->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("Input.Movement.Active"));
 	MovementInputVector = FVector2D::Zero();
+}
+
+void AARPGPlayerCharacter::Interact()
+{
+	if (InteractComponent)
+	{
+		InteractComponent->Interact();
+	}
 }
 
 void AARPGPlayerCharacter::BindASCInput()

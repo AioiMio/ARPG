@@ -81,6 +81,7 @@ void UARPGTargetManager::LockOn_Implementation()
 void UARPGTargetManager::SetLockOnTarget(AARPGCharacter* InCharacter)
 {
 	LockOnTarget = InCharacter;
+	// LockOnTarget->OnCharacterDied.AddDynamic(this, &UARPGTargetManager::OnTargetDied);
 }
 
 bool UARPGTargetManager::LockOnPressed()
@@ -201,9 +202,12 @@ void UARPGTargetManager::OnLockOnStateChanged(bool bNewState)
 			LockOnTarget->SetLockOnPointHiddenInGame(false);
 		}
 	}
+}
 
-	// OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = !bNewState;
-	// OwnerCharacter->bUseControllerRotationYaw = bNewState;
+void UARPGTargetManager::OnTargetDied(AARPGCharacter* Target)
+{
+	// Target->OnCharacterDied.RemoveDynamic(this, &UARPGTargetManager::OnTargetDied);
+	SetLockOnTarget(nullptr);
 }
 
 void UARPGTargetManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

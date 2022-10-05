@@ -209,6 +209,19 @@ void UARPGHUDWidget::SetPosturePercentage(float PosturePercentage)
 	PostureBar->SetWidthOverride(PostureBox->WidthOverride * (1 - PosturePercentage));
 }
 
+void UARPGHUDWidget::SetInteractText(FText InText)
+{
+	InteractText = InText;
+	if (InText.IsEmpty())
+	{
+		InteractBox->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		InteractBox->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+}
+
 void UARPGHUDWidget::ChangeHealthBottomElapsed()
 {
 	bCanChangeHealthBottom = true;

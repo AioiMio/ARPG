@@ -30,6 +30,9 @@ public:
 	UInputAction* CameraInput;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* InteractInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	UInputAction* JumpInput;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")

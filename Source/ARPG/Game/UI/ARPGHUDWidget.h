@@ -95,6 +95,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetGold(int32 Gold);
 
+	UFUNCTION(BlueprintCallable)
+	void SetInteractText(FText InText);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* HealthBox;
@@ -106,6 +109,8 @@ protected:
 	USizeBox* PostureBox;
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* PostureBar;
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* InteractBox;
 
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* Health;
@@ -146,6 +151,10 @@ protected:
 	FTimerHandle TimerHandle_HealthBottomDelay;
 	FTimerHandle TimerHandle_ManaBottomDelay;
 	FTimerHandle TimerHandle_StaminaBottomDelay;
+
+	// Interact
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interact")
+	FText InteractText;
 
 	UFUNCTION()
 	void ChangeHealthBottomElapsed();

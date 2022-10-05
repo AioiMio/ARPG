@@ -73,4 +73,7 @@ protected:
 	void OnRep_LockOnTarget(AARPGCharacter* OldLockOnTarget);
 
 	void OnLockOnStateChanged(bool bNewState);
+
+	UFUNCTION()
+	void OnTargetDied(AARPGCharacter* Target);
 };

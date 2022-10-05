@@ -9,6 +9,8 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class UARPGInteractComponent;
+class USphereComponent;
 
 /**
  * 
@@ -27,6 +29,9 @@ public:
 	virtual void Dying() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UARPGInteractComponent* GetInteractComponent() const { return InteractComponent; }
+
 	UPROPERTY(Replicated)
 	FVector2D MovementInputVector;
 
@@ -41,9 +46,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact")
+	UARPGInteractComponent* InteractComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact")
+	USphereComponent* InteractSphere;
+
 	void MovementInputBegin();
 	void MovementInput(const FInputActionValue& InputActionValue);
 	void MovementInputEnd();
+	void Interact();
 
 	// Called from both SetupPlayerInputComponent and OnRep_PlayerState because of a potential race condition where the PlayerController might
 	// call ClientRestart which calls SetupPlayerInputComponent before the PlayerState is repped to the client so the PlayerState would be null in SetupPlayerInputComponent.
