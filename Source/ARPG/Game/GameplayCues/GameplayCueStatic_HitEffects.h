@@ -35,6 +35,9 @@ protected:
 	USoundCue* BloodSplashSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "SoundEffects")
+	USoundCue* YellSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SoundEffects")
 	USoundAttenuation* Attenuation;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CameraShake")

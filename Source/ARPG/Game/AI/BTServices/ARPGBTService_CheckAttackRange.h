@@ -19,4 +19,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	FBlackboardKeySelector AttackRangeKey;
+
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float Range = 400.f;
 };

@@ -256,9 +256,12 @@ protected:
 	UFUNCTION()
 	void RemoveFallingTagElapsed();
 
-	// Death Animation
+	// Death Effect
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* DeathMontage;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sound")
+	USoundBase* DeathSound;
 
 	// Break Effect
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abilities")

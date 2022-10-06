@@ -20,6 +20,9 @@ class ARPG_API AARPGEnemyCharacter : public AARPGCharacter
 public:
 	AARPGEnemyCharacter(const class FObjectInitializer& ObjectInitializer);
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bHit;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void AddCharacterAbilities() override;
@@ -59,9 +62,18 @@ protected:
 
 	FTimerHandle TimerHandle_StaminaRegenDelay;
 	FTimerHandle TimerHandle_PostureRegenDelay;
+	FTimerHandle TimerHandle_RemoveTargetDelay;
+	FTimerHandle TimerHandle_RemoveHitStateDelay;
 	
 	void StaminaRegenElapsed();
 	void PostureRegenElapsed();
+	void RemoveTargetElapsed();
+	void RemoveHitStateElapsed();
+
+	UFUNCTION()
+	void UpdateEnmity();
+	
+	void SetTarget(APawn* Pawn);
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);

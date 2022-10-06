@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "ARPG/Game/Interface/ARPGInteractInterface.h"
 #include "GameFramework/Actor.h"
 #include "ARPGMechanism.generated.h"
@@ -19,6 +20,8 @@ class ARPG_API AARPGMechanism : public AActor, public IARPGInteractInterface
 public:	
 	AARPGMechanism();
 
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
+
 	FText GetInteractText_Implementation(APawn* InstigatorPawn);
 	FText GetFailedMessage_Implementation(APawn* InstigatorPawn);
 	bool Interact_Implementation(APawn *InstigatorPawn);
@@ -34,14 +37,20 @@ protected:
 	UArrowComponent* ArrowComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* StaticMeshComponent;
+	UStaticMeshComponent* BaseMesh;
 
-	UPROPERTY(EditAnywhere, Category = "Interact")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* AdditiveMesh;
+
+	UPROPERTY(Replicated, EditAnywhere, Category = "Interact")
 	FText InteractText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Interact")
 	FText FailedMessage;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interact")
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bTriggered;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
+	FGameplayTag RequiredTag;
 };

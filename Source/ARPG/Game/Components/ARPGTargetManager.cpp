@@ -3,8 +3,10 @@
 
 #include "ARPGTargetManager.h"
 
+#include "ARPGCharacterMovementComponent.h"
 #include "EngineUtils.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "ARPG/Game/Enemies/ARPGEnemyCharacter.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -31,23 +33,24 @@ void UARPGTargetManager::TickComponent(float DeltaTime,
 
 	if (OwnerCharacter.IsValid() && bIsLockingOn)
 	{
-		
-		
 		if (LockOnTarget && LockOnTarget->IsAlive())
 		{
-			FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(OwnerCharacter->GetActorLocation(), LockOnTarget->GetActorLocation());
-			Rotation.Roll = 0.0f;
-			
+			FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(OwnerCharacter->GetActorLocation(),
+			                                                           LockOnTarget->GetActorLocation());
+			Rotation.Roll = 0.f;
+
 			if (OwnerCharacter->GetController())
 			{
 				OwnerCharacter->GetController()->SetControlRotation(
 					UKismetMathLibrary::RInterpTo(OwnerCharacter->GetController()->GetControlRotation(), Rotation,
-					                              DeltaTime, 3.0f));
+					                              DeltaTime, 3.f));
 			}
 
+			Rotation.Pitch = 0.f;
 			if (bFaceToTarget)
 			{
-				OwnerCharacter->SetActorRotation(UKismetMathLibrary::RInterpTo(OwnerCharacter->GetActorRotation(), Rotation,DeltaTime, 20.0f));
+				OwnerCharacter->SetActorRotation(
+					UKismetMathLibrary::RInterpTo(OwnerCharacter->GetActorRotation(), Rotation, DeltaTime, 20.f));
 			}
 		}
 		else
@@ -56,6 +59,23 @@ void UARPGTargetManager::TickComponent(float DeltaTime,
 			bIsLockingOn = false;
 			// OwnerPlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 			// OwnerPlayerCharacter->bUseControllerRotationYaw = false;
+		}
+	}
+
+	if (OwnerCharacter.IsValid())
+	{
+		if (AARPGEnemyCharacter* Enemy = Cast<AARPGEnemyCharacter>(OwnerCharacter))
+		{
+			UARPGCharacterMovementComponent* CharacterMovementComponent = Cast<UARPGCharacterMovementComponent>(
+				Enemy->GetCharacterMovement());
+			if (LockOnTarget)
+			{
+				CharacterMovementComponent->StopWalking();
+			}
+			else
+			{
+				CharacterMovementComponent->StartWalking();
+			}
 		}
 	}
 }
@@ -99,7 +119,8 @@ bool UARPGTargetManager::LockOnPressed()
 	for (FActorIterator It(GetWorld()); It; ++It)
 	{
 		AARPGCharacter* Character = Cast<AARPGCharacter>(*It);
-		if (Character == nullptr || Character == OwnerCharacter || !Character->IsAlive())
+		if (Character == nullptr || Character == OwnerCharacter || !Character->IsAlive() || Character->
+			GetCombatManager()->GetCharacterCamp() == OwnerCharacter->GetCombatManager()->GetCharacterCamp())
 		{
 			continue;
 		}

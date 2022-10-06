@@ -5,6 +5,7 @@
 
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AARPGMechanism::AARPGMechanism()
 {
@@ -12,14 +13,20 @@ AARPGMechanism::AARPGMechanism()
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	SetRootComponent(BoxComponent);
+	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Ignore);
 
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
 	ArrowComponent->SetupAttachment(RootComponent);
 
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
-	StaticMeshComponent->SetIsReplicated(true);
-	StaticMeshComponent->SetGenerateOverlapEvents(false);
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	BaseMesh->SetupAttachment(RootComponent);
+	BaseMesh->SetIsReplicated(true);
+	BaseMesh->SetGenerateOverlapEvents(false);
+
+	AdditiveMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AdditiveMesh"));
+	AdditiveMesh->SetupAttachment(BaseMesh);
+	AdditiveMesh->SetIsReplicated(true);
+	AdditiveMesh->SetGenerateOverlapEvents(false);
 
 	bReplicates = true;
 }
@@ -49,3 +56,11 @@ void AARPGMechanism::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AARPGMechanism::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AARPGMechanism, InteractText);
+	DOREPLIFETIME(AARPGMechanism, FailedMessage);
+	DOREPLIFETIME(AARPGMechanism, bTriggered);
+}

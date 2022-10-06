@@ -52,7 +52,8 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 		if (!IgnoredActors.Contains(Hit.GetActor()))
 		{
 			IgnoredActors.Add(Hit.GetActor());
-			if (AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor()))
+			AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor());
+			if (HitCharacter && HitCharacter->GetCombatManager()->GetCharacterCamp() != CharacterCamp)
 			{
 				if (HitCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Immunity"))))
 				{

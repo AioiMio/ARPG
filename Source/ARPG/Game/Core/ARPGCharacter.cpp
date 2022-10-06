@@ -453,6 +453,10 @@ void AARPGCharacter::Die()
 	TargetManager->SetLockOnTarget(nullptr);
 	TargetManager->bIsLockingOn = false;
 
+	if (DeathSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+	}
 	if (DeathMontage)
 	{
 		PlayAnimMontage(DeathMontage);

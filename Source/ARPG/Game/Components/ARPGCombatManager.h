@@ -30,6 +30,15 @@ enum class EHitReactType : uint8
 	MAX UMETA(DisplayName = "DefaultMAX")
 };
 
+UENUM(BlueprintType)
+enum class ECharacterCamp : uint8
+{
+	Player UMETA(DisplayName = "Player"),
+	Enemy UMETA(DisplayName = "Enemy"),
+
+	MAX UMETA(DisplayName = "DefaultMAX")
+};
+
 class AARPGCharacter;
 class UForceFeedbackEffect;
 
@@ -71,10 +80,16 @@ public:
 	bool TryVisceralAttack(bool bUseLockOnTarget = false);
 	bool TryExecuteVisceralAttackToTarget(AARPGCharacter* Target);
 
+	UFUNCTION(BlueprintCallable, Category = "Camp")
+	FORCEINLINE ECharacterCamp GetCharacterCamp() const { return CharacterCamp; }
+
 protected:
 	virtual void BeginPlay() override;
 
 	TWeakObjectPtr<AARPGCharacter> OwnerCharacter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camp")
+	ECharacterCamp CharacterCamp;
 
 	UPROPERTY()
 	TArray<AActor*> HitActors;

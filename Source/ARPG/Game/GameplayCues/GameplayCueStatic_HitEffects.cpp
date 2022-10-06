@@ -47,6 +47,11 @@ bool UGameplayCueStatic_HitEffects::OnExecute_Implementation(AActor* MyTarget,
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BloodSplashSound, HitResult.Location,
 		                                      HitResult.Normal.Rotation(), 1.f, 1.f, 0.f, Attenuation);
 	}
+	
+	if (YellSound && FMath::RandRange(0.f, 1.f) < 0.5f)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), YellSound, HitResult.GetActor()->GetActorLocation(), 1.f, 1.f, 0.f, Attenuation);
+	}
 
 	AARPGPlayerCharacter* VictimCharacter = Cast<AARPGPlayerCharacter>(HitResult.GetActor());
 	if (VictimCharacter)

@@ -74,11 +74,11 @@ void AARPGEnemyCharacter::BeginPlay()
 		                              GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).
 		                              AddUObject(this, &AARPGEnemyCharacter::HealthChanged);
 		StaminaChangedDelegateHandle = AbilitySystemComponent->
-									  GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute()).
-									  AddUObject(this, &AARPGEnemyCharacter::StaminaChanged);
+		                               GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute()).
+		                               AddUObject(this, &AARPGEnemyCharacter::StaminaChanged);
 		PostureChangedDelegateHandle = AbilitySystemComponent->
-									  GetGameplayAttributeValueChangeDelegate(AttributeSet->GetPostureAttribute()).
-									  AddUObject(this, &AARPGEnemyCharacter::PostureChanged);
+		                               GetGameplayAttributeValueChangeDelegate(AttributeSet->GetPostureAttribute()).
+		                               AddUObject(this, &AARPGEnemyCharacter::PostureChanged);
 
 		// Tag change callbacks
 		AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")),
@@ -105,7 +105,7 @@ void AARPGEnemyCharacter::AddCharacterAbilities()
 	{
 		AbilitySystemComponent->GiveAbility(
 			FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID),
-								 static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
+			                     static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
 	}
 	// Grant ComboGraphNativeAbility for behavior tree
 	AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(UComboGraphNativeAbility::StaticClass()));
@@ -119,42 +119,85 @@ void AARPGEnemyCharacter::AddCharacterAbilities()
 	}
 }
 
+void AARPGEnemyCharacter::UpdateEnmity()
+{
+	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::RemoveTargetElapsed);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_RemoveTargetDelay, Delegate, 10.f, false);
+}
+
+void AARPGEnemyCharacter::RemoveTargetElapsed()
+{
+	TargetManager->SetLockOnTarget(nullptr);
+	TargetManager->bIsLockingOn = false;
+
+	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+	if (AIC)
+	{
+		UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+		BlackboardComponent->SetValueAsObject("TargetActor", nullptr);
+	}
+}
+
+void AARPGEnemyCharacter::SetTarget(APawn* Pawn)
+{
+	TargetManager->SetLockOnTarget(Cast<AARPGCharacter>(Pawn));
+	TargetManager->bIsLockingOn = true;
+
+	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+	if (AIC)
+	{
+		UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+		BlackboardComponent->SetValueAsObject("TargetActor", Pawn);
+	}
+	UpdateEnmity();
+}
+
 void AARPGEnemyCharacter::OnPawnSeen(APawn* Pawn)
 {
 	if (AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(Pawn))
 	{
 		if (TargetManager->GetLockOnTarget() == nullptr)
 		{
-			TargetManager->SetLockOnTarget(Character);
-			TargetManager->bIsLockingOn = true;
-
-			AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
-			if (AIC)
-			{
-				UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
-				BlackboardComponent->SetValueAsObject("TargetActor", Pawn);
-			}
+			SetTarget(Character);
+		}
+		else if (Character == TargetManager->GetLockOnTarget())
+		{
+			UpdateEnmity();
 		}
 	}
 }
 
 void AARPGEnemyCharacter::OnDamageReceived(UARPGAbilitySystemComponent* SourceASC,
-	float UnmitigatedDamage,
-	float MitigatedDamage)
+                                           float UnmitigatedDamage,
+                                           float MitigatedDamage)
 {
 	AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(SourceASC->GetAvatarActor());
 	if (Character && Character != TargetManager->GetLockOnTarget())
 	{
-		TargetManager->SetLockOnTarget(Character);
-		TargetManager->bIsLockingOn = true;
-
-		AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
-		if (AIC)
-		{
-			UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
-			BlackboardComponent->SetValueAsObject("TargetActor", Character);
-		}
+		SetTarget(Character);
 	}
+	
+	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+	if (AIC)
+	{
+		UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+		BlackboardComponent->SetValueAsBool("Hit", true);
+	}
+
+	bHit = true;
+	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::RemoveHitStateElapsed);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_RemoveHitStateDelay, Delegate, 0.2f, false);
+}
+
+void AARPGEnemyCharacter::RemoveHitStateElapsed()
+{
+	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+	if (AIC)
+	{
+		UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+		BlackboardComponent->SetValueAsBool("Hit", false);
+	}
+	bHit = false;
 }
 
 void AARPGEnemyCharacter::HealthChanged(const FOnAttributeChangeData& Data)
@@ -170,7 +213,7 @@ void AARPGEnemyCharacter::HealthChanged(const FOnAttributeChangeData& Data)
 	{
 		HealthBarComponent->SetHiddenInGame(false);
 	}
-	
+
 	// Update health bar
 	if (HealthBar)
 	{

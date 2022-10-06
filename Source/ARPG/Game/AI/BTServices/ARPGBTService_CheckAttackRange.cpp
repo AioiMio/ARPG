@@ -24,7 +24,7 @@ void UARPGBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp
 				if (ensure(AIPawn))
 				{
 					float Distance = FVector::Distance(TargetActor->GetActorLocation(), AIPawn->GetActorLocation());
-					bool bWithinRange = Distance < 300.f;
+					bool bWithinRange = Distance < Range;
 					bool bHasLOS = false;
 					if (bWithinRange)
 					{
