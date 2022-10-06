@@ -222,6 +222,19 @@ void UARPGHUDWidget::SetInteractText(FText InText)
 	}
 }
 
+void UARPGHUDWidget::SetMessageText(FText InText)
+{
+	MessageText = InText;
+	if (!InText.IsEmpty())
+	{
+		MessageBox->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "ClearMessageElapsed");
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_MessageClearDelay, Delegate, MessageClearDelay, false);
+	}
+}
+
 void UARPGHUDWidget::ChangeHealthBottomElapsed()
 {
 	bCanChangeHealthBottom = true;
@@ -235,4 +248,10 @@ void UARPGHUDWidget::ChangeManaBottomElapsed()
 void UARPGHUDWidget::ChangeStaminaBottomElapsed()
 {
 	bCanChangeStaminaBottom = true;
+}
+
+void UARPGHUDWidget::ClearMessageElapsed()
+{
+	MessageBox->SetVisibility(ESlateVisibility::Hidden);
+	MessageText = FText();
 }

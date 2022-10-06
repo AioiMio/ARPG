@@ -20,7 +20,8 @@ public:
 	AARPGMechanism();
 
 	FText GetInteractText_Implementation(APawn* InstigatorPawn);
-	void Interact_Implementation(APawn *InstigatorPawn);
+	FText GetFailedMessage_Implementation(APawn* InstigatorPawn);
+	bool Interact_Implementation(APawn *InstigatorPawn);
 	bool CanInteract_Implementation(APawn* InstigatorPawn) override;
 
 protected:
@@ -38,7 +39,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Interact")
 	FText InteractText;
 
-	UPROPERTY(EditAnywhere, Category = "Interact")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
 	FText FailedMessage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interact")

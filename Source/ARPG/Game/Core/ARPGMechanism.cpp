@@ -19,6 +19,7 @@ AARPGMechanism::AARPGMechanism()
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
 	StaticMeshComponent->SetIsReplicated(true);
+	StaticMeshComponent->SetGenerateOverlapEvents(false);
 
 	bReplicates = true;
 }
@@ -28,13 +29,19 @@ FText AARPGMechanism::GetInteractText_Implementation(APawn* InstigatorPawn)
 	return InteractText;
 }
 
-void AARPGMechanism::Interact_Implementation(APawn* InstigatorPawn)
+FText AARPGMechanism::GetFailedMessage_Implementation(APawn* InstigatorPawn)
 {
+	return FailedMessage;
+}
+
+bool AARPGMechanism::Interact_Implementation(APawn* InstigatorPawn)
+{
+	return false;
 }
 
 bool AARPGMechanism::CanInteract_Implementation(APawn* InstigatorPawn)
 {
-	return true;
+	return !bTriggered;
 }
 
 void AARPGMechanism::BeginPlay()

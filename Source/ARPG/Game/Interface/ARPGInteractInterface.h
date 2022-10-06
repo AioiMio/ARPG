@@ -24,9 +24,12 @@ class ARPG_API IARPGInteractInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	FText GetInteractText(APawn* InstigatorPawn);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FText GetFailedMessage(APawn* InstigatorPawn);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Interact(APawn *InstigatorPawn);
+	bool Interact(APawn *InstigatorPawn);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	bool CanInteract(APawn* InstigatorPawn);

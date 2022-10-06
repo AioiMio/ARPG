@@ -97,6 +97,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetInteractText(FText InText);
+	
+	UFUNCTION(BlueprintCallable)
+	void SetMessageText(FText InText);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -111,6 +114,8 @@ protected:
 	USizeBox* PostureBar;
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* InteractBox;
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* MessageBox;
 
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* Health;
@@ -147,14 +152,20 @@ protected:
 	float TargetStaminaPercent;
 
 	float ChangeBottomDelay = 1.f;
+	float MessageClearDelay = 3.f;
 	
 	FTimerHandle TimerHandle_HealthBottomDelay;
 	FTimerHandle TimerHandle_ManaBottomDelay;
 	FTimerHandle TimerHandle_StaminaBottomDelay;
+	FTimerHandle TimerHandle_MessageClearDelay;
 
 	// Interact
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interact")
 	FText InteractText;
+
+	// Message
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Message")
+	FText MessageText;
 
 	UFUNCTION()
 	void ChangeHealthBottomElapsed();
@@ -164,6 +175,9 @@ protected:
 	
 	UFUNCTION()
 	void ChangeStaminaBottomElapsed();
+
+	UFUNCTION()
+	void ClearMessageElapsed();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowPostureBar();

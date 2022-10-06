@@ -46,6 +46,7 @@ AARPGPlayerCharacter::AARPGPlayerCharacter(const FObjectInitializer& ObjectIniti
 	InteractSphere->SetSphereRadius(100.f);
 
 	InteractComponent = CreateDefaultSubobject<UARPGInteractComponent>(TEXT("InteractComponent"));
+	InteractComponent->SetIsReplicated(true);
 
 	CharacterName = FText::FromString("Player");
 }
