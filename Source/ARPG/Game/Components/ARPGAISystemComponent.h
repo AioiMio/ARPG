@@ -7,7 +7,7 @@
 #include "ARPGAISystemComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ARPG_API UARPGAISystemComponent : public UActorComponent
 {
 	GENERATED_BODY()

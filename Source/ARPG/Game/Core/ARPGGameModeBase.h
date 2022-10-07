@@ -19,7 +19,12 @@ class ARPG_API AARPGGameModeBase : public AGameModeBase
 public:
 	AARPGGameModeBase();
 
+	virtual void RestartPlayer(AController* NewPlayer) override;
+	
 	void PlayerCharacterDied(AController* Controller);
+
+	UFUNCTION(BlueprintCallable)
+	void SetPlayerStartName(FName StartName);
 
 protected:
 	float RespawnDelay;
@@ -27,6 +32,9 @@ protected:
 	TSubclassOf<AARPGPlayerCharacter> PlayerClass;
 
 	AActor* EnemySpawnPoint;
+
+	UPROPERTY(EditAnywhere)
+	FName PlayerStartName;
 
 	virtual void BeginPlay() override;
 

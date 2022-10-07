@@ -19,6 +19,29 @@ AARPGGameModeBase::AARPGGameModeBase()
 	}
 }
 
+void AARPGGameModeBase::RestartPlayer(AController* NewPlayer)
+{
+	if (NewPlayer == nullptr || NewPlayer->IsPendingKillPending())
+	{
+		return;
+	}
+
+	AActor* StartSpot = FindPlayerStart(NewPlayer, PlayerStartName.ToString());
+
+	// If a start spot wasn't found,
+	if (StartSpot == nullptr)
+	{
+		// Check for a previously assigned spot
+		if (NewPlayer->StartSpot != nullptr)
+		{
+			StartSpot = NewPlayer->StartSpot.Get();
+			UE_LOG(LogGameMode, Warning, TEXT("RestartPlayer: Player start not found, using last start spot"));
+		}	
+	}
+
+	RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
+}
+
 void AARPGGameModeBase::PlayerCharacterDied(AController* Controller)
 {
 	// FActorSpawnParameters SpawnParameters;
@@ -52,12 +75,17 @@ void AARPGGameModeBase::BeginPlay()
 	}
 }
 
+void AARPGGameModeBase::SetPlayerStartName(FName StartName)
+{
+	PlayerStartName = StartName;
+}
+
 void AARPGGameModeBase::RespawnPlayerCharacter(AController* Controller)
 {
 	if (Controller->IsPlayerController())
 	{
 		// Respawn player character
-		AActor* PlayerStart = FindPlayerStart(Controller);
+		AActor* PlayerStart = FindPlayerStart(Controller, PlayerStartName.ToString());
 
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;

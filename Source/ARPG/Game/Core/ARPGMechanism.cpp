@@ -13,6 +13,7 @@ AARPGMechanism::AARPGMechanism()
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	SetRootComponent(BoxComponent);
+	BoxComponent->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel4);
 	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Ignore);
 
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));

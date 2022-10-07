@@ -13,9 +13,4 @@ void AARPGAIController::BeginPlay()
 	{
 		RunBehaviorTree(BehaviorTree);
 	}
-
-	if (GetBlackboardComponent())
-	{
-		GetBlackboardComponent()->SetValueAsVector(FName("DefaultLocation"), GetPawn()->GetActorLocation());
-	}
 }

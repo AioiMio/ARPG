@@ -43,3 +43,13 @@ enum class EEquipPostion : uint8
 
 	MAX UMETA(DisplayName = "DefaultMAX")
 };
+
+UENUM(BlueprintType)
+enum class EElevatorPosition : uint8
+{
+	None UMETA(DisplayName = "None"),
+	Up UMETA(DisplayName = "Up"),
+	Down UMETA(DisplayName = "Down"),
+
+	MAX UMETA(DisplayName = "DefaultMAX")
+};

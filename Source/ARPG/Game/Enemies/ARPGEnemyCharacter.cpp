@@ -6,6 +6,7 @@
 #include "Abilities/ComboGraphNativeAbility.h"
 #include "ARPG/Game/AI/ARPGAIController.h"
 #include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
+#include "ARPG/Game/Components/ARPGAISystemComponent.h"
 #include "ARPG/Game/Components/ARPGAttributeSet.h"
 #include "ARPG/Game/Components/ARPGEquipmentManager.h"
 #include "ARPG/Game/Components/ARPGTargetManager.h"
@@ -30,6 +31,7 @@ AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitial
 	AbilitySystemComponent = HardRefAbilitySystemComponent;
 
 	SensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("SensingComponent"));
+	AISystemComponent = CreateDefaultSubobject<UARPGAISystemComponent>(TEXT("AISystemComponent"));
 
 	// Create inventory component, and set it to be explicitly replicated
 	HardRefInventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
@@ -60,6 +62,8 @@ void AARPGEnemyCharacter::PostInitializeComponents()
 void AARPGEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DefaultTransform = GetActorTransform();
 
 	if (AbilitySystemComponent.IsValid())
 	{

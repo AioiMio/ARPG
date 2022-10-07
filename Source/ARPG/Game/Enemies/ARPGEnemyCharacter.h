@@ -8,6 +8,7 @@
 #include "ARPGEnemyCharacter.generated.h"
 
 class UPawnSensingComponent;
+class UARPGAISystemComponent;
 
 /**
  * 
@@ -22,6 +23,11 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (MakeEditWidget = true))
+	TArray<FVector> PatrolPath;
+	
+	FTransform DefaultTransform;
 
 protected:
 	virtual void BeginPlay() override;
@@ -42,6 +48,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* SensingComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	UARPGAISystemComponent* AISystemComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	TSubclassOf<UGameplayAbility> ComboGraphNativeAbility;

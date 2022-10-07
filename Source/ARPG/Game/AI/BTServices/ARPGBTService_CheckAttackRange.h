@@ -21,5 +21,5 @@ protected:
 	FBlackboardKeySelector AttackRangeKey;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
-	float Range = 400.f;
+	float Range = 350.f;
 };
