@@ -3,6 +3,7 @@
 
 #include "ARPGDrop.h"
 
+#include "NiagaraComponent.h"
 #include "Components/BoxComponent.h"
 
 AARPGDrop::AARPGDrop()
@@ -13,6 +14,9 @@ AARPGDrop::AARPGDrop()
 	SetRootComponent(BoxComponent);
 	BoxComponent->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel4);
 	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Ignore);
+
+	NiagaraSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraSystem"));
+	NiagaraSystem->SetupAttachment(RootComponent);
 }
 
 void AARPGDrop::BeginPlay()

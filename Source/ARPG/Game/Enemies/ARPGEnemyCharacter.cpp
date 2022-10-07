@@ -12,6 +12,7 @@
 #include "ARPG/Game/Components/ARPGTargetManager.h"
 #include "ARPG/Game/Components/InventoryComponent.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
+#include "ARPG/Game/UI/ARPGDiscoverWidget.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/WidgetComponent.h"
@@ -32,6 +33,15 @@ AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitial
 
 	SensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("SensingComponent"));
 	AISystemComponent = CreateDefaultSubobject<UARPGAISystemComponent>(TEXT("AISystemComponent"));
+
+	// UI
+	DiscoverWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("DiscoverWidget"));
+	DiscoverWidgetComponent->SetupAttachment(GetMesh(), FName("head"));
+	DiscoverWidgetComponent->SetRelativeLocation(FVector(50.f, 0.f, 0.f));
+	DiscoverWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	DiscoverWidgetComponent->SetDrawAtDesiredSize(true);
+	DiscoverWidgetComponent->SetPivot(FVector2D(0.5f, 1.f));
+	DiscoverWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Create inventory component, and set it to be explicitly replicated
 	HardRefInventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
@@ -162,20 +172,30 @@ void AARPGEnemyCharacter::PlayDiscoverSoundEffect_Implementation()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, DiscoverSoundEffect, GetActorLocation(), 1.f, 1.f,0.f, SoundAttenuation);
 	}
+	
+	UARPGDiscoverWidget* DiscoverWidget = Cast<UARPGDiscoverWidget>(DiscoverWidgetComponent->GetWidget());
+	if (DiscoverWidget)
+	{
+		DiscoverWidget->ShowDiscoverImage();
+	}
 }
 
 void AARPGEnemyCharacter::OnPawnSeen(APawn* Pawn)
 {
-	if (AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(Pawn))
+	if (IsAlive())
 	{
-		if (TargetManager->GetLockOnTarget() == nullptr)
+		AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(Pawn);
+		if (Character && Character->IsAlive())
 		{
-			SetTarget(Character);
-			PlayDiscoverSoundEffect();
-		}
-		else if (Character == TargetManager->GetLockOnTarget())
-		{
-			UpdateEnmity();
+			if (TargetManager->GetLockOnTarget() == nullptr)
+			{
+				SetTarget(Character);
+				PlayDiscoverSoundEffect();
+			}
+			else if (Character == TargetManager->GetLockOnTarget())
+			{
+				UpdateEnmity();
+			}
 		}
 	}
 }
@@ -184,26 +204,33 @@ void AARPGEnemyCharacter::OnDamageReceived(UARPGAbilitySystemComponent* SourceAS
                                            float UnmitigatedDamage,
                                            float MitigatedDamage)
 {
-	AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(SourceASC->GetAvatarActor());
-	if (Character && Character != TargetManager->GetLockOnTarget())
+	if (IsAlive())
 	{
-		SetTarget(Character);
-		if (TargetManager->GetLockOnTarget() == nullptr)
+		AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(SourceASC->GetAvatarActor());
+		if (Character && Character->IsAlive())
 		{
-			PlayDiscoverSoundEffect();
+			if (Character != TargetManager->GetLockOnTarget())
+			{
+				if (TargetManager->GetLockOnTarget() == nullptr)
+				{
+					PlayDiscoverSoundEffect();
+				}
+				SetTarget(Character);
+			}
+			UpdateEnmity();
 		}
-	}
 	
-	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
-	if (AIC)
-	{
-		UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
-		BlackboardComponent->SetValueAsBool("Hit", true);
-	}
+		AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+		if (AIC)
+		{
+			UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+			BlackboardComponent->SetValueAsBool("Hit", true);
+		}
 
-	bHit = true;
-	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::RemoveHitStateElapsed);
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_RemoveHitStateDelay, Delegate, 0.2f, false);
+		bHit = true;
+		FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::RemoveHitStateElapsed);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_RemoveHitStateDelay, Delegate, 0.2f, false);
+	}
 }
 
 void AARPGEnemyCharacter::RemoveHitStateElapsed()

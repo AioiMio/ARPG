@@ -52,6 +52,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	UARPGAISystemComponent* AISystemComponent;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
+	UWidgetComponent* DiscoverWidgetComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	TSubclassOf<UGameplayAbility> ComboGraphNativeAbility;
 
