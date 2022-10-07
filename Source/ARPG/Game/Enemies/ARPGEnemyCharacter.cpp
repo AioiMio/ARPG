@@ -156,6 +156,14 @@ void AARPGEnemyCharacter::SetTarget(APawn* Pawn)
 	UpdateEnmity();
 }
 
+void AARPGEnemyCharacter::PlayDiscoverSoundEffect_Implementation()
+{
+	if (DiscoverSoundEffect)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DiscoverSoundEffect, GetActorLocation(), 1.f, 1.f,0.f, SoundAttenuation);
+	}
+}
+
 void AARPGEnemyCharacter::OnPawnSeen(APawn* Pawn)
 {
 	if (AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(Pawn))
@@ -163,6 +171,7 @@ void AARPGEnemyCharacter::OnPawnSeen(APawn* Pawn)
 		if (TargetManager->GetLockOnTarget() == nullptr)
 		{
 			SetTarget(Character);
+			PlayDiscoverSoundEffect();
 		}
 		else if (Character == TargetManager->GetLockOnTarget())
 		{
@@ -179,6 +188,10 @@ void AARPGEnemyCharacter::OnDamageReceived(UARPGAbilitySystemComponent* SourceAS
 	if (Character && Character != TargetManager->GetLockOnTarget())
 	{
 		SetTarget(Character);
+		if (TargetManager->GetLockOnTarget() == nullptr)
+		{
+			PlayDiscoverSoundEffect();
+		}
 	}
 	
 	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());

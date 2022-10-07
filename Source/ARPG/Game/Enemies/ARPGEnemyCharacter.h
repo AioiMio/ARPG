@@ -84,6 +84,15 @@ protected:
 	
 	void SetTarget(APawn* Pawn);
 
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	USoundBase* DiscoverSoundEffect;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	USoundAttenuation* SoundAttenuation;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void PlayDiscoverSoundEffect();
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
 

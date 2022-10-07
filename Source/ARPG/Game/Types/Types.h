@@ -53,3 +53,16 @@ enum class EElevatorPosition : uint8
 
 	MAX UMETA(DisplayName = "DefaultMAX")
 };
+
+UENUM(BlueprintType)
+enum class EItemRarity : uint8
+{
+	Normal UMETA(DisplayName = "Normal"),
+	Uncommon UMETA(DisplayName = "Uncommon"),
+	Rare UMETA(DisplayName = "Rare"),
+	Epic UMETA(DisplayName = "Epic"),
+	Mythical UMETA(DisplayName = "Mythical"),
+	Legendary UMETA(DisplayName = "Legendary"),
+
+	MAX UMETA(DisplayName = "DefaultMAX")
+};

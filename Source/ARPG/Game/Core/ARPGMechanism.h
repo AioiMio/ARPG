@@ -22,9 +22,9 @@ public:
 
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
-	FText GetInteractText_Implementation(APawn* InstigatorPawn);
-	FText GetFailedMessage_Implementation(APawn* InstigatorPawn);
-	bool Interact_Implementation(APawn *InstigatorPawn);
+	FText GetInteractText_Implementation(APawn* InstigatorPawn) override;
+	FText GetFailedMessage_Implementation(APawn* InstigatorPawn) override;
+	bool Interact_Implementation(APawn *InstigatorPawn) override;
 	bool CanInteract_Implementation(APawn* InstigatorPawn) override;
 
 protected:

@@ -25,7 +25,7 @@ public:
 
 	// Called from ARPGDamageExecCalculation. Broadcasts on ReceivedDamage whenever this ASC receives damage.
 	virtual void ReceiveDamage(UARPGAbilitySystemComponent* SourceASC, float UnmitigatedDamage, float MitigatedDamage);
-
+	
 	void AddReplicatedGameplayTag(FGameplayTag Tag);
 	UFUNCTION(Server, Reliable)
 	void ServerAddReplicatedGameplayTag(FGameplayTag Tag);
