@@ -23,7 +23,8 @@ public:
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
 	FText GetInteractText_Implementation(APawn* InstigatorPawn) override;
-	FText GetFailedMessage_Implementation(APawn* InstigatorPawn) override;
+	FText GetFailedMessage_Implementation(APawn* InstigatorPawn, int32 Index) override;
+	int32 GetFailedMessageIndex_Implementation(APawn* InstigatorPawn) override;
 	bool Interact_Implementation(APawn *InstigatorPawn) override;
 	bool CanInteract_Implementation(APawn* InstigatorPawn) override;
 
@@ -42,11 +43,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* AdditiveMesh;
 
-	UPROPERTY(Replicated, EditAnywhere, Category = "Interact")
+	UPROPERTY(EditAnywhere, Category = "Interact")
 	FText InteractText;
 
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Interact")
-	FText FailedMessage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	TArray<FText> FailedMessages;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	int32 FailedMessageIndex = 0;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bTriggered;

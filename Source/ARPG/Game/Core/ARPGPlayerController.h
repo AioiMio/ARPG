@@ -57,8 +57,11 @@ public:
 	UInputAction* ChangeTargetInput;
 
 	void CreateHUD();
-
+	
 	FORCEINLINE UARPGHUDWidget* GetHUD() { return UIHUDWidget; }
+
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void ShowMessage(const FText& Message);
 
 protected:
 	virtual void BeginPlay() override;

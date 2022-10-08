@@ -26,7 +26,10 @@ public:
 	FText GetInteractText(APawn* InstigatorPawn);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	FText GetFailedMessage(APawn* InstigatorPawn);
+	FText GetFailedMessage(APawn* InstigatorPawn, int32 Index = 0);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	int32 GetFailedMessageIndex(APawn* InstigatorPawn);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	bool Interact(APawn *InstigatorPawn);

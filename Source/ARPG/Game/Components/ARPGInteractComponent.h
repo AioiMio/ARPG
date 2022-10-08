@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ARPG/Game/Core/ARPGDrop.h"
 #include "Components/ActorComponent.h"
 #include "ARPGInteractComponent.generated.h"
 
@@ -24,9 +25,13 @@ public:
 	UFUNCTION(Server, Unreliable)
 	void ServerInteract(AActor* Target);
 
-	void ShowFailedMessage() const;
-	UFUNCTION(Client, Reliable)
-	void ClientShowFailedMessage();
+	void ShowFailedMessage(int32 Index);
+	UFUNCTION(Client, Unreliable)
+	void ClientShowFailedMessage(int32 Index);
+
+	void Pickup(AARPGDrop* DropActor);
+
+	void ShowItemName(AARPGDrop* DropActor);
 
 	UPROPERTY(BlueprintReadWrite, Category = "Interact")
 	TArray<AActor*> InteractTargets;

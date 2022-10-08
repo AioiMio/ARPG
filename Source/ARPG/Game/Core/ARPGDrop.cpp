@@ -17,6 +17,8 @@ AARPGDrop::AARPGDrop()
 
 	NiagaraSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraSystem"));
 	NiagaraSystem->SetupAttachment(RootComponent);
+
+	bReplicates = false;
 }
 
 void AARPGDrop::BeginPlay()
@@ -29,9 +31,14 @@ FText AARPGDrop::GetInteractText_Implementation(APawn* InstigatorPawn)
 	return InteractText;
 }
 
-FText AARPGDrop::GetFailedMessage_Implementation(APawn* InstigatorPawn)
+FText AARPGDrop::GetFailedMessage_Implementation(APawn* InstigatorPawn, int32 Index)
 {
-	return FailedMessage;
+	return FailedMessages[Index];
+}
+
+int32 AARPGDrop::GetFailedMessageIndex_Implementation(APawn* InstigatorPawn)
+{
+	return FailedMessageIndex;
 }
 
 bool AARPGDrop::Interact_Implementation(APawn* InstigatorPawn)

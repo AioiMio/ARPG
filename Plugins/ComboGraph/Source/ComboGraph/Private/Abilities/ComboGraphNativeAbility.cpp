@@ -19,6 +19,7 @@ UComboGraphNativeAbility::UComboGraphNativeAbility(const FObjectInitializer& Obj
 	FGameplayTag LyingTag = FGameplayTag::RequestGameplayTag(TEXT("State.Lying"));
 	FGameplayTag FallingTag = FGameplayTag::RequestGameplayTag(TEXT("State.Falling"));
 	FGameplayTag HitReactTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Passive.HitReact"));
+	FGameplayTag GunTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Gun"));
 	AbilityTags.AddTag(AbilityTag);
 	ActivationOwnedTags.AddTag(AbilityTag);
 	ActivationBlockedTags.AddTag(BreakTag);
@@ -27,6 +28,7 @@ UComboGraphNativeAbility::UComboGraphNativeAbility(const FObjectInitializer& Obj
 	ActivationBlockedTags.AddTag(LyingTag);
 	ActivationBlockedTags.AddTag(FallingTag);
 	ActivationBlockedTags.AddTag(HitReactTag);
+	BlockAbilitiesWithTag.AddTag(GunTag);
 }
 
 void UComboGraphNativeAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

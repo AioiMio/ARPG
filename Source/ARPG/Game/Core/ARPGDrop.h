@@ -19,9 +19,22 @@ public:
 	AARPGDrop();
 
 	FText GetInteractText_Implementation(APawn* InstigatorPawn) override;
-	FText GetFailedMessage_Implementation(APawn* InstigatorPawn) override;
+	FText GetFailedMessage_Implementation(APawn* InstigatorPawn, int32 Index) override;
+	int32 GetFailedMessageIndex_Implementation(APawn* InstigatorPawn) override;
 	bool Interact_Implementation(APawn *InstigatorPawn) override;
 	bool CanInteract_Implementation(APawn* InstigatorPawn) override;
+
+	UPROPERTY(EditAnywhere, Category = "Interact")
+	FText InteractText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	FText ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	TArray<FText> FailedMessages;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	int32 FailedMessageIndex = 0;
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,15 +44,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UNiagaraComponent* NiagaraSystem;
-
-	UPROPERTY(EditAnywhere, Category = "Interact")
-	FText InteractText;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
-	FText ItemName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
-	FText FailedMessage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bPicked;

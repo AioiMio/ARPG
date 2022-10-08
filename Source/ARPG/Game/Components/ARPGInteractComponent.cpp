@@ -4,6 +4,8 @@
 #include "ARPGInteractComponent.h"
 
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "ARPG/Game/Core/ARPGDrop.h"
+#include "ARPG/Game/Core/ARPGMechanism.h"
 #include "ARPG/Game/Core/ARPGPlayerController.h"
 #include "ARPG/Game/Interface/ARPGInteractInterface.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
@@ -92,22 +94,32 @@ void UARPGInteractComponent::FindBestInteractableActor()
 
 void UARPGInteractComponent::Interact()
 {
-	ServerInteract(CurrentInteractTarget);
+	if (CurrentInteractTarget)
+	{
+		if (AARPGMechanism* Mechanism = Cast<AARPGMechanism>(CurrentInteractTarget))
+		{
+			ServerInteract(Mechanism);
+		}
+		else if (AARPGDrop* Drop = Cast<AARPGDrop>(CurrentInteractTarget))
+		{
+			Pickup(Drop);
+		}
+	}
 }
 
 void UARPGInteractComponent::ServerInteract_Implementation(AActor* Target)
 {
 	APawn* MyPawn = Cast<APawn>(GetOwner());
-	if (Target && IARPGInteractInterface::Execute_CanInteract(Target, MyPawn))
+	if (MyPawn && Target && IARPGInteractInterface::Execute_CanInteract(Target, MyPawn))
 	{
 		if (!IARPGInteractInterface::Execute_Interact(Target, MyPawn))
 		{
-			ClientShowFailedMessage();
+			ClientShowFailedMessage(IARPGInteractInterface::Execute_GetFailedMessageIndex(Target, MyPawn));
 		}
 	}
 }
 
-void UARPGInteractComponent::ShowFailedMessage() const
+void UARPGInteractComponent::ShowFailedMessage(int32 Index)
 {
 	APawn* MyPawn = Cast<APawn>(GetOwner());
 	if (MyPawn)
@@ -115,14 +127,39 @@ void UARPGInteractComponent::ShowFailedMessage() const
 		AARPGPlayerController* PC = Cast<AARPGPlayerController>(MyPawn->GetController());
 		if (PC)
 		{
-			PC->GetHUD()->SetMessageText(IARPGInteractInterface::Execute_GetFailedMessage(CurrentInteractTarget, MyPawn));
+			PC->GetHUD()->SetMessageText(IARPGInteractInterface::Execute_GetFailedMessage(CurrentInteractTarget, MyPawn, Index));
 		}
 	}
 }
 
-void UARPGInteractComponent::ClientShowFailedMessage_Implementation()
+void UARPGInteractComponent::ClientShowFailedMessage_Implementation(int32 Index)
 {
-	ShowFailedMessage();
+	ShowFailedMessage(Index);
+}
+
+void UARPGInteractComponent::Pickup(AARPGDrop* DropActor)
+{
+	APawn* MyPawn = Cast<APawn>(GetOwner());
+	if (MyPawn && DropActor && IARPGInteractInterface::Execute_CanInteract(DropActor, MyPawn))
+	{
+		if (IARPGInteractInterface::Execute_Interact(DropActor, MyPawn))
+		{
+			ShowItemName(DropActor);
+		}
+	}
+}
+
+void UARPGInteractComponent::ShowItemName(AARPGDrop* DropActor)
+{
+	APawn* MyPawn = Cast<APawn>(GetOwner());
+	if (MyPawn)
+	{
+		AARPGPlayerController* PC = Cast<AARPGPlayerController>(MyPawn->GetController());
+		if (PC)
+		{
+			PC->GetHUD()->SetMessageText(DropActor->ItemName);
+		}
+	}
 }
 
 void UARPGInteractComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

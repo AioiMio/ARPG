@@ -299,7 +299,7 @@ void AARPGPlayerState::StaminaChanged(const FOnAttributeChangeData & Data)
 			GetAbilitySystemComponent()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
 
 			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGPlayerState::StaminaRegenElapsed);
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaRegenDelay, Delegate, 1.5f, false);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaRegenDelay, Delegate, 1.f, false);
 		}
 
 		if (Stamina == 0.f)

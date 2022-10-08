@@ -37,9 +37,19 @@ FText AARPGMechanism::GetInteractText_Implementation(APawn* InstigatorPawn)
 	return InteractText;
 }
 
-FText AARPGMechanism::GetFailedMessage_Implementation(APawn* InstigatorPawn)
+FText AARPGMechanism::GetFailedMessage_Implementation(APawn* InstigatorPawn, int32 Index)
 {
-	return FailedMessage;
+	if (FailedMessages.Num() > 0)
+	{
+		return FailedMessages[Index];
+	}
+
+	return FText();
+}
+
+int32 AARPGMechanism::GetFailedMessageIndex_Implementation(APawn* InstigatorPawn)
+{
+	return FailedMessageIndex;
 }
 
 bool AARPGMechanism::Interact_Implementation(APawn* InstigatorPawn)
@@ -60,8 +70,6 @@ void AARPGMechanism::BeginPlay()
 void AARPGMechanism::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AARPGMechanism, InteractText);
-	DOREPLIFETIME(AARPGMechanism, FailedMessage);
+	
 	DOREPLIFETIME(AARPGMechanism, bTriggered);
 }

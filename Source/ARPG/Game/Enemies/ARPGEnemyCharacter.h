@@ -29,6 +29,9 @@ public:
 	
 	FTransform DefaultTransform;
 
+	UFUNCTION()
+	void UpdateEnmity();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void AddCharacterAbilities() override;
@@ -81,9 +84,6 @@ protected:
 	void PostureRegenElapsed();
 	void RemoveTargetElapsed();
 	void RemoveHitStateElapsed();
-
-	UFUNCTION()
-	void UpdateEnmity();
 	
 	void SetTarget(APawn* Pawn);
 

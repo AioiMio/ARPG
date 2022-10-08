@@ -49,7 +49,9 @@ void UARPGAbilitySystemComponent::RemoveReplicatedGameplayTag(FGameplayTag Tag)
 	}
 }
 
-void UARPGAbilitySystemComponent::SendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload)
+void UARPGAbilitySystemComponent::SendGameplayEventToActor(AActor* Actor,
+                                                           FGameplayTag EventTag,
+                                                           FGameplayEventData Payload)
 {
 	if (GetOwnerRole() != ENetRole::ROLE_Authority)
 	{
@@ -63,21 +65,36 @@ void UARPGAbilitySystemComponent::SendGameplayEventToActor(AActor* Actor, FGamep
 			InCharacter->GetARPGAbilitySystemComponent()->ClientSendGameplayEventToActor(Actor, EventTag, Payload);
 		}
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
-		UE_LOG(LogTemp, Warning, TEXT("[Server] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(GetAvatarActor()));
+		UE_LOG(LogTemp, Warning, TEXT("[Server] SendGameplayEvent: %s To: %s"), *EventTag.ToString(),
+		       *GetNameSafe(GetAvatarActor()));
 	}
 }
 
-void UARPGAbilitySystemComponent::ServerSendGameplayEventToActor_Implementation(AActor* Actor, FGameplayTag EventTag,
+void UARPGAbilitySystemComponent::ServerSendGameplayEventToActor_Implementation(AActor* Actor,
+	FGameplayTag EventTag,
 	FGameplayEventData Payload)
 {
 	SendGameplayEventToActor(Actor, EventTag, Payload);
 }
 
-void UARPGAbilitySystemComponent::ClientSendGameplayEventToActor_Implementation(AActor* Actor, FGameplayTag EventTag,
+void UARPGAbilitySystemComponent::ClientSendGameplayEventToActor_Implementation(AActor* Actor,
+	FGameplayTag EventTag,
 	FGameplayEventData Payload)
 {
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
-	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(GetAvatarActor()));
+	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(),
+	       *GetNameSafe(GetAvatarActor()));
+}
+
+void UARPGAbilitySystemComponent::ServerApplyGameplayEffectToSelf_Implementation(
+	TSubclassOf<UGameplayEffect> GameplayEffect)
+{
+	if (IsValid(GameplayEffect))
+	{
+		FGameplayEffectContextHandle EffectContext;
+		FGameplayEffectSpecHandle GameplayEffectSpec = MakeOutgoingSpec(GameplayEffect, 1, EffectContext);
+		ApplyGameplayEffectSpecToSelf(*GameplayEffectSpec.Data);
+	}
 }
 
 void UARPGAbilitySystemComponent::ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag,

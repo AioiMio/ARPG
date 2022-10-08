@@ -8,9 +8,6 @@
 #include "ARPGAbilitySystemComponent.h"
 #include "ARPGTargetManager.h"
 #include "Abilities/GameplayAbilityTypes.h"
-#include "ARPG/Game/Abilities/ARPGGameplayEffect_HitReact.h"
-#include "ARPG/Game/Abilities/GEEC/ARPGChargeAttackExecCalculation.h"
-#include "ARPG/Game/Abilities/GEEC/ARPGDamageExecutionCalculation.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -177,7 +174,8 @@ bool UARPGCombatManager::TryVisceralAttack(bool bUseLockOnTarget)
 
 	for (FHitResult HitResult : HitResults)
 	{
-		if (AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(HitResult.GetActor()))
+		AARPGCharacter* OtherCharacter = Cast<AARPGCharacter>(HitResult.GetActor());
+		if (OtherCharacter && OtherCharacter->GetCombatManager()->GetCharacterCamp() != CharacterCamp)
 		{
 			return TryExecuteVisceralAttackToTarget(OtherCharacter);
 		}

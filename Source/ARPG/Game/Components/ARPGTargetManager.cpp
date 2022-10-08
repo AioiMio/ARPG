@@ -76,6 +76,11 @@ void UARPGTargetManager::TickComponent(float DeltaTime,
 			{
 				CharacterMovementComponent->StartWalking();
 			}
+
+			if (Enemy->GetController()->LineOfSightTo(LockOnTarget))
+			{
+				Enemy->UpdateEnmity();
+			}
 		}
 	}
 }
@@ -238,4 +243,5 @@ void UARPGTargetManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(UARPGTargetManager, LockOnTarget);
 	DOREPLIFETIME(UARPGTargetManager, LastLockOnTarget);
 	DOREPLIFETIME(UARPGTargetManager, bIsLockingOn);
+	DOREPLIFETIME(UARPGTargetManager, bFaceToTarget);
 }

@@ -32,7 +32,6 @@ void AARPGPlayerController::BeginPlay()
 	}
 }
 
-
 void AARPGPlayerController::CreateHUD()
 {
 	// Only create once
@@ -73,6 +72,11 @@ void AARPGPlayerController::CreateHUD()
 	UIHUDWidget->SetCurrentPosture(PS->GetPosture());
 	
 	UIHUDWidget->AddToViewport();
+}
+
+void AARPGPlayerController::ShowMessage_Implementation(const FText& Message)
+{
+	UIHUDWidget->SetMessageText(Message);
 }
 
 void AARPGPlayerController::OnPossess(APawn* InPawn)

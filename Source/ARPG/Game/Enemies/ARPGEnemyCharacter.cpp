@@ -291,7 +291,7 @@ void AARPGEnemyCharacter::StaminaChanged(const FOnAttributeChangeData& Data)
 				FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
 
 			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::StaminaRegenElapsed);
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaRegenDelay, Delegate, 1.5f, false);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaRegenDelay, Delegate, 1.f, false);
 		}
 
 		if (Stamina == 0.f)

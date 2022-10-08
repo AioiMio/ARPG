@@ -138,7 +138,10 @@ void AARPGCharacter::LandElapsed()
 
 void AARPGCharacter::RemoveFallingTagElapsed()
 {
-	AbilitySystemComponent->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(FallingTag));
+	if (AbilitySystemComponent.IsValid())
+	{
+		AbilitySystemComponent->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(FallingTag));
+	}
 }
 
 UAbilitySystemComponent* AARPGCharacter::GetAbilitySystemComponent() const

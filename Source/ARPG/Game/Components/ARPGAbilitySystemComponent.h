@@ -44,6 +44,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientSendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void ServerApplyGameplayEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffect);
+
 	UFUNCTION(BlueprintCallable, Category = "GameplayCue",
 		Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
 	void ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag,
