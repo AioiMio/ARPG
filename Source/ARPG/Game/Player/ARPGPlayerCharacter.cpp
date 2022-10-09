@@ -255,7 +255,11 @@ void AARPGPlayerCharacter::MovementInput(const FInputActionValue& InputActionVal
 
 	if (GroundMovement != Temp)
 	{
-		ServerSetGroundMovement(Temp);
+		SetGroundMovement(Temp);
+		if (!HasAuthority())
+		{
+			ServerSetGroundMovement(Temp);
+		}
 	}
 
 	if (Magnitude > 0.2f)
@@ -272,7 +276,11 @@ void AARPGPlayerCharacter::MovementInputEnd()
 	AbilitySystemComponent->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("Input.Movement.Active"));
 	MovementInputVector = FVector2D::Zero();
 
-	ServerSetGroundMovement(EGroundMovementType::Idle);
+	SetGroundMovement(EGroundMovementType::Idle);
+	if (!HasAuthority())
+	{
+		ServerSetGroundMovement(EGroundMovementType::Idle);
+	}
 }
 
 void AARPGPlayerCharacter::Interact()

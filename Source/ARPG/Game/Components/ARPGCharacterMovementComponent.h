@@ -56,6 +56,8 @@ class ARPG_API UARPGCharacterMovementComponent : public UCharacterMovementCompon
 public:
 	UARPGCharacterMovementComponent();
 
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Sprint")
 	float SprintSpeed;
 
@@ -86,6 +88,9 @@ public:
 	void StopRunning();
 
 	// Walk
+	UPROPERTY(Replicated)
+	bool bIsWalking;
+
 	UFUNCTION(BlueprintCallable, Category = "Movement|Walk")
 	void StartWalking();
 	UFUNCTION(Server,Reliable, BlueprintCallable, Category = "Movement|Walk")

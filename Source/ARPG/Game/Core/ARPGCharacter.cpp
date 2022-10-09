@@ -95,7 +95,7 @@ void AARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
 }
 
 void AARPGCharacter::ServerSetEmissive_Implementation(bool bInEmissive)
@@ -433,13 +433,6 @@ void AARPGCharacter::SetGroundMovement(EGroundMovementType NewGroundMovement)
 {
 	if (NewGroundMovement == EGroundMovementType::Walk)
 	{
-		// if (AbilitySystemComponent.IsValid() && WalkEffect)
-		// {
-		// 	FGameplayEffectContextHandle EffectContext;
-		// 	FGameplayEffectSpecHandle GameplayEffectSpec = AbilitySystemComponent->MakeOutgoingSpec(WalkEffect, 1, EffectContext);
-		// 	WalkEffectSpec = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*GameplayEffectSpec.Data);
-		// }
-
 		if (UARPGCharacterMovementComponent* CM = Cast<UARPGCharacterMovementComponent>(GetCharacterMovement()))
 		{
 			CM->StartWalking();
@@ -447,11 +440,6 @@ void AARPGCharacter::SetGroundMovement(EGroundMovementType NewGroundMovement)
 	}
 	else if (GroundMovement == EGroundMovementType::Walk)
 	{
-		// if (AbilitySystemComponent.IsValid() && WalkEffectSpec.IsValid())
-		// {
-		// 	AbilitySystemComponent->RemoveActiveGameplayEffect(WalkEffectSpec);
-		// }
-
 		if (UARPGCharacterMovementComponent* CM = Cast<UARPGCharacterMovementComponent>(GetCharacterMovement()))
 		{
 			CM->StopWalking();

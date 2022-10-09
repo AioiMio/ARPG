@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 UARPGCharacterMovementComponent::UARPGCharacterMovementComponent()
 {
@@ -32,7 +33,7 @@ float UARPGCharacterMovementComponent::GetMaxSpeed() const
 		return 0.0f;
 	}
 
-	if (RequestToStartWalking)
+	if (bIsWalking)
 	{
 		return WalkSpeed;
 	}
@@ -100,7 +101,8 @@ void UARPGCharacterMovementComponent::StopRunning()
 
 void UARPGCharacterMovementComponent::StartWalking()
 {
-	RequestToStartWalking = true;
+	// RequestToStartWalking = true;
+	bIsWalking = true;
 }
 
 void UARPGCharacterMovementComponent::ServerStartWalking_Implementation()
@@ -110,7 +112,8 @@ void UARPGCharacterMovementComponent::ServerStartWalking_Implementation()
 
 void UARPGCharacterMovementComponent::StopWalking()
 {
-	RequestToStartWalking = false;
+	// RequestToStartWalking = false;
+	bIsWalking = false;
 }
 
 void UARPGCharacterMovementComponent::ServerStopWalking_Implementation()
@@ -194,4 +197,11 @@ UARPGCharacterMovementComponent::FARPGNetworkPredictionData_Client::FARPGNetwork
 FSavedMovePtr UARPGCharacterMovementComponent::FARPGNetworkPredictionData_Client::AllocateNewMove()
 {
 	return FSavedMovePtr(new FARPGSavedMove());
+}
+
+void UARPGCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UARPGCharacterMovementComponent, bIsWalking);
 }

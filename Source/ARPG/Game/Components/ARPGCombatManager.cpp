@@ -52,21 +52,57 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 			AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor());
 			if (HitCharacter && HitCharacter->GetCombatManager()->GetCharacterCamp() != CharacterCamp)
 			{
-				if (HitCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Immunity"))))
+				if (HitCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(
+					FGameplayTag::RequestGameplayTag(FName("State.Immunity"))))
 				{
 					return;
 				}
 
-				FGameplayEventData HitEventData;
-				HitEventData.Instigator = GetOwner();
-				HitEventData.Target = HitCharacter;
-				HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
-				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
+				HitEvent(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
 
-				SendHitEventToActor(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
+				// FGameplayEventData HitEventData;
+				// HitEventData.Instigator = GetOwner();
+				// HitEventData.Target = HitCharacter;
+				// HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+				// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
+				//
+				// SendHitEventToActor(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
+
+				// if (GetOwnerRole() != ENetRole::ROLE_Authority)
+				// {
+				// 	ServerHitEvent(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
+				// }
+				// else
+				// {
+				// 	HitEvent(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
+				// }
 			}
 		}
 	}
+}
+
+void UARPGCombatManager::ServerHitEvent_Implementation(AActor* Target,
+                                                       FHitResult Hit,
+                                                       EAttackType AttackType,
+                                                       EHitReactType HitReactType,
+                                                       float Multiplier)
+{
+	HitEvent(Target, Hit, AttackType, HitReactType, Multiplier);
+}
+
+void UARPGCombatManager::HitEvent(AActor* Target,
+                                  FHitResult Hit,
+                                  EAttackType AttackType,
+                                  EHitReactType HitReactType,
+                                  float Multiplier)
+{
+	FGameplayEventData HitEventData;
+	HitEventData.Instigator = GetOwner();
+	HitEventData.Target = Target;
+	HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
+
+	SendHitEventToActor(Target, Hit, AttackType, HitReactType, Multiplier);
 }
 
 void UARPGCombatManager::SendHitEventToActor(AActor* Target,
@@ -128,7 +164,8 @@ void UARPGCombatManager::SendGameplayEventToOwner(FGameplayTag EventTag, FGamepl
 {
 	if (GetOwnerRole() != ENetRole::ROLE_Authority)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Actor: %s, Owner: %s"), *GetNameSafe(GetOwner()), *GetNameSafe(GetOwner()->GetOwner()));
+		UE_LOG(LogTemp, Warning, TEXT("Actor: %s, Owner: %s"), *GetNameSafe(GetOwner()),
+		       *GetNameSafe(GetOwner()->GetOwner()));
 		ServerSendGameplayEventToOwner(EventTag, Payload);
 	}
 	else
@@ -138,21 +175,23 @@ void UARPGCombatManager::SendGameplayEventToOwner(FGameplayTag EventTag, FGamepl
 			ClientSendGameplayEventToOwner(EventTag, Payload);
 		}
 		OwnerCharacter->GetAbilitySystemComponent()->HandleGameplayEvent(EventTag, &Payload);
-		UE_LOG(LogTemp, Warning, TEXT("[Server] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(OwnerCharacter.Get()));
+		UE_LOG(LogTemp, Warning, TEXT("[Server] SendGameplayEvent: %s To: %s"), *EventTag.ToString(),
+		       *GetNameSafe(OwnerCharacter.Get()));
 	}
 }
 
 void UARPGCombatManager::ServerSendGameplayEventToOwner_Implementation(FGameplayTag EventTag,
-	FGameplayEventData Payload)
+                                                                       FGameplayEventData Payload)
 {
 	SendGameplayEventToOwner(EventTag, Payload);
 }
 
 void UARPGCombatManager::ClientSendGameplayEventToOwner_Implementation(FGameplayTag EventTag,
-	FGameplayEventData Payload)
+                                                                       FGameplayEventData Payload)
 {
 	OwnerCharacter->GetAbilitySystemComponent()->HandleGameplayEvent(EventTag, &Payload);
-	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(), *GetNameSafe(OwnerCharacter.Get()));
+	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(),
+	       *GetNameSafe(OwnerCharacter.Get()));
 }
 
 bool UARPGCombatManager::TryVisceralAttack(bool bUseLockOnTarget)
@@ -161,7 +200,7 @@ bool UARPGCombatManager::TryVisceralAttack(bool bUseLockOnTarget)
 	{
 		return TryExecuteVisceralAttackToTarget(OwnerCharacter->GetTargetManager()->GetLockOnTarget());
 	}
-	
+
 	float Range = 50.f;
 	float Radius = 35.f;
 	FVector Start = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * Radius;
@@ -186,7 +225,7 @@ bool UARPGCombatManager::TryVisceralAttack(bool bUseLockOnTarget)
 bool UARPGCombatManager::TryExecuteVisceralAttackToTarget(AARPGCharacter* Target)
 {
 	if (Target->GetAbilitySystemComponent()->HasMatchingGameplayTag(
-				FGameplayTag::RequestGameplayTag(FName("State.Break"))))
+		FGameplayTag::RequestGameplayTag(FName("State.Break"))))
 	{
 		if (OwnerCharacter->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(
 			FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName("Ability.Common.VisceralAttack")))))
@@ -196,9 +235,11 @@ bool UARPGCombatManager::TryExecuteVisceralAttackToTarget(AARPGCharacter* Target
 			EventData.Target = Target;
 			FGameplayEffectContext EffectContext;
 
-			OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(Target, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
-			OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
-					
+			OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(
+				Target, FGameplayTag::RequestGameplayTag(FName("Event.VisceralAttack")), EventData);
+			OwnerCharacter->GetARPGAbilitySystemComponent()->SendGameplayEventToActor(
+				OwnerCharacter.Get(), FGameplayTag::RequestGameplayTag(FName("Event.Ability.Move")), EventData);
+
 			return true;
 		}
 	}

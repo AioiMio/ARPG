@@ -69,14 +69,18 @@ public:
 	FORCEINLINE void SetCurrentSkillMultiplier(float InMultiplier) { CurrentSkillMultiplier = InMultiplier; }
 	FORCEINLINE float GetCurrentSkillMultiplier() const { return CurrentSkillMultiplier; }
 
-	void SendHitEventToActor(AActor* Target, FHitResult Hit, EAttackType AttackType, EHitReactType HitReactType, float Multiplier = 1.f);
+	void SendHitEventToActor(AActor* Target,
+	                         FHitResult Hit,
+	                         EAttackType AttackType,
+	                         EHitReactType HitReactType,
+	                         float Multiplier = 1.f);
 
 	void SendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
 	UFUNCTION(Server, Reliable)
 	void ServerSendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
 	UFUNCTION(Client, Reliable)
 	void ClientSendGameplayEventToOwner(FGameplayTag EventTag, FGameplayEventData Payload);
-	
+
 	bool TryVisceralAttack(bool bUseLockOnTarget = false);
 	bool TryExecuteVisceralAttackToTarget(AARPGCharacter* Target);
 
@@ -121,6 +125,18 @@ protected:
 
 	UFUNCTION()
 	void OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh);
+
+	UFUNCTION(Server, Reliable)
+	void ServerHitEvent(AActor* Target,
+	                    FHitResult Hit,
+	                    EAttackType AttackType,
+	                    EHitReactType HitReactType,
+	                    float Multiplier);
+	void HitEvent(AActor* Target,
+	              FHitResult Hit,
+	              EAttackType AttackType,
+	              EHitReactType HitReactType,
+	              float Multiplier);
 
 	UFUNCTION()
 	void ApplyHitReact(EARPGHitReactDirection Direction);
