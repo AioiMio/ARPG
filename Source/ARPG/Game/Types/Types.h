@@ -66,3 +66,14 @@ enum class EItemRarity : uint8
 
 	MAX UMETA(DisplayName = "DefaultMAX")
 };
+
+UENUM(BlueprintType)
+enum class EGroundMovementType : uint8
+{
+	Idle UMETA(DisplayName = "Idle"),
+	Walk UMETA(DisplayName = "Walk"),
+	Run UMETA(DisplayName = "Run"),
+	Sprint UMETA(DisplayName = "Sprint"),
+
+	MAX UMETA(DisplayName = "DefaultMAX")
+};

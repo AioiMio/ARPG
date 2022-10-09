@@ -46,6 +46,8 @@ public:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void ServerApplyGameplayEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffect);
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void ServerRemoveGameplayEffectFromSelf(TSubclassOf<UGameplayEffect> GameplayEffect);
 
 	UFUNCTION(BlueprintCallable, Category = "GameplayCue",
 		Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))

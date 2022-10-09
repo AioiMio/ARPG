@@ -97,6 +97,15 @@ void UARPGAbilitySystemComponent::ServerApplyGameplayEffectToSelf_Implementation
 	}
 }
 
+void UARPGAbilitySystemComponent::ServerRemoveGameplayEffectFromSelf_Implementation(
+	TSubclassOf<UGameplayEffect> GameplayEffect)
+{
+	if (IsValid(GameplayEffect))
+	{
+		RemoveActiveGameplayEffectBySourceEffect(GameplayEffect, this);
+	}
+}
+
 void UARPGAbilitySystemComponent::ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag,
                                                           const FGameplayCueParameters& GameplayCueParameters)
 {

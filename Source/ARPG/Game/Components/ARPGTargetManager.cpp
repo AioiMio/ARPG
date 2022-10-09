@@ -71,15 +71,18 @@ void UARPGTargetManager::TickComponent(float DeltaTime,
 			if (LockOnTarget)
 			{
 				CharacterMovementComponent->StopWalking();
+				
+				if (Enemy->GetController())
+				{
+					if (Enemy->GetController()->LineOfSightTo(LockOnTarget))
+					{
+						Enemy->UpdateEnmity();
+					}
+				}
 			}
 			else
 			{
 				CharacterMovementComponent->StartWalking();
-			}
-
-			if (Enemy->GetController()->LineOfSightTo(LockOnTarget))
-			{
-				Enemy->UpdateEnmity();
 			}
 		}
 	}

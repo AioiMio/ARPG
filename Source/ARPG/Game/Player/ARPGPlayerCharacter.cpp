@@ -67,7 +67,7 @@ void AARPGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(PC->MovementInput, ETriggerEvent::Completed, this,
 		                                   &AARPGPlayerCharacter::MovementInputEnd);
 		EnhancedInputComponent->BindAction(PC->InteractInput, ETriggerEvent::Started, this,
-										   &AARPGPlayerCharacter::Interact);
+		                                   &AARPGPlayerCharacter::Interact);
 		// EnhancedInputComponent->BindAction(PC->CameraInput, ETriggerEvent::Triggered, this,
 		// 								   &AARPGPlayerCharacter::CameraInput);
 		// EnhancedInputComponent->BindAction(PC->CameraInput, ETriggerEvent::Completed, this,
@@ -238,23 +238,30 @@ void AARPGPlayerCharacter::MovementInput(const FInputActionValue& InputActionVal
 {
 	MovementInputVector = InputActionValue.Get<FInputActionValue::Axis2D>();
 	const float Magnitude = InputActionValue.GetMagnitude();
-	UARPGCharacterMovementComponent* CharacterMovementComponent = Cast<UARPGCharacterMovementComponent>(
-		GetCharacterMovement());
-	if (CharacterMovementComponent)
+
+	EGroundMovementType Temp;
+	if (Magnitude <= 0.2f)
 	{
-		if (Magnitude > 0.2f && Magnitude < 0.6f)
-		{
-			CharacterMovementComponent->RequestToStartWalking = true;
-		}
-		else
-		{
-			CharacterMovementComponent->RequestToStartWalking = false;
-		}
+		Temp = EGroundMovementType::Idle;
+	}
+	else if (Magnitude > 0.2f && Magnitude <= 0.6f)
+	{
+		Temp = EGroundMovementType::Walk;
+	}
+	else
+	{
+		Temp = EGroundMovementType::Run;
+	}
+
+	if (GroundMovement != Temp)
+	{
+		ServerSetGroundMovement(Temp);
 	}
 
 	if (Magnitude > 0.2f)
 	{
-		FVector WorldDirection = GetControlRotation().RotateVector(FVector(MovementInputVector.Y, MovementInputVector.X, 0.f));
+		FVector WorldDirection = GetControlRotation().RotateVector(
+			FVector(MovementInputVector.Y, MovementInputVector.X, 0.f));
 		WorldDirection.Normalize();
 		AddMovementInput(WorldDirection);
 	}
@@ -264,6 +271,8 @@ void AARPGPlayerCharacter::MovementInputEnd()
 {
 	AbilitySystemComponent->RemoveReplicatedGameplayTag(FGameplayTag::RequestGameplayTag("Input.Movement.Active"));
 	MovementInputVector = FVector2D::Zero();
+
+	ServerSetGroundMovement(EGroundMovementType::Idle);
 }
 
 void AARPGPlayerCharacter::Interact()

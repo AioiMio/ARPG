@@ -103,9 +103,19 @@ void UARPGCharacterMovementComponent::StartWalking()
 	RequestToStartWalking = true;
 }
 
+void UARPGCharacterMovementComponent::ServerStartWalking_Implementation()
+{
+	StartWalking();
+}
+
 void UARPGCharacterMovementComponent::StopWalking()
 {
 	RequestToStartWalking = false;
+}
+
+void UARPGCharacterMovementComponent::ServerStopWalking_Implementation()
+{
+	StopWalking();
 }
 
 void UARPGCharacterMovementComponent::FARPGSavedMove::Clear()

@@ -88,6 +88,10 @@ public:
 	// Walk
 	UFUNCTION(BlueprintCallable, Category = "Movement|Walk")
 	void StartWalking();
+	UFUNCTION(Server,Reliable, BlueprintCallable, Category = "Movement|Walk")
+	void ServerStartWalking();
 	UFUNCTION(BlueprintCallable, Category = "Movement|Walk")
 	void StopWalking();
+	UFUNCTION(Server,Reliable, BlueprintCallable, Category = "Movement|Walk")
+	void ServerStopWalking();
 };

@@ -168,6 +168,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character|Attributes")
 	float GetMoveSpeedBaseValue() const;
 
+	// Movement
+	UFUNCTION(Server, Unreliable)
+	void ServerSetGroundMovement(EGroundMovementType NewGroundMovement);
+	void SetGroundMovement(EGroundMovementType NewGroundMovement);
+	FORCEINLINE EGroundMovementType GetGroundMovement() const { return GroundMovement; }
+
 	virtual void Die();
 	virtual void Break();
 	virtual void Dying();
@@ -226,6 +232,13 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_bEmissive(const bool& bOldEmissive);
 
+	// Movement
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_GroundMovement)
+	EGroundMovementType GroundMovement;
+
+	UFUNCTION()
+	virtual void OnRep_GroundMovement(EGroundMovementType OldGroundMovement);
+
 	FGameplayTag HitEventTag;
 	FGameplayTag HitDirectionFrontTag;
 	FGameplayTag HitDirectionBackTag;
@@ -262,6 +275,12 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sound")
 	USoundBase* DeathSound;
+
+	// Movement
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
+	TSubclassOf<UGameplayEffect> WalkEffect;
+
+	FActiveGameplayEffectHandle WalkEffectSpec;
 
 	// Break Effect
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abilities")

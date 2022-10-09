@@ -95,7 +95,7 @@ void AARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void AARPGCharacter::ServerSetEmissive_Implementation(bool bInEmissive)
@@ -107,6 +107,10 @@ void AARPGCharacter::ServerSetEmissive_Implementation(bool bInEmissive)
 void AARPGCharacter::OnRep_bEmissive(const bool& bOldEmissive)
 {
 	GetMesh()->SetScalarParameterValueOnMaterials(FName("EmissivePower"), bEmissive ? 10.f : 0.f);
+}
+
+void AARPGCharacter::OnRep_GroundMovement(EGroundMovementType OldGroundMovement)
+{
 }
 
 void AARPGCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
@@ -424,6 +428,44 @@ float AARPGCharacter::GetMoveSpeedBaseValue() const
 	return 0.0f;
 }
 
+// Movement
+void AARPGCharacter::SetGroundMovement(EGroundMovementType NewGroundMovement)
+{
+	if (NewGroundMovement == EGroundMovementType::Walk)
+	{
+		// if (AbilitySystemComponent.IsValid() && WalkEffect)
+		// {
+		// 	FGameplayEffectContextHandle EffectContext;
+		// 	FGameplayEffectSpecHandle GameplayEffectSpec = AbilitySystemComponent->MakeOutgoingSpec(WalkEffect, 1, EffectContext);
+		// 	WalkEffectSpec = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*GameplayEffectSpec.Data);
+		// }
+
+		if (UARPGCharacterMovementComponent* CM = Cast<UARPGCharacterMovementComponent>(GetCharacterMovement()))
+		{
+			CM->StartWalking();
+		}
+	}
+	else if (GroundMovement == EGroundMovementType::Walk)
+	{
+		// if (AbilitySystemComponent.IsValid() && WalkEffectSpec.IsValid())
+		// {
+		// 	AbilitySystemComponent->RemoveActiveGameplayEffect(WalkEffectSpec);
+		// }
+
+		if (UARPGCharacterMovementComponent* CM = Cast<UARPGCharacterMovementComponent>(GetCharacterMovement()))
+		{
+			CM->StopWalking();
+		}
+	}
+	
+	GroundMovement = NewGroundMovement;
+}
+
+void AARPGCharacter::ServerSetGroundMovement_Implementation(EGroundMovementType NewGroundMovement)
+{
+	SetGroundMovement(NewGroundMovement);
+}
+
 // Run on Server and all clients
 void AARPGCharacter::Die()
 {
@@ -460,7 +502,7 @@ void AARPGCharacter::Die()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
 	}
-	if (DeathMontage)
+	if (DeathMontage && GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Falling)
 	{
 		PlayAnimMontage(DeathMontage);
 	}
@@ -666,4 +708,5 @@ void AARPGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AARPGCharacter, bEmissive);
+	DOREPLIFETIME(AARPGCharacter, GroundMovement);
 }
