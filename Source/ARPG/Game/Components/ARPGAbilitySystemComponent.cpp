@@ -65,8 +65,6 @@ void UARPGAbilitySystemComponent::SendGameplayEventToActor(AActor* Actor,
 			InCharacter->GetARPGAbilitySystemComponent()->ClientSendGameplayEventToActor(Actor, EventTag, Payload);
 		}
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
-		UE_LOG(LogTemp, Warning, TEXT("[Server] SendGameplayEvent: %s To: %s"), *EventTag.ToString(),
-		       *GetNameSafe(GetAvatarActor()));
 	}
 }
 
@@ -82,8 +80,6 @@ void UARPGAbilitySystemComponent::ClientSendGameplayEventToActor_Implementation(
 	FGameplayEventData Payload)
 {
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
-	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(),
-	       *GetNameSafe(GetAvatarActor()));
 }
 
 void UARPGAbilitySystemComponent::ServerApplyGameplayEffectToSelf_Implementation(

@@ -175,8 +175,6 @@ void UARPGCombatManager::SendGameplayEventToOwner(FGameplayTag EventTag, FGamepl
 			ClientSendGameplayEventToOwner(EventTag, Payload);
 		}
 		OwnerCharacter->GetAbilitySystemComponent()->HandleGameplayEvent(EventTag, &Payload);
-		UE_LOG(LogTemp, Warning, TEXT("[Server] SendGameplayEvent: %s To: %s"), *EventTag.ToString(),
-		       *GetNameSafe(OwnerCharacter.Get()));
 	}
 }
 
@@ -190,8 +188,6 @@ void UARPGCombatManager::ClientSendGameplayEventToOwner_Implementation(FGameplay
                                                                        FGameplayEventData Payload)
 {
 	OwnerCharacter->GetAbilitySystemComponent()->HandleGameplayEvent(EventTag, &Payload);
-	UE_LOG(LogTemp, Warning, TEXT("[Client] SendGameplayEvent: %s To: %s"), *EventTag.ToString(),
-	       *GetNameSafe(OwnerCharacter.Get()));
 }
 
 bool UARPGCombatManager::TryVisceralAttack(bool bUseLockOnTarget)
