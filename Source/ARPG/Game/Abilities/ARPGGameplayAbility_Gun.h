@@ -42,6 +42,9 @@ protected:
 	float Range;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float Speed;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float Damage;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Montage")

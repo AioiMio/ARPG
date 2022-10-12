@@ -33,20 +33,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE AActor* GetOwnerActor() { return OwnerActor; }
 
-protected:
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthTop;
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthBottom;
 	UPROPERTY(meta = (BindWidget))
+	USizeBox* HealthBarBox;
+	UPROPERTY(meta = (BindWidget))
 	USizeBox* HealthPivotBox;
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* PostureBox;
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar* PostureBar;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CharacterName;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DamageNum;
 
+protected:
 	float ChangeHealthBottomDelay = 1.f;
 
 private:

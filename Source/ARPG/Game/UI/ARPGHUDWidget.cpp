@@ -19,6 +19,10 @@ UARPGHUDWidget::UARPGHUDWidget(const FObjectInitializer& ObjectInitializer) : Su
 	MaxHealth = 0.f;
 	MaxMana = 0.f;
 	MaxStamina = 0.f;
+	
+	ChangeHealthDelegate.BindUFunction(this, "ChangeHealthBottomElapsed");
+	ChangeStaminaDelegate.BindUFunction(this, "ChangeStaminaBottomElapsed");
+	ChangeManaDelegate.BindUFunction(this, "ChangeManaBottomElapsed");
 }
 
 void UARPGHUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -31,6 +35,7 @@ void UARPGHUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		{
 			bCanChangeHealthBottom = false;
 			bCanHealthChangedTimerSet = true;
+			HealthBottom->SetPercent(Health->Percent);
 		}
 		else
 		{
@@ -45,6 +50,7 @@ void UARPGHUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		{
 			bCanChangeManaBottom = false;
 			bCanManaChangedTimerSet = true;
+			ManaBottom->SetPercent(Mana->Percent);
 		}
 		else
 		{
@@ -59,6 +65,7 @@ void UARPGHUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		{
 			bCanChangeStaminaBottom = false;
 			bCanStaminaChangedTimerSet = true;
+			StaminaBottom->SetPercent(Stamina->Percent);
 		}
 		else
 		{
@@ -96,14 +103,11 @@ void UARPGHUDWidget::SetHealthPercentage(float HealthPercentage)
 		{
 			if (Health->Percent > HealthBottom->Percent)
 			{
-				HealthBottom->SetPercent(Health->Percent);
+				bCanChangeHealthBottom = true;
 			}
 			if (Health->Percent < HealthBottom->Percent && bCanHealthChangedTimerSet)
 			{
-				FTimerDelegate Delegate;
-				Delegate.BindUFunction(this, "ChangeHealthBottomElapsed");
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle_HealthBottomDelay, Delegate, ChangeBottomDelay,
-				                                       false);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_HealthBottomDelay, ChangeHealthDelegate, ChangeBottomDelay, false);
 				bCanHealthChangedTimerSet = false;
 			}
 		}
@@ -133,14 +137,11 @@ void UARPGHUDWidget::SetStaminaPercentage(float StaminaPercentage)
 		{
 			if (Stamina->Percent > StaminaBottom->Percent)
 			{
-				StaminaBottom->SetPercent(Stamina->Percent);
+				bCanChangeStaminaBottom = true;
 			}
 			if (Stamina->Percent < StaminaBottom->Percent && bCanStaminaChangedTimerSet)
 			{
-				FTimerDelegate Delegate;
-				Delegate.BindUFunction(this, "ChangeStaminaBottomElapsed");
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaBottomDelay, Delegate, ChangeBottomDelay,
-				                                       false);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaBottomDelay, ChangeStaminaDelegate, 0.2f, false);
 				bCanStaminaChangedTimerSet = false;
 			}
 		}
@@ -170,13 +171,11 @@ void UARPGHUDWidget::SetManaPercentage(float ManaPercentage)
 		{
 			if (Mana->Percent > ManaBottom->Percent)
 			{
-				ManaBottom->SetPercent(Mana->Percent);
+				bCanChangeManaBottom = true;
 			}
 			if (Mana->Percent < ManaBottom->Percent && bCanManaChangedTimerSet)
 			{
-				FTimerDelegate Delegate;
-				Delegate.BindUFunction(this, "ChangeManaBottomElapsed");
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle_ManaBottomDelay, Delegate, ChangeBottomDelay, false);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle_ManaBottomDelay, ChangeManaDelegate, ChangeBottomDelay, false);
 				bCanManaChangedTimerSet = false;
 			}
 		}

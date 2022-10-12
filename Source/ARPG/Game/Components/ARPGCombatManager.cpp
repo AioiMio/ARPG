@@ -50,7 +50,7 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 		{
 			IgnoredActors.Add(Hit.GetActor());
 			AARPGCharacter* HitCharacter = Cast<AARPGCharacter>(Hit.GetActor());
-			if (HitCharacter && HitCharacter->GetCombatManager()->GetCharacterCamp() != CharacterCamp)
+			if (HitCharacter && HitCharacter->IsAlive() && HitCharacter->GetCombatManager()->GetCharacterCamp() != CharacterCamp)
 			{
 				if (HitCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(
 					FGameplayTag::RequestGameplayTag(FName("State.Immunity"))))
@@ -59,23 +59,6 @@ void UARPGCombatManager::OnAttackHit(FHitResult Hit, UPrimitiveComponent* Mesh)
 				}
 
 				HitEvent(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
-
-				// FGameplayEventData HitEventData;
-				// HitEventData.Instigator = GetOwner();
-				// HitEventData.Target = HitCharacter;
-				// HitEventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromHitResult(Hit);
-				// UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), HitEventTag, HitEventData);
-				//
-				// SendHitEventToActor(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
-
-				// if (GetOwnerRole() != ENetRole::ROLE_Authority)
-				// {
-				// 	ServerHitEvent(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
-				// }
-				// else
-				// {
-				// 	HitEvent(HitCharacter, Hit, CurrentAttackType, CurrentHitReactType, CurrentSkillMultiplier);
-				// }
 			}
 		}
 	}

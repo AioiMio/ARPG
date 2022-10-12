@@ -13,7 +13,7 @@ void UAnimNotify_SendEventToOwner::Notify(USkeletalMeshComponent* MeshComp,
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 	
-	if (AARPGCharacter* OwnerCharacter = Cast<AARPGCharacter>(MeshComp->GetOuter()))
+	if (AARPGCharacter* OwnerCharacter = Cast<AARPGCharacter>(MeshComp->GetOwner()))
 	{
 		if (UAbilitySystemComponent* ASC = OwnerCharacter->GetAbilitySystemComponent())
 		{

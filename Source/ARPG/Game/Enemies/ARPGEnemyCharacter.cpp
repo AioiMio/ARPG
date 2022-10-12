@@ -117,9 +117,12 @@ void AARPGEnemyCharacter::AddCharacterAbilities()
 
 	for (TSubclassOf<UARPGGameplayAbility>& StartupAbility : CharacterAbilities)
 	{
-		AbilitySystemComponent->GiveAbility(
-			FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID),
-			                     static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
+		if (IsValid(StartupAbility))
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID),
+				                     static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
+		}
 	}
 	// Grant ComboGraphNativeAbility for behavior tree
 	AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(UComboGraphNativeAbility::StaticClass()));

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "ARPG/Game/Equipments/Weapons/ARPGProjectile.h"
 #include "ARPG/Game/Types/Types.h"
 #include "ARPGGameplayAbility.generated.h"
 
@@ -30,6 +31,12 @@ public:
 	                        const FGameplayAbilityActivationInfo ActivationInfo,
 	                        bool bReplicateEndAbility,
 	                        bool bWasCancelled) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Projectile")
+	void SpawnProjectile(TSubclassOf<AARPGProjectile> ProjectileClass, APawn* Instigator, FTransform Transform, float Range, float Speed, const FGameplayEffectSpecHandle& EffectSpec);
+
+	UFUNCTION(BlueprintCallable)
+	void AddBlockAbilitiesWithTag(FGameplayTag Tag);
 	
 	// Abilities with this set will automatically activate when the input is pressed
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")

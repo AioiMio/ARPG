@@ -29,6 +29,7 @@ void UARPGHealthBarWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 		{
 			bCanChangeHealthBottom = false;
 			bCanHealthChangeTimerSet = true;
+			HealthBottom->SetPercent(HealthTop->Percent);
 		}
 		else
 		{
@@ -43,13 +44,13 @@ void UARPGHealthBarWidget::SetHealthPercentage(float InPercent)
 	if (HealthTop)
 	{
 		HealthTop->SetPercent(InPercent);
-		HealthPivotBox->SetWidthOverride(InPercent * 200.f);
+		HealthPivotBox->SetWidthOverride(InPercent * HealthBarBox->WidthOverride * RenderTransform.Scale.X);
 		
 		if (HealthBottom)
 		{
 			if (HealthTop->Percent > HealthBottom->Percent)
 			{
-				HealthBottom->SetPercent(HealthTop->Percent);
+				bCanChangeHealthBottom = true;
 			}
 			if (HealthTop->Percent < HealthBottom->Percent && bCanHealthChangeTimerSet)
 			{
@@ -66,7 +67,7 @@ void UARPGHealthBarWidget::SetPosturePercentage(float InPercent)
 {
 	if (PostureBox)
 	{
-		PostureBox->SetWidthOverride(200.f * (1 - InPercent));
+		PostureBar->SetPercent(1 - InPercent);
 	}
 }
 

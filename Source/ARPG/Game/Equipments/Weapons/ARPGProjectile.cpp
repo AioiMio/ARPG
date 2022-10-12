@@ -27,7 +27,7 @@ AARPGProjectile::AARPGProjectile()
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(FName("ProjectileMovement"));
-	ProjectileMovement->InitialSpeed = 5000.f;
+	ProjectileMovement->InitialSpeed = Speed;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 }
 

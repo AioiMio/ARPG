@@ -20,9 +20,9 @@ UARPGGameplayAbility::UARPGGameplayAbility()
 }
 
 void UARPGGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+                                           const FGameplayAbilityActorInfo* ActorInfo,
+                                           const FGameplayAbilityActivationInfo ActivationInfo,
+                                           const FGameplayEventData* TriggerEventData)
 {
 	if (bHasBlueprintActivate)
 	{
@@ -38,7 +38,10 @@ void UARPGGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 		}
 		else
 		{
-			UE_LOG(LogAbilitySystem, Warning, TEXT("Ability %s expects event data but none is being supplied. Use Activate Ability instead of Activate Ability From Event."), *GetName());
+			UE_LOG(LogAbilitySystem, Warning,
+			       TEXT(
+				       "Ability %s expects event data but none is being supplied. Use Activate Ability instead of Activate Ability From Event."
+			       ), *GetName());
 			bool bReplicateEndAbility = false;
 			bool bWasCancelled = true;
 			EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -48,22 +51,23 @@ void UARPGGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	}
-	
+
 	if (GameplayEffects.Num() > 0)
 	{
 		for (const TSubclassOf<UGameplayEffect>& Effect : GameplayEffects)
 		{
 			FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(Effect);
-			ActiveGameplayEffects.Add(ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, EffectSpecHandle));
+			ActiveGameplayEffects.Add(
+				ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, EffectSpecHandle));
 		}
 	}
 }
 
 void UARPGGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility,
-	bool bWasCancelled)
+                                      const FGameplayAbilityActorInfo* ActorInfo,
+                                      const FGameplayAbilityActivationInfo ActivationInfo,
+                                      bool bReplicateEndAbility,
+                                      bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
@@ -75,6 +79,27 @@ void UARPGGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		}
 	}
 	ActiveGameplayEffects.Empty();
+}
+
+void UARPGGameplayAbility::SpawnProjectile(TSubclassOf<AARPGProjectile> ProjectileClass,
+                                           APawn* Instigator,
+                                           FTransform Transform,
+                                           float Range,
+                                           float Speed,
+                                           const FGameplayEffectSpecHandle& EffectSpec)
+{
+	AARPGProjectile* Projectile = GetWorld()->SpawnActorDeferred<AARPGProjectile>(
+		ProjectileClass, Transform, GetOwningActorFromActorInfo(),
+		Instigator, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	Projectile->DamageEffectSpecHandle = EffectSpec;
+	Projectile->Range = Range;
+	Projectile->Speed = Speed;
+	Projectile->FinishSpawning(Transform);
+}
+
+void UARPGGameplayAbility::AddBlockAbilitiesWithTag(FGameplayTag Tag)
+{
+	BlockAbilitiesWithTag.AddTag(Tag);
 }
 
 void UARPGGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

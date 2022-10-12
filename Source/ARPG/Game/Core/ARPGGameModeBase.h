@@ -39,5 +39,4 @@ protected:
 	virtual void BeginPlay() override;
 
 	void RespawnPlayerCharacter(AController* Controller);
-	
 };

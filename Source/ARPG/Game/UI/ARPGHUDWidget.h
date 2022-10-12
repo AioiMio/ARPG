@@ -9,6 +9,7 @@
 class UImage;
 class USizeBox;
 class UProgressBar;
+class UARPGHealthBarWidget;
 
 /**
  * 
@@ -34,6 +35,9 @@ public:
 	USizeBox* ManaPivotBox;
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* StaminaPivotBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UARPGHealthBarWidget* BossHealthBar;
 	
 	/**
 	* Attribute setters
@@ -142,6 +146,10 @@ protected:
 	bool bCanHealthChangedTimerSet;
 	bool bCanManaChangedTimerSet;
 	bool bCanStaminaChangedTimerSet;
+
+	FTimerDelegate ChangeHealthDelegate;
+	FTimerDelegate ChangeStaminaDelegate;
+	FTimerDelegate ChangeManaDelegate;
 	
 	bool bCanChangeHealthBottom;
 	bool bCanChangeManaBottom;
@@ -151,7 +159,7 @@ protected:
 	float TargetManaPercent;
 	float TargetStaminaPercent;
 
-	float ChangeBottomDelay = 1.f;
+	float ChangeBottomDelay = 0.5f;
 	float MessageClearDelay = 3.f;
 	
 	FTimerHandle TimerHandle_HealthBottomDelay;

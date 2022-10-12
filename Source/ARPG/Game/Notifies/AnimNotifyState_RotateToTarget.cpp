@@ -61,6 +61,36 @@ void UAnimNotifyState_RotateToTarget::NotifyBegin(USkeletalMeshComponent* MeshCo
 	}
 }
 
+void UAnimNotifyState_RotateToTarget::NotifyTick(USkeletalMeshComponent* MeshComp,
+	UAnimSequenceBase* Animation,
+	float FrameDeltaTime,
+	const FAnimNotifyEventReference& EventReference)
+{
+	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
+
+	if (bShouldTick)
+	{
+		Character = Cast<AARPGCharacter>(MeshComp->GetOuter());
+		if (Character.IsValid() && Character->IsLocallyControlled())
+		{
+			if (bAutoFaceTarget)
+			{
+				if (AARPGCharacter* Target = Character->GetTargetManager()->GetLockOnTarget())
+				{
+					FVector TargetLocation = Target->GetLockOnPointComponent()->GetComponentLocation();
+					Character->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
+					if (!Character->HasAuthority())
+					{
+						Character->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
+					}
+
+					return;
+				}
+			}
+		}
+	}
+}
+
 void UAnimNotifyState_RotateToTarget::NotifyEnd(USkeletalMeshComponent* MeshComp,
                                                 UAnimSequenceBase* Animation,
                                                 const FAnimNotifyEventReference& EventReference)

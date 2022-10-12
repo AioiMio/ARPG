@@ -36,15 +36,15 @@ void UAnimNotifyState_AttackAndTrail::NotifyBegin(USkeletalMeshComponent* MeshCo
 		}
 	}
 	
-	if (AARPGCharacter* Character = Cast<AARPGCharacter>(MeshComp->GetOuter()))
-	{
-		AARPGWeapon* RightHandWeapon = Character->GetEquipmentManager()->GetCurrentRightHandWeapon();
-		if (RightHandWeapon)
-		{
-			RightHandWeaponMesh = RightHandWeapon->GetMesh();
-			Super::NotifyBegin(RightHandWeaponMesh, Animation, TotalDuration, EventReference);
-		}
-	}
+	// if (AARPGCharacter* Character = Cast<AARPGCharacter>(MeshComp->GetOuter()))
+	// {
+	// 	AARPGWeapon* RightHandWeapon = Character->GetEquipmentManager()->GetCurrentRightHandWeapon();
+	// 	if (RightHandWeapon)
+	// 	{
+	// 		RightHandWeaponMesh = RightHandWeapon->GetMesh();
+	// 		Super::NotifyBegin(RightHandWeaponMesh, Animation, TotalDuration, EventReference);
+	// 	}
+	// }
 }
 
 void UAnimNotifyState_AttackAndTrail::NotifyTick(USkeletalMeshComponent* MeshComp,
@@ -52,10 +52,10 @@ void UAnimNotifyState_AttackAndTrail::NotifyTick(USkeletalMeshComponent* MeshCom
 	float FrameDeltaTime,
 	const FAnimNotifyEventReference& EventReference)
 {
-	if (RightHandWeaponMesh)
-	{
-		Super::NotifyTick(RightHandWeaponMesh, Animation, FrameDeltaTime, EventReference);
-	}
+	// if (RightHandWeaponMesh)
+	// {
+	// 	Super::NotifyTick(RightHandWeaponMesh, Animation, FrameDeltaTime, EventReference);
+	// }
 }
 
 void UAnimNotifyState_AttackAndTrail::NotifyEnd(USkeletalMeshComponent* MeshComp,
@@ -78,8 +78,8 @@ void UAnimNotifyState_AttackAndTrail::NotifyEnd(USkeletalMeshComponent* MeshComp
 		}
 	}
 	
-	if (RightHandWeaponMesh)
-	{
-		Super::NotifyEnd(RightHandWeaponMesh, Animation, EventReference);
-	}
+	// if (RightHandWeaponMesh)
+	// {
+	// 	Super::NotifyEnd(RightHandWeaponMesh, Animation, EventReference);
+	// }
 }
