@@ -139,7 +139,7 @@ void UARPGGameplayAbility_Gun::EventReceived(FGameplayTag EventTag, FGameplayEve
 			// Projectile->DamageEffectSpecHandle = DamageEffectSpecHandle;
 			// Projectile->Range = Range;
 			// Projectile->FinishSpawning(MuzzleTransform);
-			SpawnProjectile(ProjectileClass, SourceCharacter, MuzzleTransform, Range, Speed, DamageEffectSpecHandle);
+			SpawnProjectile(ProjectileClass, SourceCharacter, nullptr, MuzzleTransform, Range, Speed, DamageEffectSpecHandle);
 		}
 	}
 }

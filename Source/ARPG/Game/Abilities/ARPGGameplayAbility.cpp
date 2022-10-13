@@ -83,6 +83,7 @@ void UARPGGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 
 void UARPGGameplayAbility::SpawnProjectile(TSubclassOf<AARPGProjectile> ProjectileClass,
                                            APawn* Instigator,
+                                           AActor* Target,
                                            FTransform Transform,
                                            float Range,
                                            float Speed,
@@ -94,6 +95,7 @@ void UARPGGameplayAbility::SpawnProjectile(TSubclassOf<AARPGProjectile> Projecti
 	Projectile->DamageEffectSpecHandle = EffectSpec;
 	Projectile->Range = Range;
 	Projectile->Speed = Speed;
+	Projectile->Target = Target;
 	Projectile->FinishSpawning(Transform);
 }
 

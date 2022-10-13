@@ -33,11 +33,17 @@ public:
 	                        bool bWasCancelled) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
-	void SpawnProjectile(TSubclassOf<AARPGProjectile> ProjectileClass, APawn* Instigator, FTransform Transform, float Range, float Speed, const FGameplayEffectSpecHandle& EffectSpec);
+	void SpawnProjectile(TSubclassOf<AARPGProjectile> ProjectileClass,
+	                     APawn* Instigator,
+	                     AActor* Target,
+	                     FTransform Transform,
+	                     float Range,
+	                     float Speed,
+	                     const FGameplayEffectSpecHandle& EffectSpec);
 
 	UFUNCTION(BlueprintCallable)
 	void AddBlockAbilitiesWithTag(FGameplayTag Tag);
-	
+
 	// Abilities with this set will automatically activate when the input is pressed
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
 	EARPGAbilityInputID AbilityInputID = EARPGAbilityInputID::None;
