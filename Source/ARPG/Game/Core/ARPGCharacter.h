@@ -180,6 +180,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	virtual void FinishDying();
 
+	virtual void PreRestart(); 
+
 	void ResetPosture(float ResetDelay = 0.f);
 
 protected:

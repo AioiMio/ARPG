@@ -3,14 +3,19 @@
 
 #include "ARPGBossCharacter.h"
 
+#include "ARPG/Game/AI/ARPGAIController.h"
 #include "ARPG/Game/Core/ARPGPlayerController.h"
 #include "ARPG/Game/UI/ARPGHealthBarWidget.h"
 #include "ARPG/Game/UI/ARPGHUDWidget.h"
 #include "Components/SizeBox.h"
+#include "Components/WidgetComponent.h"
 
 AARPGBossCharacter::AARPGBossCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	DiscoverWidgetComponent->SetVisibility(false);
+	HealthBarComponent->SetVisibility(false);
 }
 
 void AARPGBossCharacter::InitializeBossHealthBar() const
@@ -63,8 +68,10 @@ void AARPGBossCharacter::BeginPlay()
 	}
 }
 
-void AARPGBossCharacter::Die()
+void AARPGBossCharacter::Destroyed()
 {
+	Super::Destroyed();
+
 	if (AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetWorld()->GetFirstPlayerController()))
 	{
 		if (PC && PC->GetHUD())
@@ -72,6 +79,5 @@ void AARPGBossCharacter::Die()
 			PC->GetHUD()->BossHealthBar->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
-	
-	Super::Die();
 }
+

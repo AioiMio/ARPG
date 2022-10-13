@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ARPG/Game/Core/ARPGMechanism.h"
 #include "GameFramework/Actor.h"
 #include "ARPGBossTrigger.generated.h"
 
+class AARPGCharacter;
 class AARPGBossCharacter;
 class UBoxComponent;
 
@@ -17,9 +19,13 @@ class ARPG_API AARPGBossTrigger : public AActor
 public:
 	AARPGBossTrigger();
 
+	virtual void PostInitializeComponents() override;
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
+
+	void ResetTrigger();
+
 protected:
 	virtual void BeginPlay() override;
-	virtual void PostInitializeComponents() override;
 
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* BoxComponent;
@@ -35,5 +41,12 @@ protected:
 	                       bool bFromSweep,
 	                       const FHitResult& SweepResult);
 
+	UFUNCTION()
+	void OnBossDied(AARPGCharacter* Character);
+
+	UPROPERTY(Replicated)
 	bool bTriggered;
+
+	UPROPERTY(EditAnywhere)
+	AARPGMechanism* FogGate;
 };

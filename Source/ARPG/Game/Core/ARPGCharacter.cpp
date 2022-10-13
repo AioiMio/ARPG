@@ -123,8 +123,9 @@ void AARPGCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8
 	}
 	else if (PrevMovementMode == EMovementMode::MOVE_Falling)
 	{
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag("Event.Movement.Land"), FGameplayEventData());
-		
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			this, FGameplayTag::RequestGameplayTag("Event.Movement.Land"), FGameplayEventData());
+
 		FTimerDelegate Delegate;
 		Delegate.BindUFunction(this, "LandElapsed");
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_LandDelay, Delegate, 0.05f, false);
@@ -247,7 +248,7 @@ void AARPGCharacter::PlayHitReact_Implementation(FGameplayTag HitDirection, AAct
 		HitReactEventData.Instigator = DamageCauser;
 		HitReactEventData.Target = this;
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, HitDirection, HitReactEventData);
-		
+
 		if (HitDirection == HitDirectionLeftTag)
 		{
 			ShowHitReact.Broadcast(EARPGHitReactDirection::Left);
@@ -294,7 +295,8 @@ void AARPGCharacter::SprintStart()
 
 void AARPGCharacter::SprintStop()
 {
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag("Event.Movement.EndSprint"), FGameplayEventData());
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		this, FGameplayTag::RequestGameplayTag("Event.Movement.EndSprint"), FGameplayEventData());
 }
 
 void AARPGCharacter::RightHandAttackAction()
@@ -445,7 +447,7 @@ void AARPGCharacter::SetGroundMovement(EGroundMovementType NewGroundMovement)
 			CM->StopWalking();
 		}
 	}
-	
+
 	GroundMovement = NewGroundMovement;
 }
 
@@ -506,7 +508,8 @@ void AARPGCharacter::Break()
 	{
 		if (BreakEffect)
 		{
-			FGameplayEffectSpecHandle BreakEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(BreakEffect, 1.f, FGameplayEffectContextHandle());
+			FGameplayEffectSpecHandle BreakEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
+				BreakEffect, 1.f, FGameplayEffectContextHandle());
 			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*BreakEffectSpecHandle.Data.Get());
 		}
 	}
@@ -520,6 +523,23 @@ void AARPGCharacter::Dying()
 
 void AARPGCharacter::FinishDying()
 {
+	Destroy();
+}
+
+void AARPGCharacter::PreRestart()
+{
+	// Only runs on Server
+	RemoveCharacterAbilities();
+
+	if (AbilitySystemComponent.IsValid())
+	{
+		AbilitySystemComponent->CancelAllAbilities();
+
+		FGameplayTagContainer EffectTagsToRemove;
+		EffectTagsToRemove.AddTag(EffectRemoveOnDeathTag);
+		int32 NumEffectsRemoved = AbilitySystemComponent->RemoveActiveEffectsWithTags(EffectTagsToRemove);
+	}
+	
 	Destroy();
 }
 

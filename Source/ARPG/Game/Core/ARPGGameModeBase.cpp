@@ -4,7 +4,11 @@
 #include "ARPGGameModeBase.h"
 
 #include "ARPGPlayerController.h"
+#include "EngineUtils.h"
+#include "ARPG/Game/Enemies/ARPGBossCharacter.h"
 #include "ARPG/Game/Player/ARPGPlayerCharacter.h"
+#include "ARPG/Game/UI/ARPGHealthBarWidget.h"
+#include "ARPG/Game/UI/ARPGHUDWidget.h"
 #include "GameFramework/SpectatorPawn.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -42,22 +46,6 @@ void AARPGGameModeBase::RestartPlayer(AController* NewPlayer)
 	RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
 }
 
-void AARPGGameModeBase::PlayerCharacterDied(AController* Controller)
-{
-	// FActorSpawnParameters SpawnParameters;
-	// SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	// ASpectatorPawn* SpectatorPawn = GetWorld()->SpawnActor<ASpectatorPawn>(SpectatorClass, Controller->GetPawn()->GetActorTransform(), SpawnParameters);
-	//
-	Controller->UnPossess();
-	// Controller->Possess(SpectatorPawn);
-
-	FTimerHandle RespawnTimerHandle;
-	FTimerDelegate RespawnDelegate;
-
-	RespawnDelegate = FTimerDelegate::CreateUObject(this, &AARPGGameModeBase::RespawnPlayerCharacter, Controller);
-	GetWorldTimerManager().SetTimer(RespawnTimerHandle, RespawnDelegate, RespawnDelay, false);
-}
-
 void AARPGGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -75,6 +63,32 @@ void AARPGGameModeBase::BeginPlay()
 	}
 }
 
+void AARPGGameModeBase::PlayerCharacterDied(AController* Controller)
+{
+	Controller->UnPossess();
+
+	if (Controller == GetWorld()->GetFirstPlayerController())
+	{
+		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		{
+			if (It->Get() != Controller)
+			{
+				AARPGPlayerController* PC = Cast<AARPGPlayerController>(It->Get());
+				if (PC)
+				{
+					PC->ShowMessage(FText::FromString("Summoner has died. Returning to the last bonfire."), 5.f);
+				}
+			}
+		}
+	}
+
+	FTimerHandle RespawnTimerHandle;
+	FTimerDelegate RespawnDelegate;
+
+	RespawnDelegate = FTimerDelegate::CreateUObject(this, &AARPGGameModeBase::RespawnPlayerCharacter, Controller);
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, RespawnDelegate, RespawnDelay, false);
+}
+
 void AARPGGameModeBase::SetPlayerStartName(FName StartName)
 {
 	PlayerStartName = StartName;
@@ -84,6 +98,45 @@ void AARPGGameModeBase::RespawnPlayerCharacter(AController* Controller)
 {
 	if (Controller->IsPlayerController())
 	{
+		// DestroyAllBosses
+		if (Controller->IsLocalController())
+		{
+			for (FActorIterator It(GetWorld()); It; ++It)
+			{
+				AARPGBossCharacter* Boss = Cast<AARPGBossCharacter>(*It);
+				if (Boss)
+				{
+					if (Boss->Trigger.IsValid())
+					{
+						Boss->Trigger->ResetTrigger();
+					}
+					Boss->Destroy();
+				}
+			}
+
+			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+			{
+				if (It->Get() != Controller)
+				{
+					if (AARPGPlayerCharacter* InCharacter = Cast<AARPGPlayerCharacter>(It->Get()->GetPawn()))
+					{
+						if (InCharacter->IsAlive())
+						{
+							InCharacter->PreRestart();
+							It->Get()->UnPossess();
+							RespawnPlayerCharacter(It->Get());
+						}
+					}
+				}
+			}
+		}
+
+		AARPGPlayerController* PC = Cast<AARPGPlayerController>(Controller);
+		if (PC->GetHUD())
+		{
+			PC->GetHUD()->BossHealthBar->SetVisibility(ESlateVisibility::Hidden);
+		}
+		
 		// Respawn player character
 		AActor* PlayerStart = FindPlayerStart(Controller, PlayerStartName.ToString());
 

@@ -61,7 +61,7 @@ public:
 	FORCEINLINE UARPGHUDWidget* GetHUD() { return UIHUDWidget; }
 
 	UFUNCTION(Client, Reliable, BlueprintCallable)
-	void ShowMessage(const FText& Message);
+	void ShowMessage(const FText& Message, float Duration = 3.f);
 
 protected:
 	virtual void BeginPlay() override;

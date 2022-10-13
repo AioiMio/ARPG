@@ -103,7 +103,7 @@ public:
 	void SetInteractText(FText InText);
 	
 	UFUNCTION(BlueprintCallable)
-	void SetMessageText(FText InText);
+	void SetMessageText(FText InText, float Duration = 3.f);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -160,7 +160,6 @@ protected:
 	float TargetStaminaPercent;
 
 	float ChangeBottomDelay = 0.5f;
-	float MessageClearDelay = 3.f;
 	
 	FTimerHandle TimerHandle_HealthBottomDelay;
 	FTimerHandle TimerHandle_ManaBottomDelay;

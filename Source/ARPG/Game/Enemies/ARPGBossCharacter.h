@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ARPGBossTrigger.h"
 #include "ARPGEnemyCharacter.h"
 #include "ARPGBossCharacter.generated.h"
 
@@ -17,12 +18,13 @@ class ARPG_API AARPGBossCharacter : public AARPGEnemyCharacter
 public:
 	AARPGBossCharacter(const class FObjectInitializer& ObjectInitializer);
 
-	virtual void Die() override;
-
 	TWeakObjectPtr<UARPGHealthBarWidget> BossHealthBar;
+
+	TWeakObjectPtr<AARPGBossTrigger> Trigger;
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 	
 	void InitializeBossHealthBar() const;
 	

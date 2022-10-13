@@ -221,7 +221,7 @@ void UARPGHUDWidget::SetInteractText(FText InText)
 	}
 }
 
-void UARPGHUDWidget::SetMessageText(FText InText)
+void UARPGHUDWidget::SetMessageText(FText InText, float Duration)
 {
 	MessageText = InText;
 	if (!InText.IsEmpty())
@@ -230,7 +230,7 @@ void UARPGHUDWidget::SetMessageText(FText InText)
 		
 		FTimerDelegate Delegate;
 		Delegate.BindUFunction(this, "ClearMessageElapsed");
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_MessageClearDelay, Delegate, MessageClearDelay, false);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_MessageClearDelay, Delegate, Duration, false);
 	}
 }
 

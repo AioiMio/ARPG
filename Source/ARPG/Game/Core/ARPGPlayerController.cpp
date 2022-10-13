@@ -74,9 +74,9 @@ void AARPGPlayerController::CreateHUD()
 	UIHUDWidget->AddToViewport();
 }
 
-void AARPGPlayerController::ShowMessage_Implementation(const FText& Message)
+void AARPGPlayerController::ShowMessage_Implementation(const FText& Message, float Duration)
 {
-	UIHUDWidget->SetMessageText(Message);
+	UIHUDWidget->SetMessageText(Message, Duration);
 }
 
 void AARPGPlayerController::OnPossess(APawn* InPawn)
