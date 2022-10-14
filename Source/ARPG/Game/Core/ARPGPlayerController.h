@@ -62,6 +62,11 @@ public:
 
 	UFUNCTION(Client, Reliable, BlueprintCallable)
 	void ShowMessage(const FText& Message, float Duration = 3.f);
+	
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void ShowDiedMessage();
+
+	void ShowBossDestroyedMessage() const;
 
 protected:
 	virtual void BeginPlay() override;

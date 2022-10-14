@@ -67,6 +67,11 @@ void AARPGGameModeBase::PlayerCharacterDied(AController* Controller)
 {
 	Controller->UnPossess();
 
+	if (AARPGPlayerController* PC = Cast<AARPGPlayerController>(Controller))
+	{
+		PC->ShowDiedMessage();
+	}
+	
 	if (Controller == GetWorld()->GetFirstPlayerController())
 	{
 		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)

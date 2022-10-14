@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/SizeBox.h"
+#include "Components/TextBlock.h"
 
 UARPGHUDWidget::UARPGHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -208,7 +209,7 @@ void UARPGHUDWidget::SetPosturePercentage(float PosturePercentage)
 	PostureBar->SetWidthOverride(PostureBox->WidthOverride * (1 - PosturePercentage));
 }
 
-void UARPGHUDWidget::SetInteractText(FText InText)
+void UARPGHUDWidget::SetInteractText(const FText& InText)
 {
 	InteractText = InText;
 	if (InText.IsEmpty())
@@ -221,7 +222,7 @@ void UARPGHUDWidget::SetInteractText(FText InText)
 	}
 }
 
-void UARPGHUDWidget::SetMessageText(FText InText, float Duration)
+void UARPGHUDWidget::SetMessageText(const FText& InText, float Duration)
 {
 	MessageText = InText;
 	if (!InText.IsEmpty())
@@ -233,6 +234,29 @@ void UARPGHUDWidget::SetMessageText(FText InText, float Duration)
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_MessageClearDelay, Delegate, Duration, false);
 	}
 }
+
+void UARPGHUDWidget::ShowMainMessage(const FText& Message, const FColor& Color, float Duration)
+{
+	if (!Message.IsEmpty())
+	{
+		MainMessage->SetText(Message);
+		MainMessage->SetColorAndOpacity(FSlateColor(Color));
+		ShowMainMessageAnimation();
+		
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "ClearMainMessageElapsed");
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_MainMessageClearDelay, Delegate, Duration, false);
+	}
+}
+
+void UARPGHUDWidget::ClearMainMessageElapsed()
+{
+	HideMainMessageAnimation();
+}
+
+void UARPGHUDWidget::ShowMainMessageAnimation_Implementation() {}
+
+void UARPGHUDWidget::HideMainMessageAnimation_Implementation() {}
 
 void UARPGHUDWidget::ChangeHealthBottomElapsed()
 {

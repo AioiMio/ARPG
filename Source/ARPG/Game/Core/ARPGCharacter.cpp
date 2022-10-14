@@ -539,7 +539,8 @@ void AARPGCharacter::PreRestart()
 		EffectTagsToRemove.AddTag(EffectRemoveOnDeathTag);
 		int32 NumEffectsRemoved = AbilitySystemComponent->RemoveActiveEffectsWithTags(EffectTagsToRemove);
 	}
-	
+
+	TargetManager->SetLockOnTarget(nullptr);
 	Destroy();
 }
 

@@ -24,6 +24,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Die() override;
 	virtual void Destroyed() override;
 	
 	void InitializeBossHealthBar() const;

@@ -79,6 +79,22 @@ void AARPGPlayerController::ShowMessage_Implementation(const FText& Message, flo
 	UIHUDWidget->SetMessageText(Message, Duration);
 }
 
+void AARPGPlayerController::ShowDiedMessage_Implementation()
+{
+	if (UIHUDWidget)
+	{
+		UIHUDWidget->ShowMainMessage(FText::FromString("You Died"), FColor::Red, 4.f);
+	}
+}
+
+void AARPGPlayerController::ShowBossDestroyedMessage() const
+{
+	if (UIHUDWidget)
+	{
+		UIHUDWidget->ShowMainMessage(FText::FromString("Boss Destroyed"), FColor::Orange, 4.f);
+	}
+}
+
 void AARPGPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

@@ -31,14 +31,16 @@ AARPGProjectile::AARPGProjectile()
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 }
 
-void AARPGProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-}
-
 void AARPGProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
 	SetLifeSpan(Range / ProjectileMovement->InitialSpeed);
+}
+
+void AARPGProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AARPGProjectile, Target);
 }

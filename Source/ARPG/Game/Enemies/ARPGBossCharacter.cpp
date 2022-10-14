@@ -33,7 +33,7 @@ void AARPGBossCharacter::HealthChanged(const FOnAttributeChangeData& Data)
 
 	float Health = Data.NewValue;
 	float Damage = Health - Data.OldValue;
-	
+
 	if (BossHealthBar.IsValid())
 	{
 		BossHealthBar->SetHealthPercentage(Health / GetMaxHealth());
@@ -68,16 +68,25 @@ void AARPGBossCharacter::BeginPlay()
 	}
 }
 
+void AARPGBossCharacter::Die()
+{
+	if (AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetWorld()->GetFirstPlayerController()))
+	{
+		PC->ShowBossDestroyedMessage();
+	}
+
+	Super::Die();
+}
+
 void AARPGBossCharacter::Destroyed()
 {
 	Super::Destroyed();
 
 	if (AARPGPlayerController* PC = Cast<AARPGPlayerController>(GetWorld()->GetFirstPlayerController()))
 	{
-		if (PC && PC->GetHUD())
+		if (PC->GetHUD())
 		{
 			PC->GetHUD()->BossHealthBar->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
-

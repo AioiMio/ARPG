@@ -27,7 +27,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn = true))
 	float Speed = 5000.f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn = true))
+	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn = true))
 	AActor* Target;
 
 	UPROPERTY(BlueprintReadWrite, Meta = (ExposeOnSpawn = true))
@@ -50,4 +50,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bShouldKnockBack = false;
 };

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "ARPGHUDWidget.generated.h"
 
+class UTextBlock;
 class UImage;
 class USizeBox;
 class UProgressBar;
@@ -100,10 +101,13 @@ public:
 	void SetGold(int32 Gold);
 
 	UFUNCTION(BlueprintCallable)
-	void SetInteractText(FText InText);
+	void SetInteractText(const FText& InText);
 	
 	UFUNCTION(BlueprintCallable)
-	void SetMessageText(FText InText, float Duration = 3.f);
+	void SetMessageText(const FText& InText, float Duration = 3.f);
+
+	UFUNCTION(BlueprintCallable)
+	void ShowMainMessage(const FText& Message, const FColor& Color, float Duration);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -120,6 +124,8 @@ protected:
 	USizeBox* InteractBox;
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* MessageBox;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MainMessage;
 
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* Health;
@@ -165,6 +171,7 @@ protected:
 	FTimerHandle TimerHandle_ManaBottomDelay;
 	FTimerHandle TimerHandle_StaminaBottomDelay;
 	FTimerHandle TimerHandle_MessageClearDelay;
+	FTimerHandle TimerHandle_MainMessageClearDelay;
 
 	// Interact
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interact")
@@ -186,9 +193,16 @@ protected:
 	UFUNCTION()
 	void ClearMessageElapsed();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void ShowPostureBar();
+	UFUNCTION()
+	void ClearMainMessageElapsed();
 
 	UFUNCTION(BlueprintImplementableEvent)
+	void ShowPostureBar();
+	UFUNCTION(BlueprintImplementableEvent)
 	void HidePostureBar();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void ShowMainMessageAnimation();
+	UFUNCTION(BlueprintNativeEvent)
+	void HideMainMessageAnimation();
 };
