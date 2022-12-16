@@ -83,4 +83,5 @@ Content/*
 # Ignore
 .ignore
 
-
+# Rider Plugin
+Plugins/Developer/*
