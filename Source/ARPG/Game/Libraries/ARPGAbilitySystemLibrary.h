@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "ARPG/Game/Components/ARPGCombatManager.h"
 #include "ARPGAbilitySystemLibrary.generated.h"
 
 /**
@@ -20,4 +21,16 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "GameplayEffect")
 	static void SetOrigin(FGameplayEffectContextHandle EffectContext, FVector InOrigin);
+
+	// /**
+	// * FGameplayEffectContext
+	// */
+	//
+	// // Returns DamageData
+	// UFUNCTION(BlueprintCallable, Category = "Ability|EffectContext", Meta = (DisplayName = "GetDamageData"))
+	// static FARPGDamageData EffectContextGetDamageData(FGameplayEffectContextHandle EffectContext);
+	//
+	// // Adds DamageData
+	// UFUNCTION(BlueprintCallable, Category = "Ability|EffectContext", Meta = (DisplayName = "AddDamageData"))
+	// static void EffectContextAddDamageData(FGameplayEffectContextHandle EffectContextHandle, const FARPGDamageData& DamageData);
 };

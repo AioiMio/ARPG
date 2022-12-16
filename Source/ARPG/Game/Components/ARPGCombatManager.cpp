@@ -12,6 +12,33 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
+FARPGDamageData::FARPGDamageData()
+{
+	DamageMultipliers.Empty();
+	PostureDamage = 0.f;
+	ImpactLevel = -1;
+	AttackType = EAttackType::None;
+	HitType = EHitReactType::None;
+}
+
+FARPGDamageData::FARPGDamageData(EAttackType InAttackType,
+	EHitReactType InHitType,
+	TMap<EDamageType, float> InDamageMultipliers,
+	float InPostureDamage,
+	int32 InImpactLevel)
+{
+	AttackType = InAttackType;
+	HitType = InHitType;
+	DamageMultipliers = InDamageMultipliers;
+	PostureDamage = InPostureDamage;
+	ImpactLevel = InImpactLevel;
+}
+
+bool FARPGDamageData::IsValid() const
+{
+	return AttackType != EAttackType::None;
+}
+
 UARPGCombatManager::UARPGCombatManager()
 {
 	HitEventTag = FGameplayTag::RequestGameplayTag(FName("Event.Hit"));

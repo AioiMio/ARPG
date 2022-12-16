@@ -56,6 +56,7 @@ void AARPGBossTrigger::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponen
 			FVector SpawnLocation = GetActorLocation();
 			SpawnLocation.Z -= BoxComponent->GetScaledBoxExtent().Z / 2.f;
 			SpawnTransform.SetLocation(SpawnLocation);
+			SpawnTransform.SetScale3D(SpawnScale);
 			
 			AARPGBossCharacter* Boss = GetWorld()->SpawnActorDeferred<AARPGBossCharacter>(
 				BossClass, SpawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);

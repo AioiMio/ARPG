@@ -71,6 +71,14 @@
 			"Name": "VirtualMotionMatching",
 			"Enabled": false,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/3cc8c83cde1d48b69e26b96eb5b0d05f"
+		},
+		{
+			"Name": "Water",
+			"Enabled": true
+		},
+		{
+			"Name": "Landmass",
+			"Enabled": true
 		}
 	]
 }

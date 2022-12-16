@@ -37,10 +37,10 @@ void UAnimNotifyState_MoveToTarget::NotifyBegin(USkeletalMeshComponent* MeshComp
 			if (AARPGCharacter* Target = Character->GetTargetManager()->GetLockOnTarget())
 			{
 				FVector TargetLocation = Target->GetActorLocation() - FVector(0.f, 0.f, Target->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-				Character->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
+				Character->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
 				if (!Character->HasAuthority())
 				{
-					Character->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
+					Character->GetMotionWarpingComponent()->ServerAddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
 				}
 				return;
 			}
@@ -59,11 +59,11 @@ void UAnimNotifyState_MoveToTarget::NotifyBegin(USkeletalMeshComponent* MeshComp
 			}
 			ForwardOffset.Normalize();
 			FVector TargetLocation = PlayerCharacter->GetActorLocation() + ForwardOffset * 500.f - FVector(0.f, 0.f, PlayerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-			PlayerCharacter->GetMotionWarpingComponent()->ServerSetMotionWarpingTargetFromLocation(TargetLocation);
+
+			PlayerCharacter->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
 			if (!PlayerCharacter->HasAuthority())
 			{
-				PlayerCharacter->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-					"Target", TargetLocation);
+				PlayerCharacter->GetMotionWarpingComponent()->ServerAddOrUpdateWarpTargetFromLocation("Target", TargetLocation);
 			}
 		}
 	}

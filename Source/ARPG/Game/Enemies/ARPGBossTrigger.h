@@ -49,4 +49,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	AARPGMechanism* FogGate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss")
+	FVector SpawnScale = FVector::OneVector;
 };

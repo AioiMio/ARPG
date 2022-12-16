@@ -77,3 +77,12 @@ enum class EGroundMovementType : uint8
 
 	MAX UMETA(DisplayName = "DefaultMAX")
 };
+
+UENUM(BlueprintType)
+enum class EWarpTargetType : uint8
+{
+	Transform UMETA(DisplayName = "Transform"),
+	Component UMETA(DisplayName = "Component"),
+
+	MAX UMETA(DisplayName = "DefaultMAX")
+};

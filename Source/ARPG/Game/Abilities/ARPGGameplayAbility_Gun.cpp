@@ -111,10 +111,20 @@ void UARPGGameplayAbility_Gun::EventReceived(FGameplayTag EventTag, FGameplayEve
 			}
 
 			FVector Start = SourceCharacter->GetEquipmentManager()->GetCurrentLeftHandWeapon()->GetMesh()->GetSocketLocation(FName("Muzzle"));
+			FVector TargetLocaion;
 			FVector End;
 			if (AARPGCharacter* TargetCharacter = SourceCharacter->GetTargetManager()->GetLockOnTarget())
 			{
-				End = TargetCharacter->GetLockOnPointComponent()->GetComponentLocation();
+				TargetLocaion = TargetCharacter->GetLockOnPointComponent()->GetComponentLocation();
+				// if ((Start - TargetLocaion).Dot(SourceCharacter->GetActorLocation() - TargetLocaion) > 0.f)
+				// {
+				// 	End = TargetLocaion;
+				// }
+				// else
+				// {
+				// 	End = Start + SourceCharacter->GetCapsuleComponent()->GetForwardVector() * Range;
+				// }
+				End = TargetLocaion;
 			}
 			else
 			{
@@ -129,16 +139,7 @@ void UARPGGameplayAbility_Gun::EventReceived(FGameplayTag EventTag, FGameplayEve
 
 			FTransform MuzzleTransform = SourceCharacter->GetEquipmentManager()->GetCurrentLeftHandWeapon()->GetMesh()->GetSocketTransform(FName("Muzzle"));
 			MuzzleTransform.SetRotation(Rotation.Quaternion());
-			// MuzzleTransform.SetScale3D(FVector(1.0f));
-
-			// FActorSpawnParameters SpawnParameters;
-			// SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			//
-			// AARPGProjectile* Projectile = GetWorld()->SpawnActorDeferred<AARPGProjectile>(ProjectileClass, MuzzleTransform, GetOwningActorFromActorInfo(),
-			// 	SourceCharacter, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-			// Projectile->DamageEffectSpecHandle = DamageEffectSpecHandle;
-			// Projectile->Range = Range;
-			// Projectile->FinishSpawning(MuzzleTransform);
+			
 			SpawnProjectile(ProjectileClass, SourceCharacter, nullptr, MuzzleTransform, Range, Speed, DamageEffectSpecHandle);
 		}
 	}

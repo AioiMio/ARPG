@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
+#include "ARPGCombatManager.h"
 #include "ARPGAbilitySystemComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FReceivedDamageDelegate, UARPGAbilitySystemComponent*, SourceASC, float,
@@ -61,4 +62,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GameplayCue",
 		Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
 	void RemoveGameplayCueLocal(const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);
+
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	FGameplayEffectSpecHandle MakeOutgoingDamageSpec(FARPGDamageData DamageData, FGameplayEffectContextHandle Context) const;
 };

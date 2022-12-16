@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
 #include "GameplayCueManager.h"
+#include "ARPG/Game/Abilities/GEEC/ARPGDamageExecutionCalculation.h"
 #include "ARPG/Game/Core/ARPGCharacter.h"
 
 void UARPGAbilitySystemComponent::ReceiveDamage(UARPGAbilitySystemComponent* SourceASC,
@@ -133,4 +134,41 @@ void UARPGAbilitySystemComponent::ServerRemoveReplicatedGameplayTag_Implementati
 void UARPGAbilitySystemComponent::MulticastRemoveReplicatedGameplayTag_Implementation(FGameplayTag Tag)
 {
 	RemoveLooseGameplayTag(Tag);
+}
+
+
+// Damage
+FGameplayEffectSpecHandle UARPGAbilitySystemComponent::MakeOutgoingDamageSpec(FARPGDamageData DamageData,
+                                                                              FGameplayEffectContextHandle Context)
+const
+{
+	UGameplayEffect* DamageEffect = NewObject<UGameplayEffect>();
+	FGameplayEffectExecutionDefinition ExecutionDefinition;
+	ExecutionDefinition.CalculationClass = UARPGDamageExecutionCalculation::StaticClass();
+	DamageEffect->Executions.Add(ExecutionDefinition);
+	FGameplayEffectContextHandle EffectContext;
+	EffectContext.AddInstigator(GetAvatarActor(), GetAvatarActor());
+
+	FGameplayEffectSpecHandle EffectSpec = MakeOutgoingSpec(DamageEffect->GetClass(), 1.f, EffectContext);
+	for (const auto& Damage : DamageData.DamageMultipliers)
+	{
+		switch (Damage.Key)
+		{
+		case EDamageType::Physical: EffectSpec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage.Physical"), Damage.Value);
+			break;
+		case EDamageType::Magic: EffectSpec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage.Magic"), Damage.Value);
+			break;
+		case EDamageType::Fire: EffectSpec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage.Fire"), Damage.Value);
+			break;
+		case EDamageType::Lightning: EffectSpec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage.Lightning"), Damage.Value);
+			break;
+		case EDamageType::Holy: EffectSpec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage.Holy"), Damage.Value);
+			break;
+		case EDamageType::Dark: EffectSpec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage.Dark"), Damage.Value);
+			break;
+		default: EffectSpec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage.Physical"), Damage.Value);
+		}
+	}
+
+	return EffectSpec;
 }

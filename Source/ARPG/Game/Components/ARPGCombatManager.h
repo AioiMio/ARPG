@@ -9,12 +9,27 @@
 #include "ARPGCombatManager.generated.h"
 
 UENUM(BlueprintType)
+enum class EDamageType : uint8
+{
+	Physical UMETA(DisplayName = "Physical"),
+	Magic UMETA(DisplayName = "Magic"),
+	Fire UMETA(DisplayName = "Fire"),
+	Lightning UMETA(DisplayName = "Lightning"),
+	Holy UMETA(DisplayName = "Holy"),
+	Dark UMETA(DisplayName = "Dark"),
+
+	MAX UMETA(DisplayName = "DefaultMAX")
+};
+
+UENUM(BlueprintType)
 enum class EAttackType : uint8
 {
+	None UMETA(DisplayName = "None"),
 	Light UMETA(DisplayName = "Light"),
 	Normal UMETA(DisplayName = "Normal"),
 	Heavy UMETA(DisplayName = "Heavy"),
 	Charge UMETA(DisplayName = "Charge"),
+	Gun UMETA(DisplayName = "Gun"),
 
 	MAX UMETA(DisplayName = "DefaultMAX")
 };
@@ -38,6 +53,37 @@ enum class ECharacterCamp : uint8
 
 	MAX UMETA(DisplayName = "DefaultMAX")
 };
+
+
+/**
+ * Damage Data
+ */
+USTRUCT(BlueprintType)
+struct FARPGDamageData
+{
+	GENERATED_BODY()
+
+	FARPGDamageData();
+	FARPGDamageData(EAttackType InAttackType, EHitReactType InHitType, TMap<EDamageType, float> InDamageMultipliers, float InPostureDamage, int32 InImpactLevel);
+
+	UPROPERTY()
+	TMap<EDamageType, float> DamageMultipliers;
+
+	UPROPERTY()
+	float PostureDamage;
+
+	UPROPERTY()
+	int32 ImpactLevel;
+
+	UPROPERTY()
+	EAttackType AttackType;
+
+	UPROPERTY()
+	EHitReactType HitType;
+
+	bool IsValid() const;
+};
+
 
 class AARPGCharacter;
 class UForceFeedbackEffect;
