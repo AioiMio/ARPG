@@ -22,12 +22,13 @@
 #include "Graph/ComboGraphNodeSequence.h"
 #include "Utils/ComboGraphUtils.h"
 #include "TimerManager.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "Graph/ComboGraphNodeConduit.h"
 #include "Graph/ComboGraphNodeMontage.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
-UComboGraphAbilityTask_StartGraph* UComboGraphAbilityTask_StartGraph::CreateStartComboGraph(UGameplayAbility* OwningAbility, UComboGraph* ComboGraph, UInputAction* InitialInput, const bool bBroadcastInternalEvents)
+UComboGraphAbilityTask_StartGraph* UComboGraphAbilityTask_StartGraph::CreateStartComboGraph(UGameplayAbility* OwningAbility, UComboGraph* ComboGraph, UInputAction* InitialInput, const bool bBroadcastInternalEvents,const bool bStopWhenAbilityEnds)
 {
 	CG_RUNTIME_LOG(
 		Log,
@@ -43,6 +44,7 @@ UComboGraphAbilityTask_StartGraph* UComboGraphAbilityTask_StartGraph::CreateStar
 		Task->RunningGraph = ComboGraph;
 		Task->InitialInput = InitialInput;
 		Task->bBroadcastInternalEvents = bBroadcastInternalEvents;
+		Task->bStopWhenAbilityEnds = bStopWhenAbilityEnds;
 	}
 
 	return Task;
@@ -547,6 +549,8 @@ void UComboGraphAbilityTask_StartGraph::OnEventInputReceived(const FGameplayEven
 
 void UComboGraphAbilityTask_StartGraph::HandleInputConfirmed(UComboGraphNodeAnimBase* NextNode, const UComboGraphEdge* Edge)
 {
+	// UE_LOG(LogTemp, Warning, TEXT("UComboGraphAbilityTask_StartGraph::HandleInputConfirmed"));
+	
 	check(Ability);
 
 	const UAnimMontage* Montage = Ability->GetCurrentMontage();
@@ -674,7 +678,7 @@ void UComboGraphAbilityTask_StartGraph::CreatePlayMontageTask(UAnimMontage* Mont
 		EventTags,
 		CurrentNode->MontagePlayRate,
 		StartSection,
-		true,
+		bStopWhenAbilityEnds,
 		CurrentNode->RootMotionScale
 	);
 
@@ -738,6 +742,9 @@ void UComboGraphAbilityTask_StartGraph::HandleEventReceived(const FGameplayTag E
 
 	const FGameplayTag ComboBegin = FComboGraphNativeTags::Get().ComboBegin;
 	const FGameplayTag ComboEnd = FComboGraphNativeTags::Get().ComboEnd;
+	const FGameplayTag ChanceBegin = FComboGraphNativeTags::Get().ChanceBegin;
+	const FGameplayTag ChanceEnd = FComboGraphNativeTags::Get().ChanceEnd;
+	const FGameplayTag GraphEnd = FComboGraphNativeTags::Get().GraphEnd;
 
 	if (EventTag == ComboBegin)
 	{
@@ -766,6 +773,41 @@ void UComboGraphAbilityTask_StartGraph::HandleEventReceived(const FGameplayTag E
 		}
 
 		HandleComboEndEvent();
+	}
+	else if(EventTag == ChanceBegin)
+	{
+		if (ShouldBroadcastInternalEvents())
+		{
+			EventReceived.Broadcast(EventTag, EventData);
+			
+			CurrentNode->OnEventReceived(EventTag, EventData);
+		}
+
+		HandleChanceBeginEvent();
+	}
+	else if(EventTag == ChanceEnd)
+	{
+		if (ShouldBroadcastInternalEvents())
+		{
+			EventReceived.Broadcast(EventTag, EventData);
+
+			CurrentNode->OnEventReceived(EventTag, EventData);
+		}
+
+		HandleChanceEndEvent();
+	}
+	else if(EventTag == GraphEnd)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GraphEnd"));
+		
+		if (ShouldBroadcastInternalEvents())
+		{
+			EventReceived.Broadcast(EventTag, EventData);
+
+			CurrentNode->OnEventReceived(EventTag, EventData);
+		}
+
+		HandleGraphEndEvent();
 	}
 	else
 	{
@@ -804,6 +846,9 @@ void UComboGraphAbilityTask_StartGraph::OnServerSyncAdvanceNextNode()
 	// Update prev node pointer here
 	PreviousNode = CurrentNode;
 
+	// UE_LOG(LogTemp, Warning, TEXT("UComboGraphAbilityTask_StartGraph::OnServerSyncAdvanceNextNode  CurrentNode: %s  QueuedNode: %s  bComboQueued: %s"),
+	// 	*GetNameSafe(CurrentNode), *GetNameSafe(QueuedNode), bComboQueued ? TEXT("true") : TEXT("false"));
+
 	FString FailReason;
 	if (!AdvanceNextNode(QueuedNode, FailReason))
 	{
@@ -831,6 +876,19 @@ void UComboGraphAbilityTask_StartGraph::HandleComboEndEvent()
 			HandleComboTransition();
 		}
 	}
+}
+
+void UComboGraphAbilityTask_StartGraph::HandleChanceBeginEvent()
+{
+}
+
+void UComboGraphAbilityTask_StartGraph::HandleChanceEndEvent()
+{
+}
+
+void UComboGraphAbilityTask_StartGraph::HandleGraphEndEvent()
+{
+	EndGraph();
 }
 
 void UComboGraphAbilityTask_StartGraph::HandleComboTransition()
@@ -1145,15 +1203,15 @@ bool UComboGraphAbilityTask_StartGraph::CanApplyAttributeModifiers(const UGamepl
 			const float CostValue = ModSpec.GetEvaluatedMagnitude();
 
 			// TODO: Option to allow value to be negative and prevent activation if it is 0 or below 0
-			// if (CurrentValue <= 0.f)
-			// {
-			// 	return false;
-			// }
-
-			if (CurrentValue + CostValue < 0.f)
+			if (CurrentValue <= 0.f)
 			{
 				return false;
 			}
+
+			// if (CurrentValue + CostValue < 0.f)
+			// {
+			// 	return false;
+			// }
 		}
 	}
 

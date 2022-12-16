@@ -1,0 +1,371 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "ARPGEnemyCharacter.h"
+
+#include "Abilities/ComboGraphNativeAbility.h"
+#include "ARPG/Game/AI/ARPGAIController.h"
+#include "ARPG/Game/Components/ARPGAbilitySystemComponent.h"
+#include "ARPG/Game/Components/ARPGAISystemComponent.h"
+#include "ARPG/Game/Components/ARPGAttributeSet.h"
+#include "ARPG/Game/Components/ARPGEquipmentManager.h"
+#include "ARPG/Game/Components/ARPGTargetManager.h"
+#include "ARPG/Game/Components/InventoryComponent.h"
+#include "ARPG/Game/Player/ARPGPlayerCharacter.h"
+#include "ARPG/Game/UI/ARPGDiscoverWidget.h"
+#include "ARPG/Game/UI/ARPGHealthBarWidget.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Perception/PawnSensingComponent.h"
+
+AARPGEnemyCharacter::AARPGEnemyCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+	// Create ability system component, and set it to be explicitly replicated
+	HardRefAbilitySystemComponent = CreateDefaultSubobject<UARPGAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	HardRefAbilitySystemComponent->SetIsReplicated(true);
+
+	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
+	HardRefAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+
+	// Set our parent's TWeakObjectPtr
+	AbilitySystemComponent = HardRefAbilitySystemComponent;
+
+	SensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("SensingComponent"));
+	AISystemComponent = CreateDefaultSubobject<UARPGAISystemComponent>(TEXT("AISystemComponent"));
+
+	// UI
+	DiscoverWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("DiscoverWidget"));
+	DiscoverWidgetComponent->SetupAttachment(GetMesh(), FName("head"));
+	DiscoverWidgetComponent->SetRelativeLocation(FVector(50.f, 0.f, 0.f));
+	DiscoverWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	DiscoverWidgetComponent->SetDrawAtDesiredSize(true);
+	DiscoverWidgetComponent->SetPivot(FVector2D(0.5f, 1.f));
+	DiscoverWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Create inventory component, and set it to be explicitly replicated
+	HardRefInventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	HardRefInventoryComponent->SetIsReplicated(true);
+
+	// Set our parent's TWeakObjectPtr
+	InventoryComponent = HardRefInventoryComponent;
+
+	// Create the attribute set, this replicates by default
+	// Adding it as a subobject of the owning actor of an AbilitySystemComponent
+	// automatically registers the AttributeSet with the AbilitySystemComponent
+	HardRefAttributeSet = CreateDefaultSubobject<UARPGAttributeSet>(TEXT("AttributeSet"));
+
+	// Set our parent's TWeakObjectPtr
+	AttributeSet = HardRefAttributeSet;
+
+	CharacterName = FText::FromString("Enemy");
+	HealthBarComponent->SetHiddenInGame(true);
+}
+
+void AARPGEnemyCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	SensingComponent->OnSeePawn.AddDynamic(this, &AARPGEnemyCharacter::OnPawnSeen);
+}
+
+void AARPGEnemyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	DefaultTransform = GetActorTransform();
+
+	if (AbilitySystemComponent.IsValid())
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		InitializeAttributes();
+		AddStartupEffects();
+		AddCharacterAbilities();
+		InitializeHealthBar();
+
+		// Attribute change callbacks
+		HealthChangedDelegateHandle = AbilitySystemComponent->
+		                              GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).
+		                              AddUObject(this, &AARPGEnemyCharacter::HealthChanged);
+		StaminaChangedDelegateHandle = AbilitySystemComponent->
+		                               GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute()).
+		                               AddUObject(this, &AARPGEnemyCharacter::StaminaChanged);
+		PostureChangedDelegateHandle = AbilitySystemComponent->
+		                               GetGameplayAttributeValueChangeDelegate(AttributeSet->GetPostureAttribute()).
+		                               AddUObject(this, &AARPGEnemyCharacter::PostureChanged);
+
+		// Tag change callbacks
+		AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")),
+		                                                 EGameplayTagEventType::NewOrRemoved).AddUObject(
+			this, &AARPGEnemyCharacter::StunTagChanged);
+
+		if (UARPGAbilitySystemComponent* ASC = GetARPGAbilitySystemComponent())
+		{
+			ASC->ReceivedDamage.AddDynamic(this, &AARPGEnemyCharacter::OnDamageReceived);
+		}
+	}
+}
+
+void AARPGEnemyCharacter::AddCharacterAbilities()
+{
+	// Grant abilities, but only on the server	
+	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->
+		CharacterAbilitiesGiven)
+	{
+		return;
+	}
+
+	for (TSubclassOf<UARPGGameplayAbility>& StartupAbility : CharacterAbilities)
+	{
+		if (IsValid(StartupAbility))
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID),
+				                     static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
+		}
+	}
+	// Grant ComboGraphNativeAbility for behavior tree
+	AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(UComboGraphNativeAbility::StaticClass()));
+
+	AbilitySystemComponent->CharacterAbilitiesGiven = true;
+
+	if (EquipmentManager)
+	{
+		EquipmentManager->AddEquipmentAbilitiesToOwner(EquipmentManager->GetCurrentRightHandWeapon());
+		EquipmentManager->AddEquipmentAbilitiesToOwner(EquipmentManager->GetCurrentLeftHandWeapon());
+	}
+}
+
+void AARPGEnemyCharacter::UpdateEnmity()
+{
+	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::RemoveTargetElapsed);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_RemoveTargetDelay, Delegate, 10.f, false);
+}
+
+void AARPGEnemyCharacter::RemoveTargetElapsed()
+{
+	TargetManager->SetLockOnTarget(nullptr);
+	TargetManager->bIsLockingOn = false;
+
+	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+	if (AIC)
+	{
+		UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+		BlackboardComponent->SetValueAsObject("TargetActor", nullptr);
+	}
+}
+
+void AARPGEnemyCharacter::SetTarget(APawn* Pawn)
+{
+	TargetManager->SetLockOnTarget(Cast<AARPGCharacter>(Pawn));
+	TargetManager->bIsLockingOn = true;
+
+	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+	if (AIC)
+	{
+		UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+		BlackboardComponent->SetValueAsObject("TargetActor", Pawn);
+	}
+	UpdateEnmity();
+}
+
+void AARPGEnemyCharacter::PlayDiscoverSoundEffect_Implementation()
+{
+	if (DiscoverSoundEffect)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DiscoverSoundEffect, GetActorLocation(), 1.f, 1.f,0.f, SoundAttenuation);
+	}
+	
+	UARPGDiscoverWidget* DiscoverWidget = Cast<UARPGDiscoverWidget>(DiscoverWidgetComponent->GetWidget());
+	if (DiscoverWidget)
+	{
+		DiscoverWidget->ShowDiscoverImage();
+	}
+}
+
+void AARPGEnemyCharacter::OnPawnSeen(APawn* Pawn)
+{
+	if (IsAlive())
+	{
+		AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(Pawn);
+		if (Character && Character->IsAlive())
+		{
+			if (TargetManager->GetLockOnTarget() == nullptr)
+			{
+				SetTarget(Character);
+				PlayDiscoverSoundEffect();
+			}
+			else if (Character == TargetManager->GetLockOnTarget())
+			{
+				UpdateEnmity();
+			}
+		}
+	}
+}
+
+void AARPGEnemyCharacter::OnDamageReceived(UARPGAbilitySystemComponent* SourceASC,
+                                           float UnmitigatedDamage,
+                                           float MitigatedDamage)
+{
+	if (IsAlive())
+	{
+		AARPGPlayerCharacter* Character = Cast<AARPGPlayerCharacter>(SourceASC->GetAvatarActor());
+		if (Character && Character->IsAlive())
+		{
+			if (Character != TargetManager->GetLockOnTarget())
+			{
+				if (TargetManager->GetLockOnTarget() == nullptr)
+				{
+					PlayDiscoverSoundEffect();
+				}
+				SetTarget(Character);
+			}
+			UpdateEnmity();
+		}
+	
+		AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+		if (AIC)
+		{
+			UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+			BlackboardComponent->SetValueAsBool("Hit", true);
+		}
+
+		bHit = true;
+		FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::RemoveHitStateElapsed);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_RemoveHitStateDelay, Delegate, 0.2f, false);
+	}
+}
+
+void AARPGEnemyCharacter::RemoveHitStateElapsed()
+{
+	AARPGAIController* AIC = Cast<AARPGAIController>(GetController());
+	if (AIC)
+	{
+		UBlackboardComponent* BlackboardComponent = AIC->GetBlackboardComponent();
+		BlackboardComponent->SetValueAsBool("Hit", false);
+	}
+	bHit = false;
+}
+
+void AARPGEnemyCharacter::HealthChanged(const FOnAttributeChangeData& Data)
+{
+	float Health = Data.NewValue;
+	float Damage = Health - Data.OldValue;
+
+	if (Health == GetMaxHealth())
+	{
+		HealthBarComponent->SetHiddenInGame(true);
+	}
+	else if (HealthBarComponent->bHiddenInGame == true)
+	{
+		HealthBarComponent->SetHiddenInGame(false);
+	}
+
+	// Update health bar
+	if (HealthBar)
+	{
+		HealthBar->SetHealthPercentage(Health / GetMaxHealth());
+		HealthBar->ShowDamageNumber(Damage);
+	}
+
+	// If the enemy died, handle death
+	if (!IsAlive() && !AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
+	{
+		Die();
+	}
+}
+
+void AARPGEnemyCharacter::StaminaChanged(const FOnAttributeChangeData& Data)
+{
+	float Stamina = Data.NewValue;
+	float Delta = Stamina - Data.OldValue;
+
+	if (HasAuthority())
+	{
+		if (Stamina == GetMaxStamina())
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(
+				FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
+		}
+
+		if (Delta < 0.f)
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(
+				FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
+
+			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::StaminaRegenElapsed);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaRegenDelay, Delegate, 1.f, false);
+		}
+
+		if (Stamina == 0.f)
+		{
+			SprintStop();
+		}
+	}
+}
+
+void AARPGEnemyCharacter::StaminaRegenElapsed()
+{
+	if (HasAuthority())
+	{
+		GetAbilitySystemComponent()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.StaminaRegen.On"));
+	}
+}
+
+void AARPGEnemyCharacter::PostureChanged(const FOnAttributeChangeData& Data)
+{
+	float Posture = Data.NewValue;
+	float Delta = Posture - Data.OldValue;
+
+	// Update health bar
+	if (HealthBar)
+	{
+		HealthBar->SetPosturePercentage(GetPosture() / GetMaxPosture());
+	}
+
+	if (HasAuthority())
+	{
+		if (Posture == GetMaxPosture())
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(
+				FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+		}
+
+		if (Delta < 0.f)
+		{
+			GetAbilitySystemComponent()->RemoveLooseGameplayTag(
+				FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+
+			FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AARPGEnemyCharacter::PostureRegenElapsed);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_PostureRegenDelay, Delegate, 3.f, false);
+		}
+	}
+
+	if (IsAlive() && Posture <= 0.f)
+	{
+		Break();
+		ResetPosture();
+	}
+}
+
+void AARPGEnemyCharacter::PostureRegenElapsed()
+{
+	if (HasAuthority())
+	{
+		GetAbilitySystemComponent()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("Ability.PostureRegen.On"));
+	}
+}
+
+void AARPGEnemyCharacter::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		FGameplayTagContainer AbilityTagsToCancel;
+		AbilityTagsToCancel.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability")));
+
+		FGameplayTagContainer AbilityTagsToIgnore;
+		AbilityTagsToIgnore.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.NotCanceledByStun")));
+
+		AbilitySystemComponent->CancelAbilities(&AbilityTagsToCancel, &AbilityTagsToIgnore);
+	}
+}

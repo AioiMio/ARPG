@@ -3,8 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ARPG/Game/Types/Types.h"
 #include "GameFramework/PlayerController.h"
 #include "ARPGPlayerController.generated.h"
+
+class UInputAction;
+class AARPGWeapon;
+class UInputMappingContext;
+class UARPGHUDWidget;
 
 /**
  * 
@@ -17,6 +23,71 @@ class ARPG_API AARPGPlayerController : public APlayerController
 public:
 	AARPGPlayerController();
 
-	virtual void AcknowledgePossession(APawn* P) override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* MovementInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* CameraInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* InteractInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* JumpInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* DodgeInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* RightAttackInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* RightHeavyAttackInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* LeftAttackInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* LeftHeavyAttackInput;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* LockOnInput;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	UInputAction* ChangeTargetInput;
+
+	void CreateHUD();
+	
+	FORCEINLINE UARPGHUDWidget* GetHUD() { return UIHUDWidget; }
+
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void ShowMessage(const FText& Message, float Duration = 3.f);
+	
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void ShowDiedMessage();
+
+	void ShowBossDestroyedMessage() const;
+
+protected:
+	virtual void BeginPlay() override;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
+	TSubclassOf<UARPGHUDWidget> UIHUDWidgetClass;
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UARPGHUDWidget* UIHUDWidget;
+	
+	UPROPERTY(EditDefaultsOnly)
+	UInputMappingContext* InputMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float CameraPitchMin;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float CameraPitchMax;
+	
+	// Server only
+	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void OnRep_PlayerState() override;
 };

@@ -5,17 +5,113 @@
 
 #include "AbilitySystemComponent.h"
 #include "ARPGCharacter.h"
+#include "ARPGPlayerState.h"
+#include "EnhancedInputSubsystems.h"
+#include "ARPG/Game/Equipments/Weapons/ARPGWeapon.h"
+#include "ARPG/Game/UI/ARPGHUDWidget.h"
 
 AARPGPlayerController::AARPGPlayerController()
 {
+	CameraPitchMin = -30.f;
+	CameraPitchMax = 45.f;
 }
 
-void AARPGPlayerController::AcknowledgePossession(APawn* P)
+void AARPGPlayerController::BeginPlay()
 {
-	Super::AcknowledgePossession(P);
+	Super::BeginPlay();
 	
-	if (AARPGCharacter* InCharacter = Cast<AARPGCharacter>(P))
+	if (PlayerCameraManager)
 	{
-		InCharacter->GetAbilitySystemComponent()->InitAbilityActorInfo(InCharacter, InCharacter);
+		PlayerCameraManager->ViewPitchMax = CameraPitchMax;
+		PlayerCameraManager->ViewPitchMin = CameraPitchMin;
+	}
+
+	if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		EnhancedInputSubsystem->AddMappingContext(InputMappingContext, 0);
 	}
 }
+
+void AARPGPlayerController::CreateHUD()
+{
+	// Only create once
+	if (UIHUDWidget)
+	{
+		return;
+	}
+
+	if (!UIHUDWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Missing UIHUDWidgetClass. Please fill in on the Blueprint of the PlayerController."), *FString(__FUNCTION__));
+		return;
+	}
+
+	// Only create a HUD for local player
+	if (!IsLocalPlayerController())
+	{
+		return;
+	}
+
+	// Need a valid PlayerState to get attributes from
+	AARPGPlayerState* PS = GetPlayerState<AARPGPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	UIHUDWidget = CreateWidget<UARPGHUDWidget>(this, UIHUDWidgetClass);
+
+	// Initialize HUD
+	UIHUDWidget->SetMaxHealth(PS->GetMaxHealth());
+	UIHUDWidget->SetCurrentHealth(PS->GetHealth());
+	UIHUDWidget->SetMaxMana(PS->GetMaxMana());
+	UIHUDWidget->SetCurrentMana(PS->GetMana());
+	UIHUDWidget->SetMaxStamina(PS->GetMaxStamina());
+	UIHUDWidget->SetCurrentStamina(PS->GetStamina());
+	UIHUDWidget->SetMaxPosture(PS->GetMaxPosture());
+	UIHUDWidget->SetCurrentPosture(PS->GetPosture());
+	
+	UIHUDWidget->AddToViewport();
+}
+
+void AARPGPlayerController::ShowMessage_Implementation(const FText& Message, float Duration)
+{
+	UIHUDWidget->SetMessageText(Message, Duration);
+}
+
+void AARPGPlayerController::ShowDiedMessage_Implementation()
+{
+	if (UIHUDWidget)
+	{
+		UIHUDWidget->ShowMainMessage(FText::FromString("You Died"), FColor::Red, 4.f);
+	}
+}
+
+void AARPGPlayerController::ShowBossDestroyedMessage() const
+{
+	if (UIHUDWidget)
+	{
+		UIHUDWidget->ShowMainMessage(FText::FromString("Boss Destroyed"), FColor::Orange, 4.f);
+	}
+}
+
+void AARPGPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	AARPGPlayerState* PS = GetPlayerState<AARPGPlayerState>();
+	if (PS)
+	{
+		// Init ASC with PS (Owner) and our new Pawn (AvatarActor)
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, InPawn);
+	}
+}
+
+void AARPGPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// For edge cases where the PlayerState is repped before the Hero is possessed.
+	CreateHUD();
+}
+

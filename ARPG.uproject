@@ -10,7 +10,12 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"GameplayAbilities"
+				"GameplayAbilities",
+				"UMG",
+				"AGRPRO",
+				"MotionWarping",
+				"CoreUObject",
+				"AIModule"
 			]
 		}
 	],
@@ -35,6 +40,45 @@
 			"Name": "ElectronicNodes",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/5cb2a394d0c04e73891762be4cbd7216"
+		},
+		{
+			"Name": "GASAttachEditor",
+			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "AGRPRO",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c4f13f7fc2c048d8ad4985ecfbf4f6c6"
+		},
+		{
+			"Name": "MotionWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		},
+		{
+			"Name": "VirtualAnimationTools",
+			"Enabled": false,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/afb5d0078ab343b0bfc684d0d05fc951"
+		},
+		{
+			"Name": "VirtualMotionMatching",
+			"Enabled": false,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/3cc8c83cde1d48b69e26b96eb5b0d05f"
+		},
+		{
+			"Name": "Water",
+			"Enabled": true
+		},
+		{
+			"Name": "Landmass",
+			"Enabled": true
 		}
 	]
 }

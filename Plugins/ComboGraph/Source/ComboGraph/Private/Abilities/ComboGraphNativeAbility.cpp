@@ -12,9 +12,23 @@ UComboGraphNativeAbility::UComboGraphNativeAbility(const FObjectInitializer& Obj
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
 	// TODO: Figure out native tag
-	// FGameplayTag AbilityTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.ComboGraph.Native"));
-	// AbilityTags.AddTag(AbilityTag);
-	// ActivationOwnedTags.AddTag(AbilityTag);
+	FGameplayTag AbilityTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.ComboGraph.Native"));
+	FGameplayTag BreakTag = FGameplayTag::RequestGameplayTag(TEXT("State.Break"));
+	FGameplayTag DeadTag = FGameplayTag::RequestGameplayTag(TEXT("State.Dead"));
+	FGameplayTag StunTag = FGameplayTag::RequestGameplayTag(TEXT("State.Debuff.Stun"));
+	FGameplayTag LyingTag = FGameplayTag::RequestGameplayTag(TEXT("State.Lying"));
+	FGameplayTag FallingTag = FGameplayTag::RequestGameplayTag(TEXT("State.Falling"));
+	FGameplayTag HitReactTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Passive.HitReact"));
+	FGameplayTag GunTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Gun"));
+	AbilityTags.AddTag(AbilityTag);
+	ActivationOwnedTags.AddTag(AbilityTag);
+	ActivationBlockedTags.AddTag(BreakTag);
+	ActivationBlockedTags.AddTag(DeadTag);
+	ActivationBlockedTags.AddTag(StunTag);
+	ActivationBlockedTags.AddTag(LyingTag);
+	ActivationBlockedTags.AddTag(FallingTag);
+	ActivationBlockedTags.AddTag(HitReactTag);
+	BlockAbilitiesWithTag.AddTag(GunTag);
 }
 
 void UComboGraphNativeAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
